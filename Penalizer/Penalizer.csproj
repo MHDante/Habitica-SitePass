@@ -39,6 +39,8 @@
   </PropertyGroup>
   <ItemGroup>
     <Content Include="app\img\icon.png" />
+    <Content Include="app\background.html" />
+    <Content Include="app\background.js" />
     <Content Include="app\popup.html" />
     <Content Include="app\popup.js" />
     <Content Include="Properties\build\lib\Ionic.Zip.DLL" />

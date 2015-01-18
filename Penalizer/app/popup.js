@@ -1,83 +1,96 @@
 // Copyright (c) 2012 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
+var background = chrome.extension.getBackgroundPage();
 
-/**
- * Global variable containing the query we'd like to pass to Flickr. In this
- * case, kittens!
- *
- * @type {string}
- */
-var QUERY = "kittens";
+function getCurrentTabUrl(callback) {
+    var queryInfo = {
+        active: true,
+        currentWindow: true
+    };
+    chrome.tabs.query(queryInfo, function (tabs) {
+        var tab = tabs[0];
+        var url = tab.url;
+        console.assert(typeof url == 'string', 'tab.url should be a string');
+        callback(url);
+    });
+}
 
-var kittenGenerator = {
-  /**
-   * Flickr URL that will give us lots and lots of whatever we're looking for.
-   *
-   * See http://www.flickr.com/services/api/flickr.photos.search.html for
-   * details about the construction of this URL.
-   *
-   * @type {string}
-   * @private
-   */
-  searchOnFlickr_: "https://secure.flickr.com/services/rest/?" +
-      "method=flickr.photos.search&" +
-      "api_key=46ea79d216acf8901a55b92be71df665&" +
-      "text=" + encodeURIComponent(QUERY) + "&" +
-      "safe_search=1&" +
-      "content_type=1&" +
-      "sort=interestingness-desc&" +
-      "per_page=20",
+function removeDomain(index) {
+    return function() {
+        background.Domains.splice(index, 1);
+        window.close();
+        chrome.storage.sync.set({ 'save': background.Domains }, function () { });
 
-  /**
-   * Sends an XHR GET request to grab photos of lots and lots of kittens. The
-   * XHR's 'onload' event is hooks up to the 'showPhotos_' method.
-   *
-   * @public
-   */
-  requestKittens: function() {
-    var req = new XMLHttpRequest();
-    req.open("GET", this.searchOnFlickr_, true);
-    req.onload = this.showPhotos_.bind(this);
-    req.send(null);
-  },
-
-  /**
-   * Handle the 'onload' event of our kitten XHR request, generated in
-   * 'requestKittens', by generating 'img' elements, and stuffing them into
-   * the document for display.
-   *
-   * @param {ProgressEvent} e The XHR ProgressEvent.
-   * @private
-   */
-  showPhotos_: function (e) {
-    var kittens = e.target.responseXML.querySelectorAll("photo");
-    for (var i = 0; i < kittens.length; i++) {
-      var img = document.createElement("img");
-      img.src = this.constructKittenURL_(kittens[i]);
-      img.setAttribute("alt", kittens[i].getAttribute("title"));
-      document.body.appendChild(img);
     }
-  },
+}
 
-  /**
-   * Given a photo, construct a URL using the method outlined at
-   * http://www.flickr.com/services/api/misc.urlKittenl
-   *
-   * @param {DOMElement} A kitten.
-   * @return {string} The kitten's URL.
-   * @private
-   */
-  constructKittenURL_: function (photo) {
-    return "http://farm" + photo.getAttribute("farm") +
-        ".static.flickr.com/" + photo.getAttribute("server") +
-        "/" + photo.getAttribute("id") +
-        "_" + photo.getAttribute("secret") +
-        "_s.jpg";
-  }
-};
-
-// Run our kitten generation script as soon as the document's DOM is ready.
 document.addEventListener("DOMContentLoaded", function () {
-  kittenGenerator.requestKittens();
+    getCurrentTabUrl(function(url) {
+        console.log("2");
+        var domain = new URL(url).hostname;
+        var index = background.Domains.indexOf(domain);
+        var link = document.createElement("a");
+        var node;
+        if (index > -1) {
+            node = document.createTextNode("Un-Block Site!");
+            link.onclick = function() {
+                background.Domains.splice(index, 1);
+                window.close();
+                chrome.storage.sync.set({ 'save': background.Domains }, function () { });
+                
+
+            }
+        } else {
+            node = document.createTextNode("Block Site!");
+            link.onclick = function () {
+                background.Domains.push(domain);
+                window.close();
+                chrome.storage.sync.set({ 'save': background.Domains }, function () { });
+                
+            }
+
+        }
+        link.appendChild(node);
+        document.body.appendChild(link);
+        link.href = "#";
+
+
+        document.body.appendChild(document.createElement("br"));
+        var para = document.createElement("p");
+        para.appendChild(document.createTextNode("Blocked Sites:"));
+        document.body.appendChild(para);
+        var ul = document.createElement("ul");
+        for (var i = 0; i < background.Domains.length; i++) {
+            var li = document.createElement("li");
+            var a = document.createElement("a");
+            a.appendChild(document.createTextNode(background.Domains[i]));
+            a.onclick = removeDomain(i);
+            a.href = "#";
+            li.appendChild(a);
+            ul.appendChild(li);
+        }
+        document.body.appendChild(ul);
+
+        document.body.appendChild(document.createElement("br"));
+
+        var div = document.createElement("div");
+        div.innerHTML =
+            '<div id="EmptyUID">If either field is empty, this extension does not work.</div>' +
+            '<label for="uid">HabitRPG User ID:</label><input id="uid" type="text" value="' + background.Credentials[0] + '"/></br>' +
+            '<label for="apiToken">HabitRPG API Token:</label><input id="apiToken" type="text" value="' + background.Credentials[1] + '"/></br>';
+        var button = document.createElement("button");
+        button.appendChild(document.createTextNode("Save"));
+        button.onclick = updateCredentials;
+        button.type = "submit";
+        div.appendChild(button);
+        document.body.appendChild(div);
+
+    });
 });
+
+function updateCredentials() {
+    background.Credentials = [document.getElementById("uid").value, document.getElementById("apiToken").value];
+    chrome.storage.sync.set({ 'creds': background.Credentials }, function () { });
+    window.close();
+}

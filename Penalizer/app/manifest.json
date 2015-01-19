@@ -1,8 +1,8 @@
 {
     "manifest_version": 2,
 
-    "name": "One-click Kittens",
-    "description": "This extension demonstrates a browser action with kittens.",
+    "name": "HabitRPG Sitepass",
+    "description": "This extension plugs into HabitRPG and turns your time-wasting navigation tendencies into rewards you can give yourself for keeping up with your other good habits.",
     "version": "1.0",
 
     "permissions": [

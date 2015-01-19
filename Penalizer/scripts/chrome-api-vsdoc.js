@@ -419,7 +419,9 @@ chrome = {
             },
             onResourceContentCommitted: {
                 addListener: function (callback) {
-                    ///<summary>Fired when a new revision of the resource is committed (e.g. user saves an edited version of the resource in the Developer Tools).</summary>
+                    ///<summary>Fired when a new revision of the resource is committed (e.g. user 
+
+s an edited version of the resource in the Developer Tools).</summary>
                     ///<param name='callback' type='function'>function( Resource resource, string content) {...} ;</param>
                 }
             },

@@ -14,19 +14,21 @@ var Consts = {
         },
     urlFilter: { urls: ["<all_urls>"], types: ["main_frame"] },
     opt_extraInfoSpec: ["blocking"],
-    userDataKey : "USER_DATA"
+    userDataKey: "USER_DATA",
+    NotificationId : "sitepass_notification"
 };
 
 var Vars = {
     RewardTask: Consts.RewardTemplate,
     Monies: 0,
-    UserData: new UserSettings()
+    UserData: new UserSettings(),
+    ServerResponse: 0
 };
 
-function UserSettings() {
-    this.BlockedSites = {};
-    this.Credentials = {uid:"",apiToken:""};
-    this.PassDurationMins = 10;
+function UserSettings(copyFrom) {
+    this.BlockedSites = copyFrom ? copyFrom.BlockedSites : {};
+    this.Credentials = copyFrom ? copyFrom.Credentials :{uid:"",apiToken:""};
+    this.PassDurationMins = copyFrom ? copyFrom.PassDurationMins : 10;
     this.GetBlockedSite = function (hostname) {
         return this.BlockedSites[hostname];
     }
@@ -47,14 +49,14 @@ function BlockedSite(hostname, cost, passExpiry) {
     this.hostname = hostname;
     this.cost = cost;
     this.passExpiry = passExpiry;
-    this.isAllowed = function() { return this.passExpiry > Date.now() };
 }
 
-var callback = function(details) {
-    var site = Vars.UserData.GetBlockedSite(new URL(details.url).hostname);
-    if (!site || site.isAllowed) return { cancel: false };
+var callback = function (details) {
+    var hostname = new URL(details.url).hostname;
+    var site = Vars.UserData.GetBlockedSite(hostname);
+    if (!site || site.passExpiry > Date.now()) return { cancel: false };
 
-    if (site.cost > Monies) {
+    if (site.cost > Vars.Monies) {
         alert(  "You can't afford to visit " + site.hostname + " !\n" +
                 "Complete some tasks and try again!");
         return { redirectUrl: "http://google.com/" };
@@ -73,24 +75,52 @@ var callback = function(details) {
 
 chrome.webRequest.onBeforeRequest.addListener(callback, Consts.urlFilter, Consts.opt_extraInfoSpec);
 
+// ReSharper disable once PossiblyUnassignedProperty
 chrome.storage.sync.get(Consts.userDataKey, function (result) { 
-    if (result.Credentials) {
-        Vars.UserData = result[Consts.userDataKey];
+    if (result[Consts.userDataKey]) {
+        Vars.UserData = new UserSettings(result[Consts.userDataKey]);
         FetchHabitRPGData();
     }
 });
 
 function FetchHabitRPGData() {
-
-    if (!Credentials||
-        Credentials.uid == "" ||
-        Credentials.apiToken == "") return;
+    var credentials = Vars.UserData.Credentials;
+    if (!credentials||
+        credentials.uid == "" ||
+        credentials.apiToken == "") return;
 
     var xhr = new XMLHttpRequest();
-    xhr.open("GET", serverUrl + serverPathUser, false);
-    xhr.setRequestHeader("x-api-user", Credentials[0]);
-    xhr.setRequestHeader("x-api-key", Credentials[1]);
-    xhr.send();
+    xhr.open("GET", Consts.serverUrl + Consts.serverPathUser, false);
+    xhr.setRequestHeader("x-api-user", credentials.uid);
+    xhr.setRequestHeader("x-api-key", credentials.apiToken);
+    try {
+        xhr.send();
+
+    } catch (e) {
+        xhr.status = 0;
+    }
+    Vars.ServerResponse = xhr.status;
+    if (xhr.status == 401) {
+        chrome.notifications.create(Consts.NotificationId,
+            {
+                type: "basic",
+                iconUrl: "img/icon.png",
+                title: "HabitRPG SitePass Credentials Error",
+                message: "Click on the gold coin icon in the top right of your browser to set your credentials."
+            },
+            function () { });
+        return;
+    }else if ( xhr.status != 200) {
+        chrome.notifications.create(Consts.NotificationId,
+        {
+            type: "basic",
+            iconUrl: "img/icon.png",
+            title: "HabitRPG SitePass Connection Error",
+            message: "The service might be temporarily unavailable. Contact @MHDante if it persists. Error =" + xhr.status
+    },
+            function () { });
+        return;
+    }
     var userObj = JSON.parse(xhr.responseText);
     Vars.Monies = userObj["stats"]["gp"];
     //This might be replacable by one api call. But it seems wasteful to query the server again.
@@ -104,28 +134,33 @@ function FetchHabitRPGData() {
         }
     }
     UpdateTask(0,true);
-
 }
 
 function UpdateTask(cost, create) {
     
-    Vars.RewardTask.cost = cost;
-    var xhr2 = new XMLHttpRequest();
+    Vars.RewardTask.value = cost;
+    var xhr = new XMLHttpRequest();
     if (create) {
-        xhr2.open("POST", serverUrl + serverPathTasks, false);
+        xhr.open("POST", Consts.serverUrl + Consts.serverPathTasks, false);
     } else {
-        xhr2.open("PUT", serverUrl + serverPathTasks + "/sitepass", false);
+        xhr.open("PUT", Consts.serverUrl + Consts.serverPathTasks + "/sitepass", false);
     }
-    xhr2.setRequestHeader("Content-Type", "application/json");
-    xhr2.setRequestHeader("x-api-user", Credentials[0]);
-    xhr2.setRequestHeader("x-api-key", Credentials[1]);
-    xhr2.send(JSON.stringify(Vars.RewardTask));
-    Vars.RewardTask = JSON.parse(xhr2.responseText);
+    xhr.setRequestHeader("Content-Type", "application/json");
+    xhr.setRequestHeader("x-api-user", Vars.UserData.Credentials.uid);
+    xhr.setRequestHeader("x-api-key", Vars.UserData.Credentials.apiToken);
+    xhr.send(JSON.stringify(Vars.RewardTask));
+    Vars.RewardTask = JSON.parse(xhr.responseText);
 }
 
 
 
 function ConfirmPurchase(site) {
+    UpdateTask(site.cost);
 
+    var xhr = new XMLHttpRequest();
+    xhr.open("POST", Consts.serverUrl + Consts.serverPathTasks + "/sitepass/down", false);
+    xhr.setRequestHeader("x-api-user", Vars.UserData.Credentials.uid);
+    xhr.setRequestHeader("x-api-key", Vars.UserData.Credentials.apiToken);
+    xhr.send();
 
 }

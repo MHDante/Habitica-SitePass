@@ -75,10 +75,10 @@ function GenerateCredentialFields() {
     div.appendChild(button);
     return div;
 }
-function CreateOnClickLink(onclick, param1,param2,param3) {
+function CreateOnClickLink(onclick, param1) {
     var a = document.createElement("a");
     a.href = "#";
-    a.onclick = function () { onclick(param1, param2, param3); }
+    a.onclick = function () { onclick(param1); }
     return a;
 }
 
@@ -118,7 +118,12 @@ function GenerateBlockCommand(currentSiteUrl) {
     document.body.appendChild(link);
 }
 function SaveUserSettings() {
+    var dataPack = {}
     window.close();
+    dataPack[Consts.userDataKey] = Vars.UserData;
+// ReSharper disable once PossiblyUnassignedProperty
+    chrome.storage.sync.set(dataPack, function () { });
+    background.FetchHabitRPGData();
 }
 
 function updateSiteCost(site) {

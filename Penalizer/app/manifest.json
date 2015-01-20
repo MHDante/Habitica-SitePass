@@ -12,7 +12,8 @@
         "webRequestBlocking",
         "webRequest",
         "<all_urls>",
-        "webNavigation"
+        "webNavigation",
+        "notifications" 
 
     ],
     "browser_action": {

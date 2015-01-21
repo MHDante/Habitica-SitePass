@@ -116,11 +116,12 @@ function GenerateCredentialFields() {
     button.onclick = function () {
         Vars.editingSettings = false;
         updateCredentials(uid.lastChild.value, apiToken.lastChild.value, duration.lastChild.value);
-        SaveUserSettings();
-        background.FetchHabitRPGData();
         if (Vars.UserData.Credentials.uid == "3e595299-3d8a-4a10-bfe0-88f555e4aa0c") {
             alert("I might have a small crush on you.");
         }
+        SaveUserSettings();
+        background.FetchHabitRPGData();
+
     };
     button.type = "submit";
     div.appendChild(button);

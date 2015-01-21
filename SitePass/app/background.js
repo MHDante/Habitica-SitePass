@@ -55,7 +55,7 @@ var callback = function (details) {
     var hostname = new URL(details.url).hostname;
     var site = Vars.UserData.GetBlockedSite(hostname);
     if (!site || site.passExpiry > Date.now()) return { cancel: false };
-
+    FetchHabitRPGData();
     if (site.cost > Vars.Monies) {
         alert(  "You can't afford to visit " + site.hostname + " !\n" +
                 "Complete some tasks and try again!");
@@ -85,10 +85,6 @@ chrome.storage.sync.get(Consts.userDataKey, function (result) {
 
 function FetchHabitRPGData() {
     var credentials = Vars.UserData.Credentials;
-    if (!credentials||
-        credentials.uid == "" ||
-        credentials.apiToken == "") return;
-
     var xhr = new XMLHttpRequest();
     xhr.open("GET", Consts.serverUrl + Consts.serverPathUser, false);
     xhr.setRequestHeader("x-api-user", credentials.uid);
@@ -152,15 +148,13 @@ function UpdateTask(cost, create) {
     Vars.RewardTask = JSON.parse(xhr.responseText);
 }
 
-
-
 function ConfirmPurchase(site) {
     UpdateTask(site.cost);
-
     var xhr = new XMLHttpRequest();
     xhr.open("POST", Consts.serverUrl + Consts.serverPathTasks + "/sitepass/down", false);
     xhr.setRequestHeader("x-api-user", Vars.UserData.Credentials.uid);
     xhr.setRequestHeader("x-api-key", Vars.UserData.Credentials.apiToken);
     xhr.send();
+    Vars.Monies -= site.cost;
 
 }

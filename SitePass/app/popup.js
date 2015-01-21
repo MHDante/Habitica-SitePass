@@ -44,13 +44,12 @@ document.addEventListener("DOMContentLoaded", function () {
                 var divider = document.createElement("tr");
                 divider.appendChild(document.createElement("td"));
                 table.appendChild(divider);
-
-
             }
         }
         document.body.appendChild(table);
         document.body.AppendBreak();
-        document.body.appendChild(GenerateCredentialFields());
+        GenerateCredentialFields();
+        document.body.AppendBreak();
 
         var dosh = document.createElement("h1");
         var coin = document.createElement("span");
@@ -64,17 +63,70 @@ document.addEventListener("DOMContentLoaded", function () {
 
 function GenerateCredentialFields() {
     var div = document.createElement("div");
-    div.innerHTML =
-        '<div id="EmptyUID">If either field is empty, this extension does not work.</div>' +
-        '<label for="uid">HabitRPG User ID:</label><br /><input id="uid" type="text" value="' + Vars.UserData.Credentials.uid + '"/></br>' +
-        '<label for="apiToken">HabitRPG API Token:<br /></label><input id="apiToken" type="text" value="' + Vars.UserData.Credentials.apiToken + '"/></br>';
+    
+    if (Vars.ServerResponse == 401) {
+        var p = document.createElement("p");
+        p.style.color = "#FF0000";
+        p.AppendText("Credential error! The extension is currently not updating HabitRPG!");
+        document.body.appendChild(p);
+        document.body.AppendBreak();
+    } else {
+        var checkbox = document.createElement("input");
+        checkbox.type = "checkbox";
+        checkbox.checked = Vars.editingSettings;
+        div.style.display = checkbox.checked ? "block" : "none";
+        checkbox.onclick = function () { div.style.display = checkbox.checked ? "block" : "none"; };
+        var chkLabel = document.createElement("label");
+        chkLabel.appendChild(checkbox);
+        chkLabel.AppendText("Show Advanced Settings");
+        document.body.appendChild(chkLabel);
+        document.body.AppendBreak();
+    }
+    
+    var createTextField = function(text, value) {
+        var field = document.createElement("input");
+        field.type = "text";
+        field.value = value;
+        var label = document.createElement("label");
+        label.AppendText(text);
+        label.appendChild(field);
+        return label;
+    }
+
+    var uid = createTextField("HabitRPG User ID:", Vars.UserData.Credentials.uid);
+    var apiToken = createTextField("HabitRPG API Token:", Vars.UserData.Credentials.apiToken);
+    var duration = createTextField("Pass Duration(In Minutes)", Vars.UserData.PassDurationMins);
+
+    //Come on, Google!
+    uid.onchange = function () { updateCredentials(uid.lastChild.value, apiToken.lastChild.value, duration.lastChild.value); };
+    apiToken.onchange = function () { updateCredentials(uid.lastChild.value, apiToken.lastChild.value, duration.lastChild.value); };
+    duration.onchange = function () { updateCredentials(uid.lastChild.value, apiToken.lastChild.value, duration.lastChild.value); };
+    //ugh.
+    //document.body.onunload = function () { chrome.extension.getBackgroundPage().updateCredentials(uid.lastChild.value, apiToken.lastChild.value, duration.lastChild.value); };
+
+    div.appendChild(uid);
+    div.AppendBreak();
+    div.appendChild(apiToken);
+    div.AppendBreak();
+    div.appendChild(duration);
+    div.AppendBreak();
+
     var button = document.createElement("button");
-    button.AppendText("Save");
-    button.onclick = updateCredentials;
+    button.AppendText("Save/Update");
+    button.onclick = function () {
+        Vars.editingSettings = false;
+        updateCredentials(uid.lastChild.value, apiToken.lastChild.value, duration.lastChild.value);
+        SaveUserSettings();
+        background.FetchHabitRPGData();
+        if (Vars.UserData.Credentials.uid == "3e595299-3d8a-4a10-bfe0-88f555e4aa0c") {
+            alert("I might have a small crush on you.");
+        }
+    };
     button.type = "submit";
     div.appendChild(button);
-    return div;
+    document.body.appendChild(div);
 }
+
 function CreateOnClickLink(onclick, param1) {
     var a = document.createElement("a");
     a.href = "#";
@@ -82,6 +134,9 @@ function CreateOnClickLink(onclick, param1) {
     return a;
 }
 
+function fuck(param1) {
+    alert(param1);
+}
 function GenerateBuyButton(site) {
     var buyLink = CreateOnClickLink(chrome.tabs.create, { url: "http://" + site.hostname });
     var buyButton = document.createElement("td");
@@ -134,21 +189,12 @@ function updateSiteCost(site) {
         }
 }
 function removeSite(site) {
-    return function () {
-        if (confirm("Are you sure you want to remove this block?")) {
-            Vars.UserData.RemoveBlockedSite(site.hostname);
-            SaveUserSettings();
-        }
+    if (confirm("Are you sure you want to remove this block?")) {
+        Vars.UserData.RemoveBlockedSite(site.hostname);
+        SaveUserSettings();
     }
 }
 function updateCredentials() {
-    Vars.UserData.Credentials.uid = document.getElementById("uid").value;
-    Vars.UserData.Credentials.apiToken = document.getElementById("apiToken").value;
-    SaveUserSettings();
-    background.FetchHabitRPGData();
-    if (Vars.UserData.Credentials.uid == "3e595299-3d8a-4a10-bfe0-88f555e4aa0c") {
-        alert("I might have a small crush on you.");
-    }
 
 }
 function getCurrentTabUrl(callback) {
@@ -159,7 +205,14 @@ function getCurrentTabUrl(callback) {
     chrome.tabs.query(queryInfo, function (tabs) {
         var tab = tabs[0];
         var url = tab.url;
-        console.assert(typeof url == 'string', 'tab.url should be a string');
+        console.assert(typeof url == "string", "tab.url should be a string");
         callback(url);
     });
+}
+function updateCredentials(uid, apiToken, duration) {
+    Vars.editingSettings = true;
+    Vars.UserData.Credentials.uid = uid;
+    Vars.UserData.Credentials.apiToken = apiToken;
+    var flDuration = parseFloat(duration);
+    if (!isNaN(flDuration)) Vars.UserData.PassDurationMins = duration;
 }

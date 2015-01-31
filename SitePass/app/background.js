@@ -19,6 +19,7 @@ var Consts = {
 };
 
 var Vars = {
+    EditingSettings:false,
     RewardTask: Consts.RewardTemplate,
     Monies: 0,
     UserData: new UserSettings(),

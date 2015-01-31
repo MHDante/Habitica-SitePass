@@ -41,6 +41,7 @@
     <Content Include="app\img\icon.png" />
     <Content Include="app\background.html" />
     <Content Include="app\background.js" />
+    <Content Include="app\jquery-2.1.3.min.js" />
     <Content Include="app\popup.html" />
     <Content Include="app\popup.js" />
     <Content Include="Properties\build\lib\Ionic.Zip.DLL" />
@@ -52,6 +53,13 @@
     <Content Include="screenshots\readme.txt" />
     <None Include="scripts\_references.js" />
     <None Include="scripts\chrome-api-vsdoc.js" />
+    <Content Include="web.config" />
+    <None Include="web.Debug.config">
+      <DependentUpon>web.config</DependentUpon>
+    </None>
+    <None Include="web.Release.config">
+      <DependentUpon>web.config</DependentUpon>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Content Include="app\manifest.json" />

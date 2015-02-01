@@ -74,6 +74,7 @@ function AddSiteToTable(site, fadein) {
     tbody.find('.delete').click(CreateDelegate(removeSite, site));
     table.append(tbody);
     if (fadein) {
+        Toggle(costRow);
         tbody.hide();
         tbody.fadeIn();
     }

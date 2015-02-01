@@ -3,7 +3,7 @@
 
     "name": "HabitRPG SitePass",
     "description": "This extension plugs into HabitRPG and turns your time-wasting navigation tendencies into rewards.",
-    "version": "1.1",
+    "version": "1.2.0",
 
     "permissions": [
         "storage",

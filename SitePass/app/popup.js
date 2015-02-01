@@ -5,69 +5,100 @@ Node.prototype.AppendBreak = function () { this.appendChild(document.createEleme
 var background = chrome.extension.getBackgroundPage();
 var Vars = background.Vars;
 var Consts = background.Consts;
-
+var CurrentTabHostname = 
 document.addEventListener("DOMContentLoaded", function () {
 
     getCurrentTabUrl(function (url) {
-        UpdateBlockCommand(url);
-
-        var table = $("#SiteTable");
-        var blockedSites = Vars.UserData.BlockedSites;
-        for (var site in blockedSites) {
-            if (blockedSites.hasOwnProperty(site)) {
-
-                var cost = blockedSites[site].cost;
-                if (cost % 1 != 0) cost = cost.toFixed(2);
-
-                var row = $(document.createElement("tr"));
-                row.addClass("reward-item");
-
-                var html =
-                    '<td class="gp">' +
-                        '<a id ="Buy" href="#">' +
-                            '<span class="shop_gold"></span><br>' + cost +
-                        '</a>' +
-                    '</td>' +
-                    '<td>' + blockedSites[site].hostname + '</td>' +
-                    '<td><a id ="Edit" href="#"><img src="img/pencil.png"></a></td>' +
-                    '<td><a id ="Delete" href="#"><img src="img/trash.png"></a></td>';
-                row.html(html);
-
-                var row2 = $(document.createElement("tr"));
-                row2.addClass("cost-input");
-
-                var html2 = '<td /><td style="white-space:nowrap;text-align:center;"><label>Cost <input type="text"maxlength="8" size="8"></label></td><td/><td/>';
-                row2.html(html2);
-                var input = row2.find('input');
-                input.on("keyup", CreateDelegate(updateSiteCost, { site: blockedSites[site], cost: input }));
-                input.on("keypress", CostSubmit(row2));
-                row2.hide();
-
-
-
-
-                row.find('#Buy').click(CreateDelegate(chrome.tabs.create, "http://" + blockedSites[site].hostname));
-                row.find('#Edit').click(CreateDelegate(Toggle, row2));
-                row.find('#Delete').click(CreateDelegate(removeSite, blockedSites[site]));
-                table.append(row);
-                table.append(row2);
-                table.append("<tr><td></td><tr>");
-            }
-        }
-        CredentialFields();
-        $("#Dosh").append(Vars.Monies.toFixed(2));
+        CurrentTabHostname = new URL(url).hostname;
+        UpdateBlockCommand();
     });
+
+    $("#BlockLink").click(function () {
+        var currentSite = Vars.UserData.GetBlockedSite(CurrentTabHostname);
+        if (currentSite) removeSite(currentSite);
+        else {
+            currentSite = Vars.UserData.AddBlockedSite(CurrentTabHostname, 0, Date.now());
+            AddSiteToTable(currentSite, true);
+            UpdateBlockCommand();
+        }
+        SaveUserSettings();
+        return false;
+    });
+
+    var blockedSites = Vars.UserData.BlockedSites;
+    for (var site in blockedSites) {
+        if (blockedSites.hasOwnProperty(site)) {
+            AddSiteToTable(blockedSites[site]);
+        }
+    }
+    CredentialFields();
+    $("#Dosh").append(Vars.Monies.toFixed(2));
+    
 });
+
+
+function AddSiteToTable(site, fadein) {
+    var table = $("#SiteTable");
+    var cost = site.cost;
+    if (cost % 1 != 0) cost = cost.toFixed(2);
+
+    var tbody = $(document.createElement("tbody"));
+    tbody.attr("id", site.hostname);
+    var html =
+        '<tr class="reward-item">' +
+            '<td class="gp">' +
+                '<a class="buy" href="#">' +
+                    '<span class="shop_gold"></span><br>' + cost +
+            '</a></td>' +
+            '<td style="width:100%"><div class="hostname">' + site.hostname + '</div></td>' +
+            '<td><a class="edit" href="#"><img src="img/pencil.png"></a></td>' +
+            '<td><a class="delete" href="#"><img src="img/trash.png"></a></td>' +
+        '</tr>' +
+        '<tr class="cost-input" style="display:none;">' +
+            '<td style="white-space:nowrap;text-align:center;" colspan="4">' +
+                '<label>Cost ' +
+                    '<input class="cost" type="text"maxlength="8" size="8" value="' + site.cost + '">' +
+        '</label></td></tr>'+
+        '<tr><td></td><tr>';
+
+    tbody.html(html);
+    
+
+    tbody.data("site", site);
+    var costRow = tbody.find('.cost-input');
+    var input = costRow.find('.cost');
+    input.on("keyup", CreateDelegate(updateSiteCost, { site: site, cost: input }));
+    input.on("keypress", CostSubmit(costRow));
+    tbody.find('.buy').click(CreateDelegate(chrome.tabs.create, { url: "http://" + site.hostname }));
+    tbody.find('.edit').click(CreateDelegate(Toggle, costRow));
+    tbody.find('.delete').click(CreateDelegate(removeSite, site));
+    table.append(tbody);
+    if (fadein) {
+        tbody.hide();
+        tbody.fadeIn();
+    }
+}
 function Toggle(obj) {
-    obj.fadeToggle();
+    if ($(obj).is(":visible")) {
+        obj.fadeOut({ complete: function() {
+            $("tbody").each(function () {
+                $(this).find(".buy")
+                    .html('<span class="shop_gold"></span><br>' + $(this).data("site").cost);
+            });
+        } });
+    } else {
+        obj.fadeIn();
+        obj.find("input").select();
+    }
 }
 function CostSubmit(r) {
     return function (e) {
         if (e.which == 13) {
             SaveUserSettings();
-            r.fadeOut();
-            return false;    //<---- Add this line
+            Toggle(r);
+            return false;   
         }
+        return true;
     }
 }
 
@@ -107,10 +138,12 @@ function CredentialFields() {
         updateCredentials();
         Vars.EditingSettings = false;
         if (Vars.UserData.Credentials.uid == "3e595299-3d8a-4a10-bfe0-88f555e4aa0c") {
-            alert("I might have a small crush on you.");
+            background.alert("I might have a small crush on you.");
         }
+
         SaveUserSettings();
         background.FetchHabitRPGData();
+        location.reload();
 
     });
 }
@@ -122,33 +155,20 @@ function CreateDelegate(onclick, param1) {
 function NewTab(url) {
     return function () { chrome.tabs.create({ url: url }); }
 }
-function fuck(param1) {
-    alert(param1);
-}
 
-function UpdateBlockCommand(currentSiteUrl) {
-    var hostname = new URL(currentSiteUrl).hostname;
-    var currentSite = Vars.UserData.GetBlockedSite(hostname);
+function UpdateBlockCommand() {
+    var currentSite = Vars.UserData.GetBlockedSite(CurrentTabHostname);
+
     if (currentSite) {
         $("#BlockLink").text("Un-Block Site!");
-        $("#BlockLink").click(function () {
-            Vars.UserData.RemoveBlockedSite(hostname);
-            SaveUserSettings();
-        });
-
     } else {
         $("#BlockLink").text("Block Site!");
-        $("#BlockLink").click(function () {
-            currentSite = Vars.UserData.AddBlockedSite(hostname, 0, Date.now());
-            //updateSiteCost(currentSite);
-            SaveUserSettings();
-        });
     }
 }
+
 function SaveUserSettings() {
     var dataPack = {}
     dataPack[Consts.userDataKey] = Vars.UserData;
-    location.reload(true);
     // ReSharper disable once PossiblyUnassignedProperty
     chrome.storage.sync.set(dataPack, function () { });
 }
@@ -161,8 +181,13 @@ function updateSiteCost(siteAndCost) {
     }
 }
 function removeSite(site) {
-        Vars.UserData.RemoveBlockedSite(site.hostname);
-        SaveUserSettings();
+    var siterow = $(document.getElementById(site.hostname));
+    siterow.fadeOut({ complete: function() {siterow.remove()} });
+    Vars.UserData.RemoveBlockedSite(site.hostname);
+    SaveUserSettings();
+    getCurrentTabUrl(function (url) {
+        UpdateBlockCommand(url);
+    });
 }
 function getCurrentTabUrl(callback) {
     var queryInfo = {

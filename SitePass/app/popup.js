@@ -138,12 +138,9 @@ function CredentialFields() {
     $("#SaveButton").click(function () {
         updateCredentials();
         Vars.EditingSettings = false;
-        if (Vars.UserData.Credentials.uid == "3e595299-3d8a-4a10-bfe0-88f555e4aa0c") {
-            background.alert("I might have a small crush on you.");
-        }
-
+        //Got over it.
         SaveUserSettings();
-        background.FetchHabitRPGData();
+        background.FetchHabiticaData();
         location.reload();
 
     });

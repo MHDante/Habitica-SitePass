@@ -1,15 +1,16 @@
 "use strict";
 var Consts = {
-    serverUrl : 'https://habitrpg.com:443/api/v2',
-    serverPathUser : '/user',
-    serverPathTasks : '/user/tasks',
+    serverUrl: 'https://habitica.com/api/v3/',
+    serverPathUser : 'user/',
+    serverPathTask: 'tasks/sitepass',
+    serverPathUserTasks: 'tasks/user',
     RewardTemplate :
         {
             text: "SitePass",
             value: 0,
-            notes:  "Reward utilized by HabitRPG SitePass."+
+            notes:  "Reward utilized by Habitica SitePass."+
                     " Changes value depending on last accessed website.",
-            id: "sitepass",
+            alias: "sitepass",
             type: "reward"
         },
     urlFilter: { urls: ["<all_urls>"], types: ["main_frame"] },
@@ -56,7 +57,7 @@ var callback = function (details) {
     var hostname = new URL(details.url).hostname;
     var site = Vars.UserData.GetBlockedSite(hostname);
     if (!site || site.passExpiry > Date.now()) return { cancel: false };
-    FetchHabitRPGData();
+    FetchHabiticaData();
     if (site.cost > Vars.Monies) {
         alert(  "You can't afford to visit " + site.hostname + " !\n" +
                 "Complete some tasks and try again!");
@@ -80,21 +81,20 @@ chrome.webRequest.onBeforeRequest.addListener(callback, Consts.urlFilter, Consts
 chrome.storage.sync.get(Consts.userDataKey, function (result) { 
     if (result[Consts.userDataKey]) {
         Vars.UserData = new UserSettings(result[Consts.userDataKey]);
-        FetchHabitRPGData();
+        FetchHabiticaData();
     }
 });
 
-function FetchHabitRPGData() {
-    var credentials = Vars.UserData.Credentials;
+function getData(silent, credentials, serverPath) {
     var xhr = new XMLHttpRequest();
-    xhr.open("GET", Consts.serverUrl + Consts.serverPathUser, false);
+    xhr.open("GET", Consts.serverUrl + serverPath, false);
     xhr.setRequestHeader("x-api-user", credentials.uid);
     xhr.setRequestHeader("x-api-key", credentials.apiToken);
     try {
         xhr.send();
 
     } catch (e) {
-        xhr.status = 0;
+
     }
     Vars.ServerResponse = xhr.status;
     if (xhr.status == 401) {
@@ -102,35 +102,41 @@ function FetchHabitRPGData() {
             {
                 type: "basic",
                 iconUrl: "img/icon.png",
-                title: "HabitRPG SitePass Credentials Error",
+                title: "Habitica SitePass Credentials Error",
                 message: "Click on the gold coin icon in the top right of your browser to set your credentials."
             },
             function () { });
-        return;
-    }else if ( xhr.status != 200) {
-        chrome.notifications.create(Consts.NotificationId,
-        {
-            type: "basic",
-            iconUrl: "img/icon.png",
-            title: "HabitRPG SitePass Connection Error",
-            message: "The service might be temporarily unavailable. Contact @MHDante if it persists. Error =" + xhr.status
-    },
-            function () { });
-        return;
-    }
-    var userObj = JSON.parse(xhr.responseText);
-    Vars.Monies = userObj["stats"]["gp"];
-    //This might be replacable by one api call. But it seems wasteful to query the server again.
-    var rewards = userObj["rewards"];
-    if (rewards && rewards.constructor === Array) { 
-        for (var i = 0; i < rewards.length; i++) {
-            if (rewards[i] && rewards[i].id == "sitepass") {
-                Vars.RewardTask = rewards[i];
-                return;
-            }
+        return null;
+    } else if (xhr.status != 200) {
+        if (!silent) {
+            chrome.notifications.create(Consts.NotificationId,
+                {
+                    type: "basic",
+                    iconUrl: "img/icon.png",
+                    title: "Habitica SitePass Connection Error",
+                    message: "The service might be temporarily unavailable. Contact @MHDante if it persists. Error =" +
+                        xhr.status
+                },
+                function() {});
         }
+        return null;
     }
-    UpdateTask(0,true);
+    return JSON.parse(xhr.responseText);
+}
+
+function FetchHabiticaData() {
+    var credentials = Vars.UserData.Credentials;
+    var userObj = getData(false, credentials, Consts.serverPathUser);
+    if (userObj == null) return;
+    else Vars.Monies = userObj.data["stats"]["gp"];
+    var tasksObj = getData(true, credentials, Consts.serverPathTask);
+    if (tasksObj && tasksObj.data["alias"] == "sitepass") {
+        Vars.RewardTask = tasksObj.data;
+        UpdateTask(0, false);
+        return;
+    }
+
+    UpdateTask(0, true);
 }
 
 function UpdateTask(cost, create) {
@@ -138,21 +144,24 @@ function UpdateTask(cost, create) {
     Vars.RewardTask.value = cost;
     var xhr = new XMLHttpRequest();
     if (create) {
-        xhr.open("POST", Consts.serverUrl + Consts.serverPathTasks, false);
+        xhr.open("POST", Consts.serverUrl + Consts.serverPathUserTasks, false);
     } else {
-        xhr.open("PUT", Consts.serverUrl + Consts.serverPathTasks + "/sitepass", false);
+        xhr.open("PUT", Consts.serverUrl + Consts.serverPathTask, false);
+
     }
-    xhr.setRequestHeader("Content-Type", "application/json");
-    xhr.setRequestHeader("x-api-user", Vars.UserData.Credentials.uid);
-    xhr.setRequestHeader("x-api-key", Vars.UserData.Credentials.apiToken);
-    xhr.send(JSON.stringify(Vars.RewardTask));
-    Vars.RewardTask = JSON.parse(xhr.responseText);
+        xhr.setRequestHeader("Content-Type", "application/json");
+        xhr.setRequestHeader("x-api-user", Vars.UserData.Credentials.uid);
+        xhr.setRequestHeader("x-api-key", Vars.UserData.Credentials.apiToken);
+        var data = { "data": Vars.RewardTask }
+        xhr.send(JSON.stringify(Vars.RewardTask));
+        Vars.RewardTask = JSON.parse(xhr.responseText).data;
+    
 }
 
 function ConfirmPurchase(site) {
     UpdateTask(site.cost);
     var xhr = new XMLHttpRequest();
-    xhr.open("POST", Consts.serverUrl + Consts.serverPathTasks + "/sitepass/down", false);
+    xhr.open("POST", Consts.serverUrl + Consts.serverPathTask+"/score/down", false);
     xhr.setRequestHeader("x-api-user", Vars.UserData.Credentials.uid);
     xhr.setRequestHeader("x-api-key", Vars.UserData.Credentials.apiToken);
     xhr.send();

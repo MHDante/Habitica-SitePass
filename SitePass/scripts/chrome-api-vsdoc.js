@@ -14,7 +14,7 @@ chrome = {
             ///<summary>Clears the alarm with the given name.</summary>
             ///<param name='name' type='string'> (optional) The name of the alarm to clear. Defaults to the empty string.</param>
         },
-        clearAll: function () { },
+        clearAll: function () {},
         create: function (name, alarmInfo) {
             ///<summary>Creates an alarm. Near the time(s) specified by alarmInfo , the onAlarm event is fired. If there is another alarm with the same name (or no name if none is specified), it will be cancelled and replaced by this alarm. In order to reduce the load on the user's machine, Chrome limits alarms to at most once every 1 minute but may delay them an arbitrary amount more. That is, setting delayInMinutes or periodInMinutes to less than 1 will not be honored and will cause a warning. when can be set to less than 1 minute after \now\ without warning but won't actually cause the alarm to fire for at least 1 minute. To help you debug your app or extension, when you've loaded it unpacked, there's no limit to how often the alarm can fire.</summary>
             ///<param name='name' type='string'> (optional) Optional name to identify this alarm. Defaults to the empty string.</param> 
@@ -278,22 +278,22 @@ chrome = {
         }
     },
     contentSettings: {
-        clear: function (details, callback) {
+        clear: function(details, callback) {
             ///<summary>Clear all content setting rules set by this extension.</summary>
             ///<param name='details' type='object'>{scope: (optional enum of /regular/ or /icognito_session_only/)}</param>
             ///<param name='callback' type='function'> (optional) function() {...};</param>
         },
-        get: function (details, callback) {
+        get: function(details, callback) {
             ///<summary>Gets the current content setting for a given pair of URLs.</summary>
             ///<param name='details' type='object'>{primaryUrl: (string), secondaryUrl: (optional string), resourceIdentifier: (optional ResourceIdentifier), icognito: (optional boolean)}</param>
             ///<param name='callback' type='function'>function(object details) {...};</param>
         },
-        set: function (details, callback) {
+        set: function(details, callback) {
             ///<summary>Gets the current content setting for a given pair of URLs.</summary>
             ///<param name='details' type='object'>{primaryPattern: (string), secondaryPattern: (optional string), resourceIdentifier: (optional ResourceIdentifier), setting: (any), scope: (optional enum of /regular/ or /icognito_session_only/)}</param>
             ///<param name='callback' type='function'>function() {...};</param>
         },
-        getResourceIdentifiers: function (callback) {
+        getResourceIdentifiers: function(callback) {
             ///<summary></summary>
             ///<param name='callback' type='function'>function(array of ResourceIdentifier resourceIdentifiers) {...};</param>
         },
@@ -419,9 +419,7 @@ chrome = {
             },
             onResourceContentCommitted: {
                 addListener: function (callback) {
-                    ///<summary>Fired when a new revision of the resource is committed (e.g. user 
-
-s an edited version of the resource in the Developer Tools).</summary>
+                    ///<summary>Fired when a new revision of the resource is committed (e.g. user saves an edited version of the resource in the Developer Tools).</summary>
                     ///<param name='callback' type='function'>function( Resource resource, string content) {...} ;</param>
                 }
             },
@@ -549,42 +547,42 @@ s an edited version of the resource in the Developer Tools).</summary>
             ///<summary>Show the downloaded file in its folder in a file manager.</summary>
             ///<param name='downloadId' type='integer'>The identifier for the downloaded file.</param>
         },
-        showDefaultFolder: function () { }
+        showDefaultFolder: function () {}
     },
     events: {
-        addListener: function (callback) {
+        addListener: function(callback) {
             ///<summary>Registers an event listener callback to an event.</summary>
             ///<param name="callback" type="function">function() {...}</param>
         },
-        removeListener: function (callback) {
+        removeListener: function(callback) {
             ///<summary>Deregisters an event listener callback from an event.</summary>
             ///<param name="callback" type="function">function() {...}</param>
         },
-        hasListener: function (callback) {
+        hasListener: function(callback) {
             ///<summary>Tests that a specific event listener callback is registered.</summary>
             ///<param name="callback" type="function">function() {...}</param>
         },
-        hasListeners: function () {
+        hasListeners: function() {
             ///<summary>Tests that an event listener callback is registered.</summary>
         },
-        addRules: function (rules, callback) {
+        addRules: function(rules, callback) {
             ///<summary>Registers rules to handle events.</summary>
             ///<param name="rules" type="array">Rules to be registered. These do not replace previously registered rules.</param>
             ///<param name="callback" type="function">function(array of Rule rules) {...}</param>
         },
-        getRules: function (ruleIdentifiers, callback) {
+        getRules: function(ruleIdentifiers, callback) {
             ///<summary>Returns currently registered rules.</summary>
             ///<param name="ruleIdentifiers" type="array"> (optional) If an array is passed, only rules with identifiers contained in this array are returned.</param>
             ///<param name="callback" type="function">function(array of Rule rules) {...}</param>
         },
-        removeRules: function (ruleIdentifiers, callback) {
+        removeRules: function(ruleIdentifiers, callback) {
             ///<summary>Unregisters currently registered rules.</summary>
             ///<param name="ruleIdentifiers" type="array">(optional) Rules to be registered. These do not replace previously registered rules.</param>
             ///<param name="callback" type="function">function() {...}</param>
         }
     },
     extension: {
-        getBackgroundPage: function () { },
+        getBackgroundPage: function () {},
         getExtensionTabs: function (windowId) {
             ///<summary>Returns an array of the JavaScript 'window' objects for each of the tabs running inside the current extension. If windowId is specified, returns only the 'window' objects of tabs attached to the specified window.</summary>
             ///<param name='windowId' type='integer'> (optional) </param>
@@ -1177,7 +1175,7 @@ s an edited version of the resource in the Developer Tools).</summary>
         }
     },
     power: {
-        releaseKeepAwake: function () { },
+        releaseKeepAwake: function () {},
         requestKeepAwake: function (level) {
             ///<summary>Requests that power management be temporarily disabled. |level| describes the degree to which power management should be disabled. If a request previously made by the same app is still active, it will be replaced by the new request.</summary>
             ///<param name='level' type='Level'></param>
@@ -1224,7 +1222,7 @@ s an edited version of the resource in the Developer Tools).</summary>
             ///<summary>Retrieves the JavaScript 'window' object for the background page running inside the current extension/app. If the background page is an event page, the system will ensure it is loaded before calling the callback. If there is no background page, an error is set.</summary>
             ///<param name='callback' type='function'>function(window backgroundPage) {...} ;</param>
         },
-        getManifest: function () { },
+        getManifest: function () {},
         getPackageDirectoryEntry: function (callback) {
             ///<summary>Returns a DirectoryEntry for the package directory.</summary>
             ///<param name='callback' type='function'>function(directoryentry directoryEntry) {...} ;</param>
@@ -1303,12 +1301,12 @@ s an edited version of the resource in the Developer Tools).</summary>
                 ///<param name='callback' type='function'>function(object details) {...} ;</param>
             }
         },
-        reload: function () { },
+        reload: function () {},
         requestUpdateCheck: function (callback) {
             ///<summary>Requests an update check for this app/extension.</summary>
             ///<param name='callback' type='function'>function(enum of \throttled\ , \no_update\ , or \update_available\ status, object details) {...} ;</param>
         },
-        restart: function () { },
+        restart: function () {},
         sendMessage: function (extensionId, message, options, responseCallback) {
             ///<summary>Sends a single message to onMessage event listeners within the extension (or another extension/app). Similar to chrome.runtime.connect, but only sends a single message with an optional response. The onMessage event is fired in each extension page of the extension. Note that extensions cannot send messages to content scripts using this method. To send messages to content scripts, use tabs.sendMessage .</summary>
             ///<param name='extensionId' type='string'> (optional) The extension ID of the extension you want to connect to. If omitted, default is your own extension.</param> 
@@ -1573,15 +1571,15 @@ s an edited version of the resource in the Developer Tools).</summary>
             ///<summary>Checks whether the engine is currently speaking. On Mac OS X, the result is true whenever the system speech engine is speaking, even if the speech wasn't initiated by Chrome.</summary>
             ///<param name='callback' type='function'> (optional) function(boolean speaking) {...} ;</param>
         },
-        pause: function () { },
-        resume: function () { },
+        pause: function () {},
+        resume: function () {},
         speak: function (utterance, options, callback) {
             ///<summary>Speaks text using a text-to-speech engine.</summary>
             ///<param name='utterance' type='string'>The text to speak, either plain text or a complete, well-formed SSML document. Speech engines that do not support SSML will strip away the tags and speak the text. The maximum length of the text is 32,768 characters.</param> 
             ///<param name='options' type='object'> (optional) The speech options.{lang: (optional string), voiceName: (optional string), extensionId: (optional string), gender: (optional enumof \\male\\ ,or \\female\\ ), requiredEventTypes: (optional arrayofstring), volume: (optional double), enqueue: (optional boolean), rate: (optional double), onEvent: (optional function), pitch: (optional double), desiredEventTypes: (optional arrayofstring)}</param> 
             ///<param name='callback' type='function'> (optional) function() {...} ;</param>
         },
-        stop: function () { }
+        stop: function () {}
     },
     ttsEngine: {
         onPause: {

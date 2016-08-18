@@ -6,7 +6,7 @@ Bug reports are welcome!
 
 ####Installation
 
-Link not updated on Chrome web store.
+https://chrome.google.com/webstore/detail/habitica-sitepass/mnnahhonfcegdlpmejgncflpeklaicdi
 
 ####Usage
 After installing the extension, click on the coin at the top right to open the menu. In here, you must set your API Credentials. You can then block a site by navigating to it and clicking block site. It will ask you to enter a cost.

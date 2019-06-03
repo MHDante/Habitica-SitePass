@@ -57,6 +57,55 @@
             line-height: 1.5em;
             border: none;
         }
+        .setting-header{
+            line-height: 5px;
+            color: gray;
+            font-weight: bold;
+            text-align: center;
+            background-color: lightgray;
+            padding: 9px;
+        }
+        .tomato {
+            background-image: url(img/pomodoro.png);
+            width: 45px;
+            height: 45px;
+            vertical-align: top;
+            display: inline-block;
+            background-position: 0;
+            color: white;
+            line-height: 60px;
+            font-size: 12px;
+            text-align: center;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .blocked:before{
+            content: "Blocked";
+            text-align: center;
+            font-size: 24px;
+            color: white;
+            font-weight: bold;
+            line-height: 59px;
+            background-color: #ff000073;
+            display: block;
+            width: 100%;
+            height: 57px;
+            position: absolute;
+        }
+        #pomodoro {
+            background-color: lightgray;
+            border-radius: 15px;
+            padding: 10px;
+            text-align: center;
+            width: 154px;
+            margin: auto;
+            margin-top: 10px;
+        }
+        #Time{
+            padding: 13px;
+            font-size: 24px;
+            line-height: 46px;
+        }
         #Footer {
             display : table-row;
             vertical-align : bottom;
@@ -75,24 +124,35 @@
         #Credentials {
             display: none;
         }
+    
     </style>
     <script src="jquery-2.1.3.min.js"></script>
     <script src="popup.js"></script>
 </head>
 <body>
     <a id="BlockLink" href="#">Block Site!</a>
-    <br>
+    <!-- Pomodoro Timer -->
+    <div id="pomodoro">
+        <span id="PomoStart" class="tomato">Start</span><span id="Time">00:00</span> 
+    </div>
+    <!-- Blocked Sites -->
     <p>Blocked Sites:</p>
-<table id="SiteTable"></table>
+    <table id="SiteTable"></table>
+    <!-- Footer -->
     <div id="Footer">
         <br>
         <p id="CredError">Credential error! The extension is currently not updating Habitica!</p>
         <label id="AdvSettings"><input type="checkbox">Show Advanced Settings</label>
         <br>
         <div id="Credentials">
+            <p class="setting-header">User</p>
             <label>Habitica User ID:<br /><input id="UID" type="text"></label><br>
             <label>Habitica API Token:<br /><input id="APIToken" type="text"></label><br>
+            <p class="setting-header">Pay to unblock</p>
             <label>Pass Duration(In Minutes)<br /><input id="Duration" type="text"></label><br>
+            <p class="setting-header">Pomodoro</p>
+            <label>Pomodoro Duration(In Minutes)<br /><input id="PomoDuration" type="text"></label><br>
+            <br>
             <button id="SaveButton" type="submit">Save/Update</button>
         </div>
         <br>

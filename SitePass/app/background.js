@@ -31,6 +31,7 @@ function UserSettings(copyFrom) {
     this.BlockedSites = copyFrom ? copyFrom.BlockedSites : {};
     this.Credentials = copyFrom ? copyFrom.Credentials :{uid:"",apiToken:""};
     this.PassDurationMins = copyFrom ? copyFrom.PassDurationMins : 10;
+    this.PomoDurationMins = copyFrom ? copyFrom.PomoDurationMins : 18;
     this.GetBlockedSite = function (hostname) {
         return this.BlockedSites[hostname];
     }
@@ -58,6 +59,10 @@ var callback = function (details) {
     var site = Vars.UserData.GetBlockedSite(hostname);
     if (!site || site.passExpiry > Date.now()) return { cancel: false };
     FetchHabiticaData();
+    if(TimerRunnig){
+        alert(  "Stay Focused! " + site.hostname+" is blocked during pomodoro!");
+        return { redirectUrl: "http://google.com/" };
+    }
     if (site.cost > Vars.Monies) {
         alert(  "You can't afford to visit " + site.hostname + " !\n" +
                 "Complete some tasks and try again!");
@@ -167,4 +172,43 @@ function ConfirmPurchase(site) {
     xhr.send();
     Vars.Monies -= site.cost;
 
+}
+
+// ------------- pomodoro ---------------------------
+
+var Timer = "00:00";
+var TimerRunnig = false;
+var interval;
+//Start Pomodoro Timer - duration in seconds
+function startTimer(duration) {  
+    var timer = duration, minutes, seconds;
+    TimerRunnig = true;
+    interval = setInterval(function () {
+        minutes = parseInt(timer / 60, 10)
+        seconds = parseInt(timer % 60, 10);
+
+        minutes = minutes < 10 ? "0" + minutes : minutes;
+        seconds = seconds < 10 ? "0" + seconds : seconds;
+       
+        Timer = minutes + ":" + seconds;
+        console.log(Timer);
+
+        if (--timer < 0) {
+            stopTimer();
+            console.log("Time's Up");
+        }
+        chrome.browserAction.setBadgeText({
+            text: Timer
+        })
+        
+    }, 1000);
+}
+//Stop Pomodoro Timer
+function stopTimer(){
+    TimerRunnig = false;
+    clearInterval(interval);
+    Timer = "00:00";
+    chrome.browserAction.setBadgeText({
+        text: ''
+    })
 }

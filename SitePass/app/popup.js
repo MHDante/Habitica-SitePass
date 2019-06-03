@@ -33,7 +33,30 @@ document.addEventListener("DOMContentLoaded", function () {
     }
     CredentialFields();
     $("#Dosh").append(Vars.Monies.toFixed(2));
-    
+
+    //Start Pomodoro Timer
+    $("#PomoStart").click(function () {
+        var TimerRunnig = background.TimerRunnig
+        var seconds = 60 * Vars.UserData.PomoDurationMins;
+        if(!TimerRunnig){
+            background.startTimer(seconds);
+        }else{
+            background.stopTimer();
+        }
+    });
+    //Update Timer display
+    setInterval(function () {
+        $('#Time').html(background.Timer);
+        if(background.TimerRunnig){
+            $('.tomato').html("Stop");
+            $('#pomodoro').css("background-color", "lightgreen");
+            $("#SiteTable tbody").toggleClass('blocked',true);
+        }else{
+            $('.tomato').html("Start"); 
+            $('#pomodoro').css("background-color", "lightgray");
+            $("#SiteTable tbody").toggleClass('blocked',false);
+        }
+    }, 1000);
 });
 
 
@@ -128,11 +151,14 @@ function CredentialFields() {
     $("#UID").val(Vars.UserData.Credentials.uid);
     $("#APIToken").val(Vars.UserData.Credentials.apiToken);
     $("#Duration").val(Vars.UserData.PassDurationMins);
+    $("#PomoDuration").val(Vars.UserData.PomoDurationMins);
+    
 
 
     $("#UID").on("keyup", function () { updateCredentials(); });
     $("#APIToken").on("keyup", function () { updateCredentials(); });
     $("#Duration").on("keyup", function () { updateCredentials(); });
+    $("#PomoDuration").on("keyup", function () { updateCredentials(); });
     //ugh.
 
     $("#SaveButton").click(function () {
@@ -205,4 +231,8 @@ function updateCredentials() {
     Vars.UserData.Credentials.apiToken = $("#APIToken").val();
     var flDuration = parseFloat($("#Duration").val());
     if (!isNaN(flDuration)) Vars.UserData.PassDurationMins = flDuration;
+    var pmDuration = parseFloat($("#PomoDuration").val());
+    if (!isNaN(pmDuration)) Vars.UserData.PomoDurationMins = pmDuration;
 }
+
+

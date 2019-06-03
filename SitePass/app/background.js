@@ -193,13 +193,25 @@ function startTimer(duration) {
         Timer = minutes + ":" + seconds;
         console.log(Timer);
 
+        //Show time on icon badge 
+        chrome.browserAction.setBadgeText({
+            text: Timer
+        });
+        
+        //Block Site alredy opened
+        var site = getCurrentHost();
+        if(Vars.UserData.GetBlockedSite(site)){
+            alert(  "Stay Focused! " + site+" is blocked during pomodoro!");
+            chrome.tabs.update(CurrentTab.id, {url: "http://google.com/"});
+        };
+
+        //Times Up
         if (--timer < 0) {
             stopTimer();
             console.log("Time's Up");
+            notify("Times Up","Pomodoro ended");
         }
-        chrome.browserAction.setBadgeText({
-            text: Timer
-        })
+ 
         
     }, 1000);
 }
@@ -210,5 +222,34 @@ function stopTimer(){
     Timer = "00:00";
     chrome.browserAction.setBadgeText({
         text: ''
-    })
+    });
 }
+
+//Create Chrome Notification
+function notify(title,message, callback) {
+
+    var options = {
+        title: title,
+        message: message,
+        type: "basic", // Which type of notification to display - https://developer.chrome.com/extensions/notifications#type-TemplateType
+        iconUrl: "img/icon.png" // A URL to the sender's avatar, app icon, or a thumbnail for image notifications.
+    };
+
+    // The first argument is the ID, if left blank it'll be automatically generated.
+    // The second argument is an object of options. More here: https://developer.chrome.com/extensions/notifications#type-NotificationOptions
+    return chrome.notifications.create("", options, callback);
+
+}
+
+//Get current tab url host - returns String
+var CurrentTab;
+function getCurrentHost(){  
+    chrome.tabs.query({'active': true, 'windowId': chrome.windows.WINDOW_ID_CURRENT},
+    function(tabs){
+        CurrentTab = tabs[0];
+    });
+    var hostname = new URL(CurrentTab.url).hostname;
+    return hostname;
+}
+
+

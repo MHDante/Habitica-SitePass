@@ -13,7 +13,8 @@
         "webRequest",
         "<all_urls>",
         "webNavigation",
-        "notifications"
+        "notifications",
+        "tabs"
 
     ],
 

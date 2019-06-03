@@ -1,0 +1,14 @@
+.blockedSite:before {
+      content: attr(data-html);
+      display: block;
+      width: 100%;
+      height: 100%;
+      background-color: #000000b3;
+      position: fixed;
+      z-index: 99999;
+      color:gold;
+      font-size: 35px;
+      text-align: center;
+      padding-top: 10%;
+      white-space: pre;
+  }

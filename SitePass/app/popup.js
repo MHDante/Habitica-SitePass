@@ -45,18 +45,10 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     });
     //Update Timer display
+    updateTimerDisplay();
     setInterval(function () {
-        $('#Time').html(background.Timer);
-        if(background.TimerRunnig){
-            $('.tomato').html("Stop");
-            $('#pomodoro').css("background-color", "lightgreen");
-            $("#SiteTable tbody").toggleClass('blocked',true);
-        }else{
-            $('.tomato').html("Start"); 
-            $('#pomodoro').css("background-color", "lightgray");
-            $("#SiteTable tbody").toggleClass('blocked',false);
-        }
-    }, 1000);
+        updateTimerDisplay();
+    }, 500);
 });
 
 
@@ -235,4 +227,16 @@ function updateCredentials() {
     if (!isNaN(pmDuration)) Vars.UserData.PomoDurationMins = pmDuration;
 }
 
+function updateTimerDisplay(){
+    $('#Time').html(background.Timer);
+        if(background.TimerRunnig){
+            $('.tomato').html("Stop");
+            $('#pomodoro').css("background-color", "lightgreen");
+            $("#SiteTable tbody").toggleClass('blocked',true);
+        }else{
+            $('.tomato').html("Start"); 
+            $('#pomodoro').css("background-color", "lightgray");
+            $("#SiteTable tbody").toggleClass('blocked',false);
+        }
+}
 

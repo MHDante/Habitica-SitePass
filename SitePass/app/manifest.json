@@ -34,5 +34,12 @@
         "page": "background.html",
         "persistent": true
         
-    }
+    },
+    "content_scripts": [
+        {
+          "matches": ["<all_urls>"],
+          "css": ["blockSite.css"],
+          "js":["blockSite.js"]
+        }
+      ]
 }

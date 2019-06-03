@@ -198,12 +198,20 @@ function startTimer(duration) {
             text: Timer
         });
         
+        
         //Block Site alredy opened
-        var site = getCurrentHost();
+        var site = getCurrentTab()[0];
+        var tabId = getCurrentTab()[1];
+        let msg = {
+            request:"block",
+            content:"This Site is Blocked, Time Left: "+Timer
+        }
+        console.log(site,tabId,msg);
         if(Vars.UserData.GetBlockedSite(site)){
-            alert(  "Stay Focused! " + site+" is blocked during pomodoro!");
-            chrome.tabs.update(CurrentTab.id, {url: "http://google.com/"});
+            chrome.tabs.sendMessage(tabId,msg);
         };
+ 
+
 
         //Times Up
         if (--timer < 0) {
@@ -211,8 +219,7 @@ function startTimer(duration) {
             console.log("Time's Up");
             notify("Times Up","Pomodoro ended");
         }
- 
-        
+
     }, 1000);
 }
 //Stop Pomodoro Timer
@@ -227,29 +234,29 @@ function stopTimer(){
 
 //Create Chrome Notification
 function notify(title,message, callback) {
-
     var options = {
         title: title,
         message: message,
         type: "basic", // Which type of notification to display - https://developer.chrome.com/extensions/notifications#type-TemplateType
         iconUrl: "img/icon.png" // A URL to the sender's avatar, app icon, or a thumbnail for image notifications.
     };
-
     // The first argument is the ID, if left blank it'll be automatically generated.
     // The second argument is an object of options. More here: https://developer.chrome.com/extensions/notifications#type-NotificationOptions
     return chrome.notifications.create("", options, callback);
-
 }
 
-//Get current tab url host - returns String
-var CurrentTab;
-function getCurrentHost(){  
+//Get current tab id and current tab url host
+var CurrentTab; //current working tab
+var CurrentHost; //current working tab host
+function getCurrentTab(){    
     chrome.tabs.query({'active': true, 'windowId': chrome.windows.WINDOW_ID_CURRENT},
     function(tabs){
-        CurrentTab = tabs[0];
-    });
-    var hostname = new URL(CurrentTab.url).hostname;
-    return hostname;
+        if(tabs[0]){
+            CurrentTab = tabs[0];
+        }
+    }); 
+    CurrentHost = new URL(CurrentTab.url).hostname;
+    return [CurrentHost,CurrentTab.id]; 
 }
 
 

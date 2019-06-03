@@ -11,7 +11,7 @@ function gotMessage(message,sender,sendRequest){
     if(message.request == blockRequest){
         blockSiteOverlay(message.content);
     }else if(message.request == unBlockRequest){
-
+        unblockSiteOverlay();
     }
 }
 
@@ -21,4 +21,10 @@ function blockSiteOverlay(content){
     pageBody.className = pageBody.className.replace( blockOverlayClass, '' );
     pageBody.className = pageBody.className + blockOverlayClass;
     pageBody.setAttribute('data-html', content);
+}
+
+function unblockSiteOverlay(){
+    var pageBody = document.body 
+    var blockOverlayClass = 'blockedSite';
+    pageBody.className = pageBody.className.replace( blockOverlayClass, '' );
 }

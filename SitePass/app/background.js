@@ -54,15 +54,13 @@ function BlockedSite(hostname, cost, passExpiry) {
     this.passExpiry = passExpiry;
 }
 
-var callback = function (details) {
-    var hostname = new URL(details.url).hostname;
+//Checks the hostname and block it if the user dosent have enough gold or pomodoro is active
+function checkAndBlockHostname(hostname){
+    
     var site = Vars.UserData.GetBlockedSite(hostname);
+    
     if (!site || site.passExpiry > Date.now()) return { cancel: false };
     FetchHabiticaData();
-    if(TimerRunnig){
-        alert(  "Stay Focused! " + site.hostname+" is blocked during pomodoro!");
-        return { redirectUrl: "http://google.com/" };
-    }
     if (site.cost > Vars.Monies) {
         alert(  "You can't afford to visit " + site.hostname + " !\n" +
                 "Complete some tasks and try again!");
@@ -73,14 +71,46 @@ var callback = function (details) {
         " to access for " + Vars.UserData.PassDurationMins + " minutes!");
     if (r) {
         ConfirmPurchase(site);
-        site.passExpiry = Date.now() + Vars.UserData.PassDurationMins * 60 * 1000;
-        return { cancel: false };
+        var passDurationMiliSec = Vars.UserData.PassDurationMins * 60 * 1000
+        site.passExpiry = Date.now() + passDurationMiliSec;
+        return { cancel: false , confirmPurchase:true};
     } else {
         return { redirectUrl: "http://google.com/" };
     }
+}
+
+var callbackwebRequest = function (details) {
+    var hostname = new URL(details.url).hostname;
+    return checkAndBlockHostname(hostname);
 };
 
-chrome.webRequest.onBeforeRequest.addListener(callback, Consts.urlFilter, Consts.opt_extraInfoSpec);
+var callbackTabSwitched = function (details) {
+    chrome.tabs.get(details.tabId, function callback(tab){
+        if(!TimerRunnig){
+            unblockSiteOverlay(tab);
+
+            var hostname = new URL(tab.url).hostname;
+            var checkSite = checkAndBlockHostname(hostname);
+            var redirectUrl = checkSite.redirectUrl;
+            var confirmPurchase = checkSite.confirmPurchase;
+            if(redirectUrl){
+                chrome.tabs.update(tab.id, {url:redirectUrl});
+            }else if (confirmPurchase){
+                //Check if the user is not on the same site for longer than passDuration
+               var passDurationMiliSec = Vars.UserData.PassDurationMins * 60 * 1000 
+               setTimeout(function(arg){ 
+                   callbackTabSwitched(arg); 
+                }, passDurationMiliSec,details);
+            }
+        }
+    });    
+};
+
+//Entering a new url 
+chrome.webRequest.onBeforeRequest.addListener(callbackwebRequest, Consts.urlFilter, Consts.opt_extraInfoSpec);
+
+//Swithing tabs
+chrome.tabs.onActivated.addListener(callbackTabSwitched);
 
 // ReSharper disable once PossiblyUnassignedProperty
 chrome.storage.sync.get(Consts.userDataKey, function (result) { 
@@ -198,20 +228,8 @@ function startTimer(duration) {
             text: Timer
         });
         
-        
         //Block Site alredy opened
-        var site = getCurrentTab()[0];
-        var tabId = getCurrentTab()[1];
-        let msg = {
-            request:"block",
-            content:"This Site is Blocked, Time Left: "+Timer
-        }
-        console.log(site,tabId,msg);
-        if(Vars.UserData.GetBlockedSite(site)){
-            chrome.tabs.sendMessage(tabId,msg);
-        };
- 
-
+        CurrentTab(blockSiteOverlay);
 
         //Times Up
         if (--timer < 0) {
@@ -230,6 +248,7 @@ function stopTimer(){
     chrome.browserAction.setBadgeText({
         text: ''
     });
+    CurrentTab(unblockSiteOverlay); //if current tab is blocked, unblock it
 }
 
 //Create Chrome Notification
@@ -245,18 +264,42 @@ function notify(title,message, callback) {
     return chrome.notifications.create("", options, callback);
 }
 
-//Get current tab id and current tab url host
-var CurrentTab; //current working tab
-var CurrentHost; //current working tab host
-function getCurrentTab(){    
+
+
+//Run function(tab) on currentTab
+function CurrentTab(func){    
     chrome.tabs.query({'active': true, 'windowId': chrome.windows.WINDOW_ID_CURRENT},
     function(tabs){
         if(tabs[0]){
-            CurrentTab = tabs[0];
+            func(tabs[0]);
         }
-    }); 
-    CurrentHost = new URL(CurrentTab.url).hostname;
-    return [CurrentHost,CurrentTab.id]; 
+    });
+}
+
+//Block Site With Overlay
+function blockSiteOverlay(tab){
+    var site = new URL(tab.url).hostname;
+    var tabId = tab.id;
+    var message = "Stay Focused! Time Left: "+Timer;
+    let msg = {
+        request:"block",
+        content:message
+    }
+    if(Vars.UserData.GetBlockedSite(site)){
+        chrome.tabs.sendMessage(tabId,msg);
+    };
+}
+
+//Remove Overlay from current Blocked Site
+function unblockSiteOverlay(tab){
+    var site = new URL(tab.url).hostname;
+    var tabId = tab.id;
+    let msg = {
+        request:"unblock"
+    }
+    if(Vars.UserData.GetBlockedSite(site)){
+        chrome.tabs.sendMessage(tabId,msg);
+    };
 }
 
 

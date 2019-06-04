@@ -92,6 +92,10 @@
             height: 57px;
             position: absolute;
         }
+        .setting-note{
+            color:gray;
+            font-size:11px;
+        }
         #pomodoro {
             background-color: lightgray;
             border-radius: 15px;
@@ -121,8 +125,13 @@
         #AdvSettings {
             display: none;
         }
+
         #Credentials {
             display: none;
+        }
+        .commingSoon{
+            background-color: gray;
+            color:lightgray;
         }
     
     </style>
@@ -146,13 +155,25 @@
         <br>
         <div id="Credentials">
             <p class="setting-header">User</p>
-            <label>Habitica User ID:<br /><input id="UID" type="text"></label><br>
-            <label>Habitica API Token:<br /><input id="APIToken" type="text"></label><br>
-            <p class="setting-header">Pay to unblock</p>
-            <label>Pass Duration(In Minutes)<br /><input id="Duration" type="text"></label><br>
+            <label>Habitica User ID:<br/><input id="UID" type="text"></label><br>
+            <label>Habitica API Token:<br/><input id="APIToken" type="text"></label><br>
+            <p class="setting-header">Pay to pass</p>
+            <label>Pass Duration(In Minutes)<br/><input id="Duration" type="text"></label><br>
+            <sapn class="setting-note">Sites with cost 0 are blocked only<br>during pomodoro timer</sapn>
             <p class="setting-header">Pomodoro</p>
-            <label>Pomodoro Duration(In Minutes)<br /><input id="PomoDuration" type="text"></label><br>
-            <br>
+            <label>Pomodoro Duration(In Minutes)<br/><input id="PomoDuration" type="text"></label><br><hr>
+            <label>Pomodoro Habit Id<br/><input id="PomoHabitId" type="text"></label><br>
+            <input type="checkbox" id="PomoHabitPlus"> + habit when pomodoro is done<br>
+            
+            <p class="setting-header commingSoon">Comming soon...</p>
+
+            <input type="checkbox" id="PomoHabitMinus"> - habit when pomodoro is interupted<br><hr>
+            <label>Break Duration(In Minutes)<br/><input id="BreakDuration" type="text"></label><br>
+            <input type="checkbox" id="BreakFreePass"> During break all sites are free<br><hr>
+            <label>Pomodoro Combo set Habit Id<br/><input id="PomoSetHabitId" type="text"></label><br>
+            <label>Pomodoros in Set  <input style="width:50px;margin-top: 5px;" id="PomoSetNum" type="number"></label><br>
+            <input type="checkbox" id="PomoSetHabitPlus"> + habit when pomodoro set reached<br><hr>
+            
             <button id="SaveButton" type="submit">Save/Update</button>
         </div>
         <br>

@@ -12,3 +12,15 @@
       padding-top: 10%;
       white-space: pre;
   }
+  .blockedSite:after {
+    content:"";
+    background-repeat: no-repeat;
+    width: 211px;
+    height:200px;
+    top: 160px;
+    left: calc(50% - 100px);
+    background-image: url(https://trello-attachments.s3.amazonaws.com/55820c103f408882184c4696/219x219/ee6171a99eda73e0c1d8abf776a6f3bc/clickbait_by_pfeffernusse.png);
+    position: fixed;
+    z-index: 99999;
+    padding-top: 10%;
+}

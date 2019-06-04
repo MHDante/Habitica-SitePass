@@ -3,6 +3,7 @@ var Consts = {
     serverUrl: 'https://habitica.com/api/v3/',
     serverPathUser : 'user/',
     serverPathTask: 'tasks/sitepass',
+    serverPathPomodoroHabit:'tasks/sitepassPomodoro',
     serverPathUserTasks: 'tasks/user',
     RewardTemplate :
         {
@@ -13,6 +14,15 @@ var Consts = {
             alias: "sitepass",
             type: "reward"
         },
+    PomodoroHabitTemplate :
+    {
+        text: ":tomato: Pomodoro",
+        type: "habit",
+        alias: "sitepassPomodoro",
+        notes:  "Habit utilized by Habitica SitePass. "+
+                "Please change the difficulty manualy according to your needs.",
+        priority: 1
+    },
     urlFilter: { urls: ["<all_urls>"], types: ["main_frame"] },
     opt_extraInfoSpec: ["blocking"],
     userDataKey: "USER_DATA",
@@ -22,6 +32,7 @@ var Consts = {
 var Vars = {
     EditingSettings:false,
     RewardTask: Consts.RewardTemplate,
+    PomodoroTaskId:null,
     Monies: 0,
     Exp: 0,
     Hp: 0,
@@ -34,7 +45,6 @@ function UserSettings(copyFrom) {
     this.Credentials = copyFrom ? copyFrom.Credentials :{uid:"",apiToken:""};
     this.PassDurationMins = copyFrom ? copyFrom.PassDurationMins : 10;
     this.PomoDurationMins = copyFrom ? copyFrom.PomoDurationMins : 18;
-    this.PomoHabitId = copyFrom ? copyFrom.PomoHabitId :null;
     this.PomoHabitPlus = copyFrom ? copyFrom.PomoHabitPlus :false; //Hit + on habit when pomodoro done
     this.PomoHabitMinus = copyFrom ? copyFrom.PomoHabitMinus :false; //Hit - on habit when pomodoro is interupted
     this.GetBlockedSite = function (hostname) {
@@ -153,7 +163,6 @@ function getData(silent, credentials, serverPath) {
     xhr.setRequestHeader("x-api-key", credentials.apiToken);
     try {
         xhr.send();
-
     } catch (e) {
 
     }
@@ -194,18 +203,36 @@ function FetchHabiticaData() {
         Vars.Exp = userObj.data["stats"]["exp"];
         Vars.Hp = userObj.data["stats"]["hp"];
     }
-    var tasksObj = getData(true, credentials, Consts.serverPathTask);
+
+    var tasksObj;
+
+    //get pomodoro task id
+    tasksObj = getData(true, credentials, Consts.serverPathPomodoroHabit);
+    if (tasksObj && tasksObj.data["alias"] == "sitepassPomodoro") {
+        Vars.PomodoroTaskId = tasksObj.data.id;
+        console.log(tasksObj.data);
+    }else{
+        var result = CreatePomodoroHabit();
+        if(result.error){
+            notify("ERROR",result.error);
+        }else{
+            Vars.PomodoroTaskId = result;
+        }
+        
+    }
+    
+
+    //Reward task update/create
+    tasksObj = getData(true, credentials, Consts.serverPathTask);
     if (tasksObj && tasksObj.data["alias"] == "sitepass") {
         Vars.RewardTask = tasksObj.data;
         UpdateRewardTask(0, false);
         return;
     }
-
     UpdateRewardTask(0, true);
 }
 
 function UpdateRewardTask(cost, create) {
-    
     Vars.RewardTask.value = cost;
     var xhr = new XMLHttpRequest();
     if (create) {
@@ -221,6 +248,16 @@ function UpdateRewardTask(cost, create) {
         xhr.send(JSON.stringify(Vars.RewardTask));
         Vars.RewardTask = JSON.parse(xhr.responseText).data;
     
+}
+
+function CreatePomodoroHabit() {
+    var data = JSON.stringify(Consts.PomodoroHabitTemplate);
+    var p = JSON.parse(callAPI("POST", Consts.serverPathUserTasks,data));
+    if (p.success != true) {
+        return {error:'Failed to Create Pomodoro Habit task'};
+    }else{
+        return p.data.id;
+     }
 }
 
 function ConfirmPurchase(site) {
@@ -280,7 +317,7 @@ function timerEnds(){
     var msg ="Pomodoro ended";
     //If Pomodoro Habit + is enabled
     if(Vars.UserData.PomoHabitPlus){
-        var result = ScoreHabit(Vars.UserData.PomoHabitId,'up');
+        var result = ScoreHabit(Vars.PomodoroTaskId,'up');
         if(!result.error){
             var deltaGold = (result.gp-Vars.Monies).toFixed(2);
             var deltaExp = (result.exp-Vars.Exp).toFixed(2);
@@ -298,7 +335,7 @@ function timerInterupted(){
     //If Pomodoro Habit - is enabled
     if(Vars.UserData.PomoHabitMinus){
         FetchHabiticaData();
-        var result = ScoreHabit(Vars.UserData.PomoHabitId,'down');
+        var result = ScoreHabit(Vars.PomodoroTaskId,'down');
         var msg = "";
         if(!result.error){
             var deltaHp = (result.hp-Vars.Hp).toFixed(2);

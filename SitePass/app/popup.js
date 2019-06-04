@@ -146,7 +146,6 @@ function CredentialFields() {
     $("#APIToken").val(Vars.UserData.Credentials.apiToken);
     $("#Duration").val(Vars.UserData.PassDurationMins);
     $("#PomoDuration").val(Vars.UserData.PomoDurationMins);
-    $("#PomoHabitId").val(Vars.UserData.PomoHabitId);
     $("#PomoHabitPlus").prop('checked', Vars.UserData.PomoHabitPlus);
     $("#PomoHabitMinus").prop('checked', Vars.UserData.PomoHabitMinus);
 
@@ -155,7 +154,6 @@ function CredentialFields() {
     $("#APIToken").on("keyup", function () { updateCredentials(); });
     $("#Duration").on("keyup", function () { updateCredentials(); });
     $("#PomoDuration").on("keyup", function () { updateCredentials(); });
-    $("#PomoHabitId").on("keyup", function () { updateCredentials(); });
     $("#PomoHabitPlus").click(function () { updateCredentials(); });
     $("#PomoHabitMinus").click(function () { updateCredentials(); });
     //ugh.
@@ -167,7 +165,6 @@ function CredentialFields() {
         SaveUserSettings();
         background.FetchHabiticaData();
         location.reload();
-
     });
 }
 
@@ -232,7 +229,6 @@ function updateCredentials() {
     if (!isNaN(flDuration)) Vars.UserData.PassDurationMins = flDuration;
     var pmDuration = parseFloat($("#PomoDuration").val());
     if (!isNaN(pmDuration)) Vars.UserData.PomoDurationMins = pmDuration;
-    Vars.UserData.PomoHabitId = $("#PomoHabitId").val();
     Vars.UserData.PomoHabitPlus = $("#PomoHabitPlus").prop('checked');
     Vars.UserData.PomoHabitMinus = $("#PomoHabitMinus").prop('checked');
 }

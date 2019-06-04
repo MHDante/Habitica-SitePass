@@ -3,7 +3,7 @@
 
     "name": "Habitica SitePass",
     "description": "This extension plugs into Habitica and turns your time-wasting navigation tendencies into rewards.",
-    "version": "1.4.0",
+    "version": "2.0",
 
     "permissions": [
         "storage",
@@ -39,7 +39,10 @@
         {
           "matches": ["<all_urls>"],
           "css": ["blockSite.css"],
-          "js":["blockSite.js"]
+          "js":["jquery-2.1.3.min.js","blockSite.js"]
         }
+      ],
+      "web_accessible_resources": [
+          "img/siteKeeper.png"
       ]
 }

@@ -24,6 +24,7 @@ var Vars = {
     RewardTask: Consts.RewardTemplate,
     Monies: 0,
     Exp: 0,
+    Hp: 0,
     UserData: new UserSettings(),
     ServerResponse: 0
 };
@@ -35,6 +36,7 @@ function UserSettings(copyFrom) {
     this.PomoDurationMins = copyFrom ? copyFrom.PomoDurationMins : 18;
     this.PomoHabitId = copyFrom ? copyFrom.PomoHabitId :null;
     this.PomoHabitPlus = copyFrom ? copyFrom.PomoHabitPlus :false; //Hit + on habit when pomodoro done
+    this.PomoHabitMinus = copyFrom ? copyFrom.PomoHabitMinus :false; //Hit - on habit when pomodoro is interupted
     this.GetBlockedSite = function (hostname) {
         return this.BlockedSites[hostname];
     }
@@ -84,15 +86,23 @@ function checkAndBlockHostname(hostname){
 
 var callbackwebRequest = function (details) {
     var hostname = new URL(details.url).hostname;
-    return checkAndBlockHostname(hostname);
+    var checkSite = checkAndBlockHostname(hostname);
+    var confirmPurchase = checkSite.confirmPurchase;
+    if(confirmPurchase){
+        //Check if the user is not on the same site for longer than passDuration
+        var passDurationMiliSec = Vars.UserData.PassDurationMins * 60 * 1000
+        setTimeout(function(arg){ 
+            callbackTabActive(arg); 
+            }, passDurationMiliSec,{tabId: details.tabId});
+            delete checkSite.confirmPurchase;
+    }
+    return checkSite;
 };
 
 var callbackTabActive = function (details) {
-    console.log(details +"," + details.tabId);
     chrome.tabs.get(details.tabId, function callback(tab){
         if(!TimerRunnig){
             unblockSiteOverlay(tab);
-
             var hostname = new URL(tab.url).hostname;
             var checkSite = checkAndBlockHostname(hostname);
             var redirectUrl = checkSite.redirectUrl;
@@ -182,18 +192,19 @@ function FetchHabiticaData() {
     else {
         Vars.Monies = userObj.data["stats"]["gp"];
         Vars.Exp = userObj.data["stats"]["exp"];
+        Vars.Hp = userObj.data["stats"]["hp"];
     }
     var tasksObj = getData(true, credentials, Consts.serverPathTask);
     if (tasksObj && tasksObj.data["alias"] == "sitepass") {
         Vars.RewardTask = tasksObj.data;
-        UpdateTask(0, false);
+        UpdateRewardTask(0, false);
         return;
     }
 
-    UpdateTask(0, true);
+    UpdateRewardTask(0, true);
 }
 
-function UpdateTask(cost, create) {
+function UpdateRewardTask(cost, create) {
     
     Vars.RewardTask.value = cost;
     var xhr = new XMLHttpRequest();
@@ -213,7 +224,7 @@ function UpdateTask(cost, create) {
 }
 
 function ConfirmPurchase(site) {
-    UpdateTask(site.cost);
+    UpdateRewardTask(site.cost);
     callAPI("POST",Consts.serverPathTask+"/score/down");
     Vars.Monies -= site.cost;
 }
@@ -244,39 +255,63 @@ function startTimer(duration) {
         seconds = seconds < 10 ? "0" + seconds : seconds;
        
         Timer = minutes + ":" + seconds;
-        console.log(Timer);
+        //console.log(Timer);
 
         //Show time on icon badge 
-        chrome.browserAction.setBadgeText({
-            text: Timer
-        });
+        chrome.browserAction.setBadgeBackgroundColor({color: "darkgreen"});
+        chrome.browserAction.setBadgeText({ text: Timer });
+
         
         //Block Site alredy opened
         CurrentTab(blockSiteOverlay);
 
         //Times Up
         if (--timer < 0) {
-            stopTimer();
-            FetchHabiticaData();
-            var msg ="Pomodoro ended";
-            //If Pomodoro Habit + is enabled
-            if(Vars.UserData.PomoHabitPlus){
-                var result = ScoreHabit(Vars.UserData.PomoHabitId,'up');
-                if(!result.error){
-                    var deltaGold = (result.gp-Vars.Monies).toFixed(2);
-                    var deltaExp = (result.exp-Vars.Exp).toFixed(2);
-                    msg = "You Earned Gold: +" +deltaGold +"\n"+"You Earned Exp: +"+deltaExp;
-                    FetchHabiticaData();
-                }else{
-                    msg = "ERROR: "+result.error;
-                }
-            }
-            console.log("Time's Up");
-            notify("Time's Up", msg);
+            timerEnds();
         }
 
     }, 1000);
 }
+
+//Runs When Pomodoro Timer Ends
+function timerEnds(){
+    stopTimer();
+    FetchHabiticaData();
+    var msg ="Pomodoro ended";
+    //If Pomodoro Habit + is enabled
+    if(Vars.UserData.PomoHabitPlus){
+        var result = ScoreHabit(Vars.UserData.PomoHabitId,'up');
+        if(!result.error){
+            var deltaGold = (result.gp-Vars.Monies).toFixed(2);
+            var deltaExp = (result.exp-Vars.Exp).toFixed(2);
+            msg = "You Earned Gold: +" +deltaGold +"\n"+"You Earned Exp: +"+deltaExp;
+            FetchHabiticaData();
+        }else{
+            msg = "ERROR: "+result.error;
+        }
+    }
+    console.log("Time's Up");
+    notify("Time's Up", msg);
+}
+
+function timerInterupted(){
+    //If Pomodoro Habit - is enabled
+    if(Vars.UserData.PomoHabitMinus){
+        FetchHabiticaData();
+        var result = ScoreHabit(Vars.UserData.PomoHabitId,'down');
+        var msg = "";
+        if(!result.error){
+            var deltaHp = (result.hp-Vars.Hp).toFixed(2);
+            msg = "You Lost Health: "+deltaHp;
+            FetchHabiticaData();
+        }else{
+            msg = "ERROR: "+result.error;
+        }
+        console.log(msg);
+        notify("Timer Interupted!", msg);
+    }  
+}
+
 //Stop Pomodoro Timer
 function stopTimer(){
     TimerRunnig = false;

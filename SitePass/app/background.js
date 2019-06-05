@@ -54,7 +54,7 @@ function BlockedSite(hostname, cost, passExpiry) {
     this.passExpiry = passExpiry;
 }
 
-//Checks the hostname and block it if the user dosent have enough gold or pomodoro is active
+//Checks the hostname and block it if the user dosent have enough gold or pomodoro is active.
 function checkAndBlockHostname(hostname){
     
     var site = Vars.UserData.GetBlockedSite(hostname);

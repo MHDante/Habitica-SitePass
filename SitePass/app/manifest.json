@@ -1,9 +1,9 @@
 {
     "manifest_version": 2,
 
-    "name": "Habitica SitePass",
-    "description": "This extension plugs into Habitica and turns your time-wasting navigation tendencies into rewards.",
-    "version": "2.0",
+    "name": "Habitica SiteKeeper",
+    "description": "This extension plugs into Habitica and turns your time-wasting navigation tendencies into rewards. Including a Pomodoro Timer and Site Blocker.",
+    "version": "2.5",
 
     "permissions": [
         "storage",

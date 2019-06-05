@@ -1,7 +1,7 @@
 <!doctype html>
 <html>
 <head>
-    <title>Habitica SitePass</title>
+    <title>Habitica SiteKeeper</title>
     <script src="jquery-2.1.3.min.js"></script>
     <link rel="stylesheet" type="text/css" href="popup.css">
     <script src="popup.js"></script>
@@ -42,20 +42,26 @@
 
             <label><b>Break Duration (In Minutes)</b><br/><input id="BreakDuration" type="text"></label><br>
             <label><b>Break Extention (In Minutes)</b><br/><input id="BreakExtention" type="text"></label><br>
-            <input type="checkbox" id="BreakExtentionEnabled">Fail Pomodoro after Break Extention<br>
             <input type="checkbox" id="BreakFreePass">During break all sites are free<br>
+            <input type="checkbox" id="BreakExtentionEnabled">Fail Pomodoro after Break Extention<br>
             <hr>
-            <label><b>Pomodoro Combo set Habit Id</b><br/><input id="PomoSetHabitId" type="text"></label><br>
-            <label><b>Pomodoros in Set  </b><input style="width:50px;margin-top: 5px;" id="PomoSetNum" type="number"></label><br>
+
+            <label><b>Pomodoro Combo Set Habit </b></label><br>
             <label><input type="checkbox" id="PomoSetHabitPlus"> <span class="plus_minus_icon">+</span> habit for pomodoro set complete</label><br>
+            <label><b>Pomodoros in Set  </b><input style="width:50px;margin-top: 5px;" id="PomoSetNum" type="number"></label><br>
+            <span class="setting-note">Choose 0 for infinite loop<br>(Break Extentions won't fail you)</span>
             <hr>
             
             <button id="SaveButton" type="submit">Save/Update</button>
             <br><br>
+            <a href="https://habitica.fandom.com/wiki/Habitica_SitePass" target="_blank" style="color:#878190;">Help & Credits</a>
+            <br>
         </div>
         <hr>
+        <a href="https://habitica.com" target="_blank"><div class="footer_icons"><span class="habitica_icon"></span></div></a>
         <div class="footer_icons" style="color: goldenrod;" id="Dosh"><span class="gold_icon"></span></div>
         <div class="footer_icons" style="color: red;" id="MyHp"><span class="hp_icon"></span></div>
+        
     </div>
 </body>
 </html>

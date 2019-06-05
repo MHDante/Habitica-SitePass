@@ -239,11 +239,13 @@ function updateTimerDisplay(){
             $('.tomato').toggleClass("tomatoWait", false); 
             $('.tomato').toggleClass("tomatoProgress", true);
             $('#pomodoro').css("background-color", "green");
+            $('#pomodoro').css("color", "lightgreen");
             $("#SiteTable tbody").toggleClass('blocked',true);
         }else{
             $('.tomato').toggleClass("tomatoWait", true); 
             $('.tomato').toggleClass("tomatoProgress", false);
-            $('#pomodoro').css("background-color", "#2995CD");
+            $('#pomodoro').css("background-color", "#2995CD")
+            $('#pomodoro').css("color", "#36205D");
             $("#SiteTable tbody").toggleClass('blocked',false);
         }
 }

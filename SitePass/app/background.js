@@ -3,6 +3,7 @@ var Consts = {
     serverUrl: 'https://habitica.com/api/v3/',
     serverPathUser : 'user/',
     serverPathTask: 'tasks/sitepass',
+    serverPathPomodoroHabit:'tasks/sitepassPomodoro',
     serverPathUserTasks: 'tasks/user',
     RewardTemplate :
         {
@@ -13,6 +14,15 @@ var Consts = {
             alias: "sitepass",
             type: "reward"
         },
+    PomodoroHabitTemplate :
+    {
+        text: ":tomato: Pomodoro",
+        type: "habit",
+        alias: "sitepassPomodoro",
+        notes:  "Habit utilized by Habitica SitePass. "+
+                "Please change the difficulty manualy according to your needs.",
+        priority: 1
+    },
     urlFilter: { urls: ["<all_urls>"], types: ["main_frame"] },
     opt_extraInfoSpec: ["blocking"],
     userDataKey: "USER_DATA",
@@ -22,7 +32,10 @@ var Consts = {
 var Vars = {
     EditingSettings:false,
     RewardTask: Consts.RewardTemplate,
+    PomodoroTaskId:null,
     Monies: 0,
+    Exp: 0,
+    Hp: 0,
     UserData: new UserSettings(),
     ServerResponse: 0
 };
@@ -32,6 +45,8 @@ function UserSettings(copyFrom) {
     this.Credentials = copyFrom ? copyFrom.Credentials :{uid:"",apiToken:""};
     this.PassDurationMins = copyFrom ? copyFrom.PassDurationMins : 10;
     this.PomoDurationMins = copyFrom ? copyFrom.PomoDurationMins : 18;
+    this.PomoHabitPlus = copyFrom ? copyFrom.PomoHabitPlus :false; //Hit + on habit when pomodoro done
+    this.PomoHabitMinus = copyFrom ? copyFrom.PomoHabitMinus :false; //Hit - on habit when pomodoro is interupted
     this.GetBlockedSite = function (hostname) {
         return this.BlockedSites[hostname];
     }
@@ -59,7 +74,7 @@ function checkAndBlockHostname(hostname){
     
     var site = Vars.UserData.GetBlockedSite(hostname);
     
-    if (!site || site.passExpiry > Date.now()) return { cancel: false };
+    if (!site || site.passExpiry > Date.now() || TimerRunnig || site.cost == 0) return { cancel: false };
     FetchHabiticaData();
     if (site.cost > Vars.Monies) {
         alert(  "You can't afford to visit " + site.hostname + " !\n" +
@@ -81,14 +96,23 @@ function checkAndBlockHostname(hostname){
 
 var callbackwebRequest = function (details) {
     var hostname = new URL(details.url).hostname;
-    return checkAndBlockHostname(hostname);
+    var checkSite = checkAndBlockHostname(hostname);
+    var confirmPurchase = checkSite.confirmPurchase;
+    if(confirmPurchase){
+        //Check if the user is not on the same site for longer than passDuration
+        var passDurationMiliSec = Vars.UserData.PassDurationMins * 60 * 1000
+        setTimeout(function(arg){ 
+            callbackTabActive(arg); 
+            }, passDurationMiliSec,{tabId: details.tabId});
+            delete checkSite.confirmPurchase;
+    }
+    return checkSite;
 };
 
-var callbackTabSwitched = function (details) {
+var callbackTabActive = function (details) {
     chrome.tabs.get(details.tabId, function callback(tab){
         if(!TimerRunnig){
             unblockSiteOverlay(tab);
-
             var hostname = new URL(tab.url).hostname;
             var checkSite = checkAndBlockHostname(hostname);
             var redirectUrl = checkSite.redirectUrl;
@@ -99,7 +123,7 @@ var callbackTabSwitched = function (details) {
                 //Check if the user is not on the same site for longer than passDuration
                var passDurationMiliSec = Vars.UserData.PassDurationMins * 60 * 1000 
                setTimeout(function(arg){ 
-                   callbackTabSwitched(arg); 
+                callbackTabActive(arg); 
                 }, passDurationMiliSec,details);
             }
         }
@@ -109,8 +133,8 @@ var callbackTabSwitched = function (details) {
 //Entering a new url 
 chrome.webRequest.onBeforeRequest.addListener(callbackwebRequest, Consts.urlFilter, Consts.opt_extraInfoSpec);
 
-//Swithing tabs
-chrome.tabs.onActivated.addListener(callbackTabSwitched);
+//Switching tabs
+chrome.tabs.onActivated.addListener(callbackTabActive);
 
 // ReSharper disable once PossiblyUnassignedProperty
 chrome.storage.sync.get(Consts.userDataKey, function (result) { 
@@ -120,6 +144,18 @@ chrome.storage.sync.get(Consts.userDataKey, function (result) {
     }
 });
 
+//Habitica Api general call
+function callAPI(method, route, postData) {
+	var http = new XMLHttpRequest();
+	http.open(method, Consts.serverUrl + route, false);
+	http.setRequestHeader('Content-Type', 'application/json');
+	http.setRequestHeader('x-api-user', Vars.UserData.Credentials.uid);
+	http.setRequestHeader('x-api-key', Vars.UserData.Credentials.apiToken);
+	if (typeof postData !== 'undefined')  http.send(postData);
+	else                                  http.send();
+	return (http.responseText);
+}
+
 function getData(silent, credentials, serverPath) {
     var xhr = new XMLHttpRequest();
     xhr.open("GET", Consts.serverUrl + serverPath, false);
@@ -127,7 +163,6 @@ function getData(silent, credentials, serverPath) {
     xhr.setRequestHeader("x-api-key", credentials.apiToken);
     try {
         xhr.send();
-
     } catch (e) {
 
     }
@@ -163,19 +198,41 @@ function FetchHabiticaData() {
     var credentials = Vars.UserData.Credentials;
     var userObj = getData(false, credentials, Consts.serverPathUser);
     if (userObj == null) return;
-    else Vars.Monies = userObj.data["stats"]["gp"];
-    var tasksObj = getData(true, credentials, Consts.serverPathTask);
-    if (tasksObj && tasksObj.data["alias"] == "sitepass") {
-        Vars.RewardTask = tasksObj.data;
-        UpdateTask(0, false);
-        return;
+    else {
+        Vars.Monies = userObj.data["stats"]["gp"];
+        Vars.Exp = userObj.data["stats"]["exp"];
+        Vars.Hp = userObj.data["stats"]["hp"];
     }
 
-    UpdateTask(0, true);
+    var tasksObj;
+
+    //get pomodoro task id
+    tasksObj = getData(true, credentials, Consts.serverPathPomodoroHabit);
+    if (tasksObj && tasksObj.data["alias"] == "sitepassPomodoro") {
+        Vars.PomodoroTaskId = tasksObj.data.id;
+        console.log(tasksObj.data);
+    }else{
+        var result = CreatePomodoroHabit();
+        if(result.error){
+            notify("ERROR",result.error);
+        }else{
+            Vars.PomodoroTaskId = result;
+        }
+        
+    }
+    
+
+    //Reward task update/create
+    tasksObj = getData(true, credentials, Consts.serverPathTask);
+    if (tasksObj && tasksObj.data["alias"] == "sitepass") {
+        Vars.RewardTask = tasksObj.data;
+        UpdateRewardTask(0, false);
+        return;
+    }
+    UpdateRewardTask(0, true);
 }
 
-function UpdateTask(cost, create) {
-    
+function UpdateRewardTask(cost, create) {
     Vars.RewardTask.value = cost;
     var xhr = new XMLHttpRequest();
     if (create) {
@@ -193,15 +250,29 @@ function UpdateTask(cost, create) {
     
 }
 
-function ConfirmPurchase(site) {
-    UpdateTask(site.cost);
-    var xhr = new XMLHttpRequest();
-    xhr.open("POST", Consts.serverUrl + Consts.serverPathTask+"/score/down", false);
-    xhr.setRequestHeader("x-api-user", Vars.UserData.Credentials.uid);
-    xhr.setRequestHeader("x-api-key", Vars.UserData.Credentials.apiToken);
-    xhr.send();
-    Vars.Monies -= site.cost;
+function CreatePomodoroHabit() {
+    var data = JSON.stringify(Consts.PomodoroHabitTemplate);
+    var p = JSON.parse(callAPI("POST", Consts.serverPathUserTasks,data));
+    if (p.success != true) {
+        return {error:'Failed to Create Pomodoro Habit task'};
+    }else{
+        return p.data.id;
+     }
+}
 
+function ConfirmPurchase(site) {
+    UpdateRewardTask(site.cost);
+    callAPI("POST",Consts.serverPathTask+"/score/down");
+    Vars.Monies -= site.cost;
+}
+
+//direction 'up' or 'down'
+function ScoreHabit(habitId,direction){
+    var p = JSON.parse(callAPI("POST", '/tasks/' + habitId + '/score/' + direction));
+    if (p.success != true) {
+        return {error:'Failed to score task ' + habitId + ', doublecheck its ID'};
+    }
+    return { lvl: p.data.lvl, hp: p.data.hp, exp: p.data.exp, mp: p.data.mp, gp: p.data.gp };
 }
 
 // ------------- pomodoro ---------------------------
@@ -221,25 +292,63 @@ function startTimer(duration) {
         seconds = seconds < 10 ? "0" + seconds : seconds;
        
         Timer = minutes + ":" + seconds;
-        console.log(Timer);
+        //console.log(Timer);
 
         //Show time on icon badge 
-        chrome.browserAction.setBadgeText({
-            text: Timer
-        });
+        chrome.browserAction.setBadgeBackgroundColor({color: "darkgreen"});
+        chrome.browserAction.setBadgeText({ text: Timer });
+
         
         //Block Site alredy opened
         CurrentTab(blockSiteOverlay);
 
         //Times Up
         if (--timer < 0) {
-            stopTimer();
-            console.log("Time's Up");
-            notify("Times Up","Pomodoro ended");
+            timerEnds();
         }
 
     }, 1000);
 }
+
+//Runs When Pomodoro Timer Ends
+function timerEnds(){
+    stopTimer();
+    FetchHabiticaData();
+    var msg ="Pomodoro ended";
+    //If Pomodoro Habit + is enabled
+    if(Vars.UserData.PomoHabitPlus){
+        var result = ScoreHabit(Vars.PomodoroTaskId,'up');
+        if(!result.error){
+            var deltaGold = (result.gp-Vars.Monies).toFixed(2);
+            var deltaExp = (result.exp-Vars.Exp).toFixed(2);
+            msg = "You Earned Gold: +" +deltaGold +"\n"+"You Earned Exp: +"+deltaExp;
+            FetchHabiticaData();
+        }else{
+            msg = "ERROR: "+result.error;
+        }
+    }
+    console.log("Time's Up");
+    notify("Time's Up", msg);
+}
+
+function timerInterupted(){
+    //If Pomodoro Habit - is enabled
+    if(Vars.UserData.PomoHabitMinus){
+        FetchHabiticaData();
+        var result = ScoreHabit(Vars.PomodoroTaskId,'down');
+        var msg = "";
+        if(!result.error){
+            var deltaHp = (result.hp-Vars.Hp).toFixed(2);
+            msg = "You Lost Health: "+deltaHp;
+            FetchHabiticaData();
+        }else{
+            msg = "ERROR: "+result.error;
+        }
+        console.log(msg);
+        notify("Timer Interupted!", msg);
+    }  
+}
+
 //Stop Pomodoro Timer
 function stopTimer(){
     TimerRunnig = false;
@@ -249,6 +358,7 @@ function stopTimer(){
         text: ''
     });
     CurrentTab(unblockSiteOverlay); //if current tab is blocked, unblock it
+    CurrentTab(function(tab){callbackTabActive({tabId: tab.id})}); //ConfirmPurchase alert
 }
 
 //Create Chrome Notification

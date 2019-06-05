@@ -32,7 +32,8 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }
     CredentialFields();
-    $("#Dosh").append(Vars.Monies.toFixed(2));
+    $("#Dosh").append(Vars.Monies.toFixed(1));
+    $("#MyHp").append(Vars.Hp.toFixed(0));
 
     //Start Pomodoro Timer
     $("#PomoStart").click(function () {
@@ -42,6 +43,7 @@ document.addEventListener("DOMContentLoaded", function () {
             background.startTimer(seconds);
         }else{
             background.stopTimer();
+            background.timerInterupted();   
         }
     });
     //Update Timer display
@@ -63,7 +65,7 @@ function AddSiteToTable(site, fadein) {
         '<tr class="reward-item">' +
             '<td class="gp">' +
                 '<a class="buy" href="#">' +
-                    '<span class="shop_gold"></span><br>' + cost +
+                    '<span class="gold_icon"></span><br>' + cost +
             '</a></td>' +
             '<td style="width:100%"><div class="hostname">' + site.hostname + '</div></td>' +
             '<td><a class="edit" href="#"><img src="img/pencil.png"></a></td>' +
@@ -99,7 +101,7 @@ function Toggle(obj) {
         obj.fadeOut({ complete: function() {
             $("tbody").each(function () {
                 $(this).find(".buy")
-                    .html('<span class="shop_gold"></span><br>' + $(this).data("site").cost);
+                    .html('<span class="gold_icon"></span><br>' + $(this).data("site").cost);
             });
         } });
     } else {
@@ -144,13 +146,16 @@ function CredentialFields() {
     $("#APIToken").val(Vars.UserData.Credentials.apiToken);
     $("#Duration").val(Vars.UserData.PassDurationMins);
     $("#PomoDuration").val(Vars.UserData.PomoDurationMins);
-    
+    $("#PomoHabitPlus").prop('checked', Vars.UserData.PomoHabitPlus);
+    $("#PomoHabitMinus").prop('checked', Vars.UserData.PomoHabitMinus);
 
 
     $("#UID").on("keyup", function () { updateCredentials(); });
     $("#APIToken").on("keyup", function () { updateCredentials(); });
     $("#Duration").on("keyup", function () { updateCredentials(); });
     $("#PomoDuration").on("keyup", function () { updateCredentials(); });
+    $("#PomoHabitPlus").click(function () { updateCredentials(); });
+    $("#PomoHabitMinus").click(function () { updateCredentials(); });
     //ugh.
 
     $("#SaveButton").click(function () {
@@ -160,7 +165,6 @@ function CredentialFields() {
         SaveUserSettings();
         background.FetchHabiticaData();
         location.reload();
-
     });
 }
 
@@ -225,17 +229,23 @@ function updateCredentials() {
     if (!isNaN(flDuration)) Vars.UserData.PassDurationMins = flDuration;
     var pmDuration = parseFloat($("#PomoDuration").val());
     if (!isNaN(pmDuration)) Vars.UserData.PomoDurationMins = pmDuration;
+    Vars.UserData.PomoHabitPlus = $("#PomoHabitPlus").prop('checked');
+    Vars.UserData.PomoHabitMinus = $("#PomoHabitMinus").prop('checked');
 }
 
 function updateTimerDisplay(){
     $('#Time').html(background.Timer);
         if(background.TimerRunnig){
-            $('.tomato').html("Stop");
-            $('#pomodoro').css("background-color", "lightgreen");
+            $('.tomato').toggleClass("tomatoWait", false); 
+            $('.tomato').toggleClass("tomatoProgress", true);
+            $('#pomodoro').css("background-color", "green");
+            $('#pomodoro').css("color", "lightgreen");
             $("#SiteTable tbody").toggleClass('blocked',true);
         }else{
-            $('.tomato').html("Start"); 
-            $('#pomodoro').css("background-color", "lightgray");
+            $('.tomato').toggleClass("tomatoWait", true); 
+            $('.tomato').toggleClass("tomatoProgress", false);
+            $('#pomodoro').css("background-color", "#2995CD")
+            $('#pomodoro').css("color", "#36205D");
             $("#SiteTable tbody").toggleClass('blocked',false);
         }
 }

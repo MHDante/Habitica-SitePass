@@ -12,3 +12,14 @@
       padding-top: 10%;
       white-space: pre;
   }
+  .blockedSite:after {
+    content:"";
+    background-repeat: no-repeat;
+    width: 211px;
+    height:200px;
+    top: 160px;
+    left: calc(50% - 100px);
+    position: fixed;
+    z-index: 99999;
+    padding-top: 10%;
+}

@@ -1,162 +1,67 @@
 <!doctype html>
 <html>
 <head>
-    <title>Habitica SitePass</title>
-    <style>
-        td {
-            padding: 5px;
-        }
-
-        table {
-            border-spacing: 0;
-            width: auto;
-        }
-
-        body {
-            width: 250px;
-            height: 450px;
-            border-collapse:collapse;
-            display : table;
-            font-family: Helvetica, Arial, sans-serif;
-            font-size: 14px;
-            background: #f2f5f6;
-            -webkit-backface-visibility: hidden;
-        }
-        h1 {
-            margin: 0;
-            color: #946e00;
-            font-size: 22px;
-        }
-        .reward-item {
-            background-color: #fff;
-        }
-
-        .hostname {
-            overflow: hidden;
-            width: 130px;
-        }
-        .cost-input {
-            background-color: #ffea70;
-        }
-        .shop_gold {
-            background-image: url(img/icon.png);
-            width: 32px;
-            height: 25px;
-            vertical-align: top;
-            display: inline-block;
-            background-position: 0;
-        }
-        .gp {
-            width: auto;
-            height: 100%;
-            text-align: center;
-            vertical-align: top;
-            background-color: #d0e0e3;
-            color: #555;
-            display: inline-block;
-            line-height: 1.5em;
-            border: none;
-        }
-        .setting-header{
-            line-height: 5px;
-            color: gray;
-            font-weight: bold;
-            text-align: center;
-            background-color: lightgray;
-            padding: 9px;
-        }
-        .tomato {
-            background-image: url(img/pomodoro.png);
-            width: 45px;
-            height: 45px;
-            vertical-align: top;
-            display: inline-block;
-            background-position: 0;
-            color: white;
-            line-height: 60px;
-            font-size: 12px;
-            text-align: center;
-            font-weight: bold;
-            cursor: pointer;
-        }
-        .blocked:before{
-            content: "Blocked";
-            text-align: center;
-            font-size: 24px;
-            color: white;
-            font-weight: bold;
-            line-height: 59px;
-            background-color: #ff000073;
-            display: block;
-            width: 100%;
-            height: 57px;
-            position: absolute;
-        }
-        #pomodoro {
-            background-color: lightgray;
-            border-radius: 15px;
-            padding: 10px;
-            text-align: center;
-            width: 154px;
-            margin: auto;
-            margin-top: 10px;
-        }
-        #Time{
-            padding: 13px;
-            font-size: 24px;
-            line-height: 46px;
-        }
-        #Footer {
-            display : table-row;
-            vertical-align : bottom;
-            height : 1px;
-        }
-        #SiteTable {
-            width: 100%
-        }
-        #CredError {
-            display: none;
-            color: rgb(255, 0, 0);
-        }
-        #AdvSettings {
-            display: none;
-        }
-        #Credentials {
-            display: none;
-        }
-    
-    </style>
+    <title>Habitica SiteKeeper</title>
     <script src="jquery-2.1.3.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="popup.css">
     <script src="popup.js"></script>
 </head>
 <body>
     <a id="BlockLink" href="#">Block Site!</a>
     <!-- Pomodoro Timer -->
     <div id="pomodoro">
-        <span id="PomoStart" class="tomato">Start</span><span id="Time">00:00</span> 
+        <span id="PomoStart" class="tomato"></span><span id="Time">00:00</span> 
     </div>
     <!-- Blocked Sites -->
-    <p>Blocked Sites:</p>
+    <p><b>Blocked Sites:</b></p>
     <table id="SiteTable"></table>
     <!-- Footer -->
     <div id="Footer">
-        <br>
+        
         <p id="CredError">Credential error! The extension is currently not updating Habitica!</p>
-        <label id="AdvSettings"><input type="checkbox">Show Advanced Settings</label>
         <br>
+        <div style="padding:4px;" class="setting-header">
+            <label id="AdvSettings"><input type="checkbox">Show Advanced Settings</label>
+        </div>
         <div id="Credentials">
             <p class="setting-header">User</p>
-            <label>Habitica User ID:<br /><input id="UID" type="text"></label><br>
-            <label>Habitica API Token:<br /><input id="APIToken" type="text"></label><br>
-            <p class="setting-header">Pay to unblock</p>
-            <label>Pass Duration(In Minutes)<br /><input id="Duration" type="text"></label><br>
+            <label><b>Habitica User ID:</b><br/><input id="UID" type="text"></label><br>
+            <label><b>Habitica API Token:</b><br/><input id="APIToken" type="text"></label><br>
+            <p class="setting-header">Pay to pass</p>
+            <label><b>Pass Duration (In Minutes)</b><br/><input id="Duration" type="text"></label><br>
+            <sapn class="setting-note">Sites with cost 0 are blocked only during pomodoro</sapn>
             <p class="setting-header">Pomodoro</p>
-            <label>Pomodoro Duration(In Minutes)<br /><input id="PomoDuration" type="text"></label><br>
-            <br>
+            <label><b>Pomodoro Duration (In Minutes)</b><br/><input id="PomoDuration" type="text"></label><br>
+            <hr>
+            <label><b>Pomodoro Habit Task</b></label><br>
+            <label><input type="checkbox" id="PomoHabitPlus"> <span class="plus_minus_icon">+</span> habit when pomodoro is done</label><br>
+            <label><input type="checkbox" id="PomoHabitMinus"> <span class="plus_minus_icon">-</span> habit when pomodoro fails</label><br>
+            <span class="setting-note">Pomodoro fails if stopped before timer ends or Break Extention is over</span>
+            <hr>
+            <p class="setting-header commingSoon">Comming soon...</p>
+
+            <label><b>Break Duration (In Minutes)</b><br/><input id="BreakDuration" type="text"></label><br>
+            <label><b>Break Extention (In Minutes)</b><br/><input id="BreakExtention" type="text"></label><br>
+            <input type="checkbox" id="BreakFreePass">During break all sites are free<br>
+            <input type="checkbox" id="BreakExtentionEnabled">Fail Pomodoro after Break Extention<br>
+            <hr>
+
+            <label><b>Pomodoro Combo Set Habit </b></label><br>
+            <label><input type="checkbox" id="PomoSetHabitPlus"> <span class="plus_minus_icon">+</span> habit for pomodoro set complete</label><br>
+            <label><b>Pomodoros in Set  </b><input style="width:50px;margin-top: 5px;" id="PomoSetNum" type="number"></label><br>
+            <span class="setting-note">Choose 0 for infinite loop<br>(Break Extentions won't fail you)</span>
+            <hr>
+            
             <button id="SaveButton" type="submit">Save/Update</button>
+            <br><br>
+            <a href="https://habitica.fandom.com/wiki/Habitica_SitePass" target="_blank" style="color:#878190;">Help & Credits</a>
+            <br>
         </div>
-        <br>
-        <h1 id="Dosh"><span class="shop_gold"></span></h1>
+        <hr>
+        <a href="https://habitica.com" target="_blank"><div class="footer_icons"><span class="habitica_icon"></span></div></a>
+        <div class="footer_icons" style="color: goldenrod;" id="Dosh"><span class="gold_icon"></span></div>
+        <div class="footer_icons" style="color: red;" id="MyHp"><span class="hp_icon"></span></div>
+        
     </div>
 </body>
 </html>

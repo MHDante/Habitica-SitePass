@@ -1,0 +1,217 @@
+input[type="checkbox"] {
+    vertical-align: middle;
+}
+input {
+    margin-bottom: 5px;
+}
+td {
+    padding: 5px;
+}
+
+table {
+    border-spacing: 0;
+    width: auto;
+}
+
+body {
+    width: 250px;
+    height: 450px;
+    border-collapse:collapse;
+    display : table;
+    font-family: Helvetica, Arial, sans-serif;
+    font-size: 14px;
+    /* background: #f2f5f6; */
+    background:#EDECEE;
+    color:#878190;
+    -webkit-backface-visibility: hidden;
+}
+.footer_icons {
+    margin: 0;
+    font-size: 22px;
+    width: auto;
+    display: inline;
+    margin-right: 10px;
+}
+.reward-item {
+    background-color: #36205D;
+    color: #00BCD4;
+    webkit-box-shadow: 0 2px 2px 0 rgba(26, 24, 29, 0.16), 0 1px 4px 0 rgba(26, 24, 29, 0.12);
+    box-shadow: 0 2px 2px 0 rgba(26, 24, 29, 0.16), 0 1px 4px 0 rgba(26, 24, 29, 0.12);
+}
+
+.hostname {
+    overflow: hidden;
+    width: 130px;
+}
+.cost-input {
+    background-color: #00BCD4;
+    color: #36205D;
+}
+a{
+    color:#36205D;
+}
+.gold_icon {
+    background-image: url(img/coin.png);
+    background-repeat: no-repeat;
+    width: 25px;
+    height: 25px;
+    margin-right: 2px;
+    margin-left: 2px;
+    vertical-align: top;
+    display: inline-block;
+    background-position: 0;
+}
+.hp_icon {
+    background-image: url(img/heart.png);
+    background-repeat: no-repeat;
+    width: 25px;
+    height: 25px;
+    margin-right: 2px;
+    margin-left: 2px;
+    vertical-align: top;
+    display: inline-block;
+    background-position: 0;
+}
+.habitica_icon {
+    background-image: url(img/habitica.png);
+    background-repeat: no-repeat;
+    width: 25px;
+    height: 25px;
+    margin-right: 2px;
+    margin-left: 6px;
+    vertical-align: top;
+    display: inline-block;
+    background-position: 0;
+    margin-top: -1px;
+}
+.gp {
+    width: auto;
+    height: 100%;
+    text-align: center;
+    vertical-align: top;
+    background-color: #2995CD;
+    color: #555;
+    display: inline-block;
+    line-height: 1.5em;
+    border: none;
+}
+.setting-header{
+    line-height: 5px;
+    color: #36205D;
+    font-weight: bold;
+    text-align: center;
+    background-color: #2995CD;
+    padding: 9px;
+}
+.tomato {
+    
+    width: 100px;
+    height: 70px;
+    vertical-align: top;
+    display: inline-block;
+    background-position: 0;
+    margin-top: -7px;
+    line-height: 100px;
+    margin-left: -20px;
+    cursor: pointer;
+}
+.tomatoProgress{
+    background-image: url(img/pomodoroProgress.png);
+}
+.tomatoProgress:hover{
+    background-image: url(img/pomodoroQuit.png);
+}
+.tomatoWait{
+    background-image: url(img/pomodoroWait.png);
+}
+.tomatoWait:hover{
+    background-image: url(img/pomodoroStart.png);
+}
+.blocked:before{
+    content: "";
+    text-align: center;
+    font-size: 24px;
+    color: white;
+    font-weight: bold;
+    line-height: 59px;
+    background-color: #54000057;
+    display: block;
+    width: 95%;
+    height: 57px;
+    position: absolute;
+    background-image: url(img/chainLock.png);
+}
+.setting-note{
+    color:gray;
+    font-size:11px;
+}
+#pomodoro {
+    background-color: #2995CD;
+    padding: 10px;
+    text-align: center;
+    margin: auto;
+    margin-top: 10px;
+    width: 100%;
+    margin-left: -7px;
+    webkit-box-shadow: 0 2px 2px 0 rgba(26, 24, 29, 0.16), 0 1px 4px 0 rgba(26, 24, 29, 0.12);
+     box-shadow: 0 2px 2px 0 rgba(26, 24, 29, 0.16), 0 1px 4px 0 rgba(26, 24, 29, 0.12);
+}
+#Time{
+    font-size: 29px;
+    top: 17px;
+    font-weight: bold;
+    position: relative;
+}
+#Footer {
+    display : table-row;
+    vertical-align : bottom;
+    height : 1px;
+}
+#SiteTable {
+    width: 100%
+}
+#CredError {
+    display: none;
+    color: rgb(255, 0, 0);
+}
+#AdvSettings {
+    display: none;
+    cursor: pointer;
+}
+
+#Credentials {
+    display: none;
+}
+.commingSoon{
+    background-color: teal;
+    color:white;
+}
+#SaveButton{
+    background-color: gold;
+    width: 100%;
+    cursor: pointer;
+}
+#AdvSettings:hover input:checked:before {
+    content: "Don't Forget to Save!";
+    display: inline-block;
+    width: 208px;
+    top: -27px;
+    position: relative;
+    font-size: 10px;
+    background-color: gold;
+    text-align: center;
+    padding: 2px;
+    left: -17px;
+    border-radius: 10px;
+}
+#BlockLink{
+    color:#36205D;
+}
+.plus_minus_icon {
+    border: 1px solid #878190;
+    border-radius: 4px;
+    display: inline-block;
+    width: 12px;
+    text-align: center;
+    vertical-align: middle;
+}

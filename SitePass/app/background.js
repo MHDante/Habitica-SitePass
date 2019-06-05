@@ -1,5 +1,6 @@
 "use strict";
 var Consts = {
+    xClientHeader: "5a8238ab-1819-4f7f-a750-f23264719a2d-Habitica SiteKeeper",
     serverUrl: 'https://habitica.com/api/v3/',
     serverPathUser : 'user/',
     serverPathTask: 'tasks/sitepass',
@@ -146,19 +147,21 @@ chrome.storage.sync.get(Consts.userDataKey, function (result) {
 
 //Habitica Api general call
 function callAPI(method, route, postData) {
-	var http = new XMLHttpRequest();
-	http.open(method, Consts.serverUrl + route, false);
-	http.setRequestHeader('Content-Type', 'application/json');
-	http.setRequestHeader('x-api-user', Vars.UserData.Credentials.uid);
-	http.setRequestHeader('x-api-key', Vars.UserData.Credentials.apiToken);
-	if (typeof postData !== 'undefined')  http.send(postData);
-	else                                  http.send();
-	return (http.responseText);
+	var xhr = new XMLHttpRequest();
+    xhr.open(method, Consts.serverUrl + route, false);
+    xhr.setRequestHeader('x-client', Consts.xClientHeader);
+	xhr.setRequestHeader('Content-Type', 'application/json');
+	xhr.setRequestHeader('x-api-user', Vars.UserData.Credentials.uid);
+	xhr.setRequestHeader('x-api-key', Vars.UserData.Credentials.apiToken);
+	if (typeof postData !== 'undefined')  xhr.send(postData);
+	else                                  xhr.send();
+	return (xhr.responseText);
 }
 
 function getData(silent, credentials, serverPath) {
     var xhr = new XMLHttpRequest();
     xhr.open("GET", Consts.serverUrl + serverPath, false);
+    xhr.setRequestHeader('x-client', Consts.xClientHeader);
     xhr.setRequestHeader("x-api-user", credentials.uid);
     xhr.setRequestHeader("x-api-key", credentials.apiToken);
     try {
@@ -210,7 +213,6 @@ function FetchHabiticaData() {
     tasksObj = getData(true, credentials, Consts.serverPathPomodoroHabit);
     if (tasksObj && tasksObj.data["alias"] == "sitepassPomodoro") {
         Vars.PomodoroTaskId = tasksObj.data.id;
-        console.log(tasksObj.data);
     }else{
         var result = CreatePomodoroHabit();
         if(result.error){
@@ -241,6 +243,7 @@ function UpdateRewardTask(cost, create) {
         xhr.open("PUT", Consts.serverUrl + Consts.serverPathTask, false);
 
     }
+        xhr.setRequestHeader('x-client', Consts.xClientHeader);
         xhr.setRequestHeader("Content-Type", "application/json");
         xhr.setRequestHeader("x-api-user", Vars.UserData.Credentials.uid);
         xhr.setRequestHeader("x-api-key", Vars.UserData.Credentials.apiToken);
@@ -295,7 +298,7 @@ function startTimer(duration) {
         //console.log(Timer);
 
         //Show time on icon badge 
-        chrome.browserAction.setBadgeBackgroundColor({color: "darkgreen"});
+        chrome.browserAction.setBadgeBackgroundColor({color: "green"});
         chrome.browserAction.setBadgeText({ text: Timer });
 
         

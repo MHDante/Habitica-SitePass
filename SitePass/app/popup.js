@@ -148,7 +148,14 @@ function CredentialFields() {
     $("#PomoDuration").val(Vars.UserData.PomoDurationMins);
     $("#PomoHabitPlus").prop('checked', Vars.UserData.PomoHabitPlus);
     $("#PomoHabitMinus").prop('checked', Vars.UserData.PomoHabitMinus);
-
+    
+    //Update Pomodoros Today
+    today = new Date().setHours(0,0,0,0);
+    if(Vars.PomodorosToday.date!= today){
+        Vars.PomodorosToday.value=0;
+        Vars.PomodorosToday.date = today;
+    } 
+    $("#PomoStart").attr("data-pomodoros",Vars.PomodorosToday.value);
 
     $("#UID").on("keyup", function () { updateCredentials(); });
     $("#APIToken").on("keyup", function () { updateCredentials(); });
@@ -247,6 +254,7 @@ function updateTimerDisplay(){
             $('#pomodoro').css("background-color", "#2995CD")
             $('#pomodoro').css("color", "#36205D");
             $("#SiteTable tbody").toggleClass('blocked',false);
+            $("#PomoStart").attr("data-pomodoros",Vars.PomodorosToday.value);
         }
 }
 

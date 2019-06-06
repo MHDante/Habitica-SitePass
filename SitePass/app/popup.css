@@ -1,3 +1,13 @@
+
+@font-face {
+    font-family: 'pixeled';
+    src: url('fonts/pixeled/pixeled-webfont.woff2') format('woff2'),
+         url('fonts/pixeled/pixeled-webfont.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+
+}
+
 input[type="checkbox"] {
     vertical-align: middle;
 }
@@ -124,6 +134,16 @@ a{
 .tomatoWait{
     background-image: url(img/pomodoroWait.png);
 }
+.tomatoWait:not(:hover):after {
+    content: attr(data-pomodoros);
+    display: inline-block;
+    position: relative;
+    font-family: pixeled;
+    top: -30px;
+    left: 20px;
+    font-size: 11px;
+}
+
 .tomatoWait:hover{
     background-image: url(img/pomodoroStart.png);
 }
@@ -157,10 +177,13 @@ a{
      box-shadow: 0 2px 2px 0 rgba(26, 24, 29, 0.16), 0 1px 4px 0 rgba(26, 24, 29, 0.12);
 }
 #Time{
-    font-size: 29px;
-    top: 17px;
+    font-size: 24px;
+    /* top: 17px; */
     font-weight: bold;
     position: relative;
+    font-family: 'pixeled',Arial, sans-serif;
+    width: 100px;
+    display: inline-block;
 }
 #Footer {
     display : table-row;

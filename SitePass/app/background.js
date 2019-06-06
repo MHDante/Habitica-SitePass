@@ -1,6 +1,6 @@
 "use strict";
 var Consts = {
-    xClientHeader: "5a8238ab-1819-4f7f-a750-f23264719a2d-Habitica SiteKeeper",
+    xClientHeader: "5a8238ab-1819-4f7f-a750-f23264719a2d-HabiticaPomodoroSiteKeeper",
     serverUrl: 'https://habitica.com/api/v3/',
     serverPathUser : 'user/',
     serverPathTask: 'tasks/sitepass',
@@ -27,6 +27,7 @@ var Consts = {
     urlFilter: { urls: ["<all_urls>"], types: ["main_frame"] },
     opt_extraInfoSpec: ["blocking"],
     userDataKey: "USER_DATA",
+    PomodorosTodayDataKey:"PomodorosToday",
     NotificationId : "sitepass_notification"
 };
 
@@ -34,6 +35,7 @@ var Vars = {
     EditingSettings:false,
     RewardTask: Consts.RewardTemplate,
     PomodoroTaskId:null,
+    PomodorosToday:{value:0,date:0},
     Monies: 0,
     Exp: 0,
     Hp: 0,
@@ -145,6 +147,13 @@ chrome.storage.sync.get(Consts.userDataKey, function (result) {
     }
 });
 
+//Set Pomodoros Today from storage
+chrome.storage.sync.get(Consts.PomodorosTodayDataKey, function (result) { 
+    if (result[Consts.PomodorosTodayDataKey]) {
+        Vars.PomodorosToday = result[Consts.PomodorosTodayDataKey];
+    }
+});
+
 //Habitica Api general call
 function callAPI(method, route, postData) {
 	var xhr = new XMLHttpRequest();
@@ -153,7 +162,7 @@ function callAPI(method, route, postData) {
 	xhr.setRequestHeader('Content-Type', 'application/json');
 	xhr.setRequestHeader('x-api-user', Vars.UserData.Credentials.uid);
 	xhr.setRequestHeader('x-api-key', Vars.UserData.Credentials.apiToken);
-	if (typeof postData !== 'undefined')  xhr.send(postData);
+	if (typeof postData !== 'undefined')  xhr.sendend(postData);
 	else                                  xhr.send();
 	return (xhr.responseText);
 }
@@ -197,7 +206,7 @@ function getData(silent, credentials, serverPath) {
     return JSON.parse(xhr.responseText);
 }
 
-function FetchHabiticaData() {
+function FetchHabiticaData(skipTasks) {
     var credentials = Vars.UserData.Credentials;
     var userObj = getData(false, credentials, Consts.serverPathUser);
     if (userObj == null) return;
@@ -206,32 +215,31 @@ function FetchHabiticaData() {
         Vars.Exp = userObj.data["stats"]["exp"];
         Vars.Hp = userObj.data["stats"]["hp"];
     }
-
-    var tasksObj;
-
-    //get pomodoro task id
-    tasksObj = getData(true, credentials, Consts.serverPathPomodoroHabit);
-    if (tasksObj && tasksObj.data["alias"] == "sitepassPomodoro") {
-        Vars.PomodoroTaskId = tasksObj.data.id;
-    }else{
-        var result = CreatePomodoroHabit();
-        if(result.error){
-            notify("ERROR",result.error);
+    if(!skipTasks){
+        var tasksObj;
+        //get pomodoro task id
+        tasksObj = getData(true, credentials, Consts.serverPathPomodoroHabit);
+        if (tasksObj && tasksObj.data["alias"] == "sitepassPomodoro") {
+            Vars.PomodoroTaskId = tasksObj.data.id;
         }else{
-            Vars.PomodoroTaskId = result;
+            var result = CreatePomodoroHabit();
+            if(result.error){
+                notify("ERROR",result.error);
+            }else{
+                Vars.PomodoroTaskId = result;
+            }
+            
         }
-        
-    }
-    
 
-    //Reward task update/create
-    tasksObj = getData(true, credentials, Consts.serverPathTask);
-    if (tasksObj && tasksObj.data["alias"] == "sitepass") {
-        Vars.RewardTask = tasksObj.data;
-        UpdateRewardTask(0, false);
-        return;
+        //Reward task update/create
+        tasksObj = getData(true, credentials, Consts.serverPathTask);
+        if (tasksObj && tasksObj.data["alias"] == "sitepass") {
+            Vars.RewardTask = tasksObj.data;
+            UpdateRewardTask(0, false);
+            return;
+        }
+        UpdateRewardTask(0, true);
     }
-    UpdateRewardTask(0, true);
 }
 
 function UpdateRewardTask(cost, create) {
@@ -316,21 +324,31 @@ function startTimer(duration) {
 //Runs When Pomodoro Timer Ends
 function timerEnds(){
     stopTimer();
-    FetchHabiticaData();
     var msg ="Pomodoro ended";
     //If Pomodoro Habit + is enabled
     if(Vars.UserData.PomoHabitPlus){
+        FetchHabiticaData(true);
         var result = ScoreHabit(Vars.PomodoroTaskId,'up');
         if(!result.error){
             var deltaGold = (result.gp-Vars.Monies).toFixed(2);
             var deltaExp = (result.exp-Vars.Exp).toFixed(2);
             msg = "You Earned Gold: +" +deltaGold +"\n"+"You Earned Exp: +"+deltaExp;
-            FetchHabiticaData();
+            FetchHabiticaData(true);
         }else{
             msg = "ERROR: "+result.error;
         }
+
     }
-    console.log("Time's Up");
+
+    //update Pomodoros today
+    Vars.PomodorosToday.value ++;
+    var Pomodoros =  {};
+    Pomodoros[Consts.PomodorosTodayDataKey] = Vars.PomodorosToday;
+    chrome.storage.sync.set(Pomodoros, function() {
+        console.log('PomodorosToday is set to ' + JSON.stringify(Pomodoros));
+    });
+
+    //notify
     notify("Time's Up", msg);
 }
 

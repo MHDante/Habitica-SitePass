@@ -134,6 +134,16 @@ a{
 .tomatoWait{
     background-image: url(img/pomodoroWait.png);
 }
+.tomatoWait:not(:hover):after {
+    content: attr(data-pomodoros);
+    display: inline-block;
+    position: relative;
+    font-family: pixeled;
+    top: -30px;
+    left: 20px;
+    font-size: 11px;
+}
+
 .tomatoWait:hover{
     background-image: url(img/pomodoroStart.png);
 }

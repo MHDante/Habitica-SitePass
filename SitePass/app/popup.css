@@ -238,3 +238,14 @@ a{
     text-align: center;
     vertical-align: middle;
 }
+#Footer2 {
+    display: inline-block;
+    width: 100%;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    background-color: #EDECEE;
+    height: 26px;
+    padding: 7px;
+    box-shadow: 0px 10px 5px #888, 0px 0px 5px #888;
+}

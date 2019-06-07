@@ -10,10 +10,6 @@ A Pomodoro habit is created automatically for the user in Habitica, with an opti
 
 Bug reports are welcome!
 
-#### Installation
-(This is the old version (SitePass extension) without the pomodoro, the new version wil be available soon)
-https://chrome.google.com/webstore/detail/habitica-sitepass/mnnahhonfcegdlpmejgncflpeklaicdi
-
 #### Usage
 After installing the extension, click on the coin at the top right to open the menu. In here, you must set your API Credentials. 
 You can then block a site by navigating to it and clicking block site. It will ask you to enter a cost.

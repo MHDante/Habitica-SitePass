@@ -21,6 +21,6 @@ From this point on, when you visit this site, the extension will ask you if you'
 To star a pomodoro timer simply click on the Tomato character. Click again to stop the timer.
 In the settings you will find a lot of option that allow you tweak and change the pomodory behavior to fit best for you, for example:
 - Enable/disable pomodoro habit reward/punishmet for succeeding/failing a pomodoro.
-- Set pomodoro Duration
-- Set breaks Duration
-- Enable Pomodoro sets etc...
+- Set pomodoro duration
+- Set breaks duration
+- Enable Pomodoro combo sets etc...

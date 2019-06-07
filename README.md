@@ -4,7 +4,7 @@ Website Blocker that plugs into Habitica and limits you from visiting websites t
 You can decide to visit these sites by spending Habitica currency, which you'll earn by developing good habits and doing chores.
 
 Pomodoro Timer:
-Including a Pomodoro Timer [(Read a bout the pomodoro technique here)](https://habitica.fandom.com/wiki/Pomodoro).
+Including a Pomodoro Timer [(Read about the pomodoro technique here)](https://habitica.fandom.com/wiki/Pomodoro).
 During Pomodoro mode, all websites in the list are blocked, Sites with cost 0 are blocked only during pomodoro.
 A Pomodoro habit is created automatically for the user in Habitica, With an option in the extension settings to automatically score [+] or [-] of the habit when a Pomodoro is done successfully or fails accordingly.
 

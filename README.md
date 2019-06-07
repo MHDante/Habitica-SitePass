@@ -11,7 +11,7 @@ A Pomodoro habit is created automatically for the user in Habitica, With an opti
 Bug reports are welcome!
 
 #### Installation
-(this is the old version without the pomodoro, the new version wil be available soon)
+(This is the old version (SitePass extension) without the pomodoro, the new version wil be available soon)
 https://chrome.google.com/webstore/detail/habitica-sitepass/mnnahhonfcegdlpmejgncflpeklaicdi
 
 #### Usage

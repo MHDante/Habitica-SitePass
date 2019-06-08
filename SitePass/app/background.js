@@ -28,7 +28,8 @@ var Consts = {
     opt_extraInfoSpec: ["blocking"],
     userDataKey: "USER_DATA",
     PomodorosTodayDataKey:"PomodorosToday",
-    NotificationId : "sitepass_notification"
+    NotificationId : "sitepass_notification",
+    ProtectedStopDuration : 10 //Don't fail pomodoro if stoped in the first x seconds
 };
 
 var Vars = {
@@ -40,16 +41,22 @@ var Vars = {
     Exp: 0,
     Hp: 0,
     UserData: new UserSettings(),
-    ServerResponse: 0
+    ServerResponse: 0,
+    Timer: "00:00",
+    TimerValue: 0, //in seconds
+    TimerRunnig:false,
+    onBreak:false
 };
 
 function UserSettings(copyFrom) {
     this.BlockedSites = copyFrom ? copyFrom.BlockedSites : {};
     this.Credentials = copyFrom ? copyFrom.Credentials :{uid:"",apiToken:""};
     this.PassDurationMins = copyFrom ? copyFrom.PassDurationMins : 10;
-    this.PomoDurationMins = copyFrom ? copyFrom.PomoDurationMins : 18;
+    this.PomoDurationMins = copyFrom ? copyFrom.PomoDurationMins : 25;
     this.PomoHabitPlus = copyFrom ? copyFrom.PomoHabitPlus :false; //Hit + on habit when pomodoro done
     this.PomoHabitMinus = copyFrom ? copyFrom.PomoHabitMinus :false; //Hit - on habit when pomodoro is interupted
+    this.PomoProtectedStop = copyFrom ? copyFrom.PomoProtectedStop :false;
+    
     this.GetBlockedSite = function (hostname) {
         return this.BlockedSites[hostname];
     }
@@ -77,7 +84,7 @@ function checkAndBlockHostname(hostname){
     
     var site = Vars.UserData.GetBlockedSite(hostname);
     
-    if (!site || site.passExpiry > Date.now() || TimerRunnig || site.cost == 0) return { cancel: false };
+    if (!site || site.passExpiry > Date.now() || Vars.TimerRunnig || site.cost == 0) return { cancel: false };
     FetchHabiticaData();
     if (site.cost > Vars.Monies) {
         alert(  "You can't afford to visit " + site.hostname + " !\n" +
@@ -114,7 +121,7 @@ var callbackwebRequest = function (details) {
 
 var callbackTabActive = function (details) {
     chrome.tabs.get(details.tabId, function callback(tab){
-        if(!TimerRunnig){
+        if(!Vars.TimerRunnig){
             unblockSiteOverlay(tab);
             var hostname = new URL(tab.url).hostname;
             var checkSite = checkAndBlockHostname(hostname);
@@ -288,41 +295,56 @@ function ScoreHabit(habitId,direction){
 
 // ------------- pomodoro ---------------------------
 
-var Timer = "00:00";
-var TimerRunnig = false;
-var interval;
-//Start Pomodoro Timer - duration in seconds
-function startTimer(duration) {  
+var timerInterval; //Used for timer interval
+
+/**
+ * Start Timer: 
+ * @param {int} duration the duration in seconds.
+ * @param {function} duringTimerFunction this function runs every second while the timer runs.
+ * @param {function} endTimerFunction this function runs when timer reachs 00:00.
+ */
+function startTimer(duration,duringTimerFunction,endTimerFunction) {  
     var timer = duration, minutes, seconds;
-    TimerRunnig = true;
-    interval = setInterval(function () {
+    var duringTimer = function () { duringTimerFunction() };
+    var endTimer = function () { endTimerFunction() };
+
+    timerInterval = setInterval(function () {
         minutes = parseInt(timer / 60, 10)
         seconds = parseInt(timer % 60, 10);
 
         minutes = minutes < 10 ? "0" + minutes : minutes;
         seconds = seconds < 10 ? "0" + seconds : seconds;
        
-        Timer = minutes + ":" + seconds;
-        //console.log(Timer);
-
-        //Show time on icon badge 
-        chrome.browserAction.setBadgeBackgroundColor({color: "green"});
-        chrome.browserAction.setBadgeText({ text: Timer });
-
+        Vars.Timer = minutes + ":" + seconds;
+        Vars.TimerValue = minutes*60+seconds;
         
-        //Block Site alredy opened
-        CurrentTab(blockSiteOverlay);
-
+        duringTimer();
+       
         //Times Up
         if (--timer < 0) {
-            timerEnds();
+            endTimer();
         }
 
     }, 1000);
 }
 
-//Runs When Pomodoro Timer Ends
-function timerEnds(){
+//start pomodoro session - duration in seconds
+function startPomodoro(duration){
+    Vars.TimerRunnig = true;
+    startTimer(duration,duringPomodoro,pomodoroEnds);
+}
+
+//runs during pomodoro session
+function duringPomodoro(){
+    //Show time on icon badge 
+    chrome.browserAction.setBadgeBackgroundColor({color: "green"});
+    chrome.browserAction.setBadgeText({ text: Vars.Timer });
+    //Block Site alredy opened
+    CurrentTab(blockSiteOverlay);
+}
+
+//runs When Pomodoro Timer Ends
+function pomodoroEnds(){
     stopTimer();
     var msg ="Pomodoro ended";
     //If Pomodoro Habit + is enabled
@@ -337,9 +359,7 @@ function timerEnds(){
         }else{
             msg = "ERROR: "+result.error;
         }
-
     }
-
     //update Pomodoros today
     Vars.PomodorosToday.value ++;
     var Pomodoros =  {};
@@ -347,14 +367,18 @@ function timerEnds(){
     chrome.storage.sync.set(Pomodoros, function() {
         console.log('PomodorosToday is set to ' + JSON.stringify(Pomodoros));
     });
-
     //notify
     notify("Time's Up", msg);
 }
 
-function timerInterupted(){
-    //If Pomodoro Habit - is enabled
-    if(Vars.UserData.PomoHabitMinus){
+//runs when pomodoro is interupted (stoped before timer ends/break extension over)
+function pomodoroInterupted(){
+   var protectedStop = Vars.UserData.PomoProtectedStop;
+   var duration = (Vars.UserData.PomoDurationMins*60)-Vars.TimerValue
+   if(protectedStop && duration <= Consts.ProtectedStopDuration){
+       return;
+   }
+   if(Vars.UserData.PomoHabitMinus){
         FetchHabiticaData();
         var result = ScoreHabit(Vars.PomodoroTaskId,'down');
         var msg = "";
@@ -370,16 +394,17 @@ function timerInterupted(){
     }  
 }
 
-//Stop Pomodoro Timer
+//Stop timer - reset to start position
 function stopTimer(){
-    TimerRunnig = false;
-    clearInterval(interval);
-    Timer = "00:00";
+    Vars.TimerRunnig = false;
+    Vars.onBreak = false;
+    clearInterval(timerInterval);
+    Vars.Timer = "00:00";
     chrome.browserAction.setBadgeText({
         text: ''
     });
     CurrentTab(unblockSiteOverlay); //if current tab is blocked, unblock it
-    CurrentTab(function(tab){callbackTabActive({tabId: tab.id})}); //ConfirmPurchase alert
+    CurrentTab(function(tab){callbackTabActive({tabId: tab.id})}); //ConfirmPurchase check
 }
 
 //Create Chrome Notification
@@ -395,8 +420,6 @@ function notify(title,message, callback) {
     return chrome.notifications.create("", options, callback);
 }
 
-
-
 //Run function(tab) on currentTab
 function CurrentTab(func){    
     chrome.tabs.query({'active': true, 'windowId': chrome.windows.WINDOW_ID_CURRENT},
@@ -411,7 +434,7 @@ function CurrentTab(func){
 function blockSiteOverlay(tab){
     var site = new URL(tab.url).hostname;
     var tabId = tab.id;
-    var message = "Stay Focused! Time Left: "+Timer;
+    var message = "Stay Focused! Time Left: "+Vars.Timer;
     let msg = {
         request:"block",
         content:message

@@ -2,7 +2,7 @@
     "manifest_version": 2,
 
     "name": "Habitica Pomodoro SiteKeeper",
-    "description": "This extension plugs into Habitica and turns your time-wasting navigation tendencies into rewards. Including a Pomodoro Timer and WebSite Blocker with Pay-To-Pass cost that you decide (paid with Habitica gp).",
+    "description": "Plugs into Habitica and turns your time-wasting navigation tendencies into rewards. Including a Pomodoro Timer and WebSite Blocker.",
     "version": "2.5",
 
     "permissions": [

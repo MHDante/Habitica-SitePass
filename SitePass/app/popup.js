@@ -36,21 +36,20 @@ document.addEventListener("DOMContentLoaded", function () {
     $("#MyHp").append(Vars.Hp.toFixed(0));
 
     //Start Pomodoro Timer
-    $("#PomoStart").click(function () {
-        var TimerRunnig = background.TimerRunnig
+    $("#PomoButton").click(function () {
         var seconds = 60 * Vars.UserData.PomoDurationMins;
-        if(!TimerRunnig){
-            background.startTimer(seconds);
+        if(!Vars.TimerRunnig){
+            background.startPomodoro(seconds);
         }else{
             background.stopTimer();
-            background.timerInterupted();   
+            background.pomodoroInterupted();   
         }
     });
     //Update Timer display
     updateTimerDisplay();
     setInterval(function () {
         updateTimerDisplay();
-    }, 500);
+    }, 1000);
 });
 
 
@@ -148,6 +147,7 @@ function CredentialFields() {
     $("#PomoDuration").val(Vars.UserData.PomoDurationMins);
     $("#PomoHabitPlus").prop('checked', Vars.UserData.PomoHabitPlus);
     $("#PomoHabitMinus").prop('checked', Vars.UserData.PomoHabitMinus);
+    $("#PomoProtectedStop").prop('checked', Vars.UserData.PomoProtectedStop);
     
     //Update Pomodoros Today
     today = new Date().setHours(0,0,0,0);
@@ -155,7 +155,7 @@ function CredentialFields() {
         Vars.PomodorosToday.value=0;
         Vars.PomodorosToday.date = today;
     } 
-    $("#PomoStart").attr("data-pomodoros",Vars.PomodorosToday.value);
+    $("#PomoButton").attr("data-pomodoros",Vars.PomodorosToday.value);
 
     $("#UID").on("keyup", function () { updateCredentials(); });
     $("#APIToken").on("keyup", function () { updateCredentials(); });
@@ -163,6 +163,7 @@ function CredentialFields() {
     $("#PomoDuration").on("keyup", function () { updateCredentials(); });
     $("#PomoHabitPlus").click(function () { updateCredentials(); });
     $("#PomoHabitMinus").click(function () { updateCredentials(); });
+    $("#PomoProtectedStop").click(function () { updateCredentials(); });
     //ugh.
 
     $("#SaveButton").click(function () {
@@ -238,23 +239,38 @@ function updateCredentials() {
     if (!isNaN(pmDuration)) Vars.UserData.PomoDurationMins = pmDuration;
     Vars.UserData.PomoHabitPlus = $("#PomoHabitPlus").prop('checked');
     Vars.UserData.PomoHabitMinus = $("#PomoHabitMinus").prop('checked');
+    Vars.UserData.PomoProtectedStop = $("#PomoProtectedStop").prop('checked');
 }
 
 function updateTimerDisplay(){
-    $('#Time').html(background.Timer);
-        if(background.TimerRunnig){
-            $('.tomato').toggleClass("tomatoWait", false); 
-            $('.tomato').toggleClass("tomatoProgress", true);
-            $('#pomodoro').css("background-color", "green");
-            $('#pomodoro').css("color", "lightgreen");
-            $("#SiteTable tbody").toggleClass('blocked',true);
+    $('#Time').html(Vars.Timer);
+    var time = Vars.Timer.split(':');
+    var seconds = parseInt(time[0])*60+parseInt(time[1]);
+    var duration = Vars.UserData.PomoDurationMins*60;
+
+    if(Vars.TimerRunnig){ //Pomodoro running
+        $('#pomodoro').css("background-color", "green"); 
+        $('#pomodoro').css("color", "lightgreen");
+        if(duration-seconds <= Consts.ProtectedStopDuration && Vars.UserData.PomoProtectedStop){
+            tomatoSetClass("tomatoProgressStart");
         }else{
-            $('.tomato').toggleClass("tomatoWait", true); 
-            $('.tomato').toggleClass("tomatoProgress", false);
-            $('#pomodoro').css("background-color", "#2995CD")
-            $('#pomodoro').css("color", "#36205D");
-            $("#SiteTable tbody").toggleClass('blocked',false);
-            $("#PomoStart").attr("data-pomodoros",Vars.PomodorosToday.value);
+            tomatoSetClass("tomatoProgress");
         }
+        $("#SiteTable tbody").toggleClass('blocked',true);
+    }else{ //pomodoro not running
+        $('#pomodoro').css("background-color", "#2995CD")
+        $('#pomodoro').css("color", "#36205D");
+        tomatoSetClass("tomatoWait"); 
+        $("#SiteTable tbody").toggleClass('blocked',false);
+        $("#PomoButton").attr("data-pomodoros",Vars.PomodorosToday.value);
+    }
+}
+
+var TOMATO_CLASSES = ["tomatoProgress","tomatoProgressStart","tomatoWait"];
+function tomatoSetClass(className){
+    TOMATO_CLASSES.forEach(function(entry) {
+        $('.tomato').toggleClass(entry, false);
+    });
+    $('.tomato').toggleClass(className, true);
 }
 

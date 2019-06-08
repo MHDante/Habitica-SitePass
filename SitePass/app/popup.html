@@ -10,7 +10,7 @@
     <a id="BlockLink" href="#">Block Site!</a>
     <!-- Pomodoro Timer -->
     <div id="pomodoro">
-        <span id="PomoStart" data-pomodoros="0" class="tomato"></span><span id="Time">00:00</span> 
+        <span id="PomoButton" data-pomodoros="0" class="tomato"></span><span id="Time">00:00</span> 
     </div>
     <!-- Blocked Sites -->
     <p><b>Blocked Sites:</b></p>
@@ -24,6 +24,12 @@
             <label id="AdvSettings"><input type="checkbox">Show Advanced Settings</label>
         </div>
         <div id="Credentials">
+            <br>
+            <a href="https://habitica.fandom.com/wiki/Habitica_SitePass" target="_blank" style="color:#878190;">Help & Credits</a>
+            &nbsp&nbsp&nbsp<a href="https://github.com/ofekmiz/Habitica-Pomodoro-SiteKeeper/issues" target="_blank" style="color:#878190;"><span class="bug_icon"></span>Report a bug</a>
+            <hr>
+            <button id="SaveButton" type="submit">Save/Update</button>
+            <hr>
             <p class="setting-header">User</p>
             <label><b>Habitica User ID:</b><br/><input id="UID" type="text"></label><br>
             <label><b>Habitica API Token:</b><br/><input id="APIToken" type="text"></label><br>
@@ -36,25 +42,29 @@
             <label><b>Pomodoro Habit Task</b></label><br>
             <label><input type="checkbox" id="PomoHabitPlus"> <span class="plus_minus_icon">+</span> habit when pomodoro is done</label><br>
             <label><input type="checkbox" id="PomoHabitMinus"> <span class="plus_minus_icon">-</span> habit when pomodoro fails</label><br>
+            <label><input type="checkbox" id="PomoProtectedStop">Don't fail if stopped in the first 10sec</label><br>
             <span class="setting-note">Pomodoro fails if stopped before timer ends or Break Extention is over</span>
             <hr>
+            
             <p class="setting-header commingSoon">Comming soon...</p>
-
+           
+            
             <label><b>Break Duration (In Minutes)</b><br/><input id="BreakDuration" type="text"></label><br>
+            <label><input type="checkbox" id="ManualBreak">Start breaks manually</label><br>
+            <label><input type="checkbox" id="BreakFreePass">During break all sites are free</label><br>
             <label><b>Break Extention (In Minutes)</b><br/><input id="BreakExtention" type="text"></label><br>
-            <input type="checkbox" id="BreakFreePass">During break all sites are free<br>
-            <input type="checkbox" id="BreakExtentionEnabled">Fail Pomodoro after Break Extention<br>
+            <label><input type="checkbox" id="BreakExtentionFails">Fail Pomodoro after Break Extention</label><br>
+            
             <hr>
 
-            <label><b>Pomodoro Combo Set Habit </b></label><br>
+            <label><b>Pomodoro Combo Set Habit Task</b></label><br>
             <label><input type="checkbox" id="PomoSetHabitPlus"> <span class="plus_minus_icon">+</span> habit for pomodoro set complete</label><br>
             <label><b>Pomodoros in Set  </b><input style="width:50px;margin-top: 5px;" id="PomoSetNum" type="number" min="0" max="6"></label><br>
-            <span class="setting-note">Choose 0 for infinite loop<br>(Break Extentions won't fail you)</span>
-            <hr>
+            <span class="setting-note">Set 0 for infinite loop </span><br>
+            <label><input type="checkbox" id="PomoSetFailReset">Failed Pomodoro resets set counting</label><br>
+            <span class="setting-note">If this is NOT checked failing pomodoro won't reset count. Thus set is counted from total pomodoros during the day.</span>
+            <br>
             
-            <button id="SaveButton" type="submit">Save/Update</button>
-            <br><br>
-            <a href="https://habitica.fandom.com/wiki/Habitica_SitePass" target="_blank" style="color:#878190;">Help & Credits</a>
         </div>
         <br><br><br>
         <div id="Footer2">

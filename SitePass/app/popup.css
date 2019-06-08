@@ -7,12 +7,13 @@
     font-style: normal;
 
 }
-
+label {
+    display: inline-block;
+    margin-top: 3px;
+}
 input[type="checkbox"] {
     vertical-align: middle;
-}
-input {
-    margin-bottom: 5px;
+    margin-bottom: 4px;
 }
 td {
     padding: 5px;
@@ -82,6 +83,17 @@ a{
     display: inline-block;
     background-position: 0;
 }
+.bug_icon {
+    background-image: url(img/bug.png);
+    background-repeat: no-repeat;
+    width: 15px;
+    height: 15px;
+    margin-right: 2px;
+    margin-left: 2px;
+    vertical-align: top;
+    display: inline-block;
+    background-position: 0;
+}
 .habitica_icon {
     background-image: url(img/habitica.png);
     background-repeat: no-repeat;
@@ -125,8 +137,11 @@ a{
     margin-left: -20px;
     cursor: pointer;
 }
-.tomatoProgress{
+.tomatoProgressStart,.tomatoProgress{
     background-image: url(img/pomodoroProgress.png);
+}
+.tomatoProgressStart:hover{
+    background-image: url(img/pomodoroProtectStop.png);
 }
 .tomatoProgress:hover{
     background-image: url(img/pomodoroQuit.png);
@@ -162,8 +177,10 @@ a{
     background-image: url(img/chainLock.png);
 }
 .setting-note{
-    color:gray;
-    font-size:11px;
+    color: gray;
+    font-size: 11px;
+    display: inline-block;
+    margin: 7px;
 }
 #pomodoro {
     background-color: #2995CD;
@@ -218,7 +235,7 @@ a{
     content: "Don't Forget to Save!";
     display: inline-block;
     width: 208px;
-    top: -27px;
+    top: -31px;
     position: relative;
     font-size: 10px;
     background-color: gold;

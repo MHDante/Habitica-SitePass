@@ -45,7 +45,8 @@ var Vars = {
     Timer: "00:00",
     TimerValue: 0, //in seconds
     TimerRunnig:false,
-    onBreak:false
+    onBreak:false,
+    onBreakExtension:false
 };
 
 function UserSettings(copyFrom) {
@@ -56,6 +57,11 @@ function UserSettings(copyFrom) {
     this.PomoHabitPlus = copyFrom ? copyFrom.PomoHabitPlus :false; //Hit + on habit when pomodoro done
     this.PomoHabitMinus = copyFrom ? copyFrom.PomoHabitMinus :false; //Hit - on habit when pomodoro is interupted
     this.PomoProtectedStop = copyFrom ? copyFrom.PomoProtectedStop :false;
+    this.BreakDuration = copyFrom ? copyFrom.BreakDuration :5;
+    this.ManualBreak = copyFrom ? copyFrom.ManualBreak :true;
+    this.BreakFreePass = copyFrom ? copyFrom.BreakFreePass :false;
+    this.BreakExtention = copyFrom ? copyFrom.BreakExtention :1;
+    this.BreakExtentionFails = copyFrom ? copyFrom.BreakExtentionFails :false;
     
     this.GetBlockedSite = function (hostname) {
         return this.BlockedSites[hostname];
@@ -82,9 +88,10 @@ function BlockedSite(hostname, cost, passExpiry) {
 //Checks the hostname and block it if the user dosent have enough gold or pomodoro is active
 function checkAndBlockHostname(hostname){
     
+    var freePass = Vars.UserData.BreakFreePass && Vars.onBreak && Vars.TimerRunnig; //free pass during break session
     var site = Vars.UserData.GetBlockedSite(hostname);
-    
-    if (!site || site.passExpiry > Date.now() || Vars.TimerRunnig || site.cost == 0) return { cancel: false };
+    var pomodoro = Vars.TimerRunnig && !Vars.onBreak;
+    if (!site || site.passExpiry > Date.now() || pomodoro || site.cost == 0 || freePass) return { cancel: false };
     FetchHabiticaData();
     if (site.cost > Vars.Monies) {
         alert(  "You can't afford to visit " + site.hostname + " !\n" +
@@ -121,7 +128,8 @@ var callbackwebRequest = function (details) {
 
 var callbackTabActive = function (details) {
     chrome.tabs.get(details.tabId, function callback(tab){
-        if(!Vars.TimerRunnig){
+        console.log(Vars.onBreak);
+        if(!Vars.TimerRunnig || Vars.onBreak){
             unblockSiteOverlay(tab);
             var hostname = new URL(tab.url).hostname;
             var checkSite = checkAndBlockHostname(hostname);
@@ -295,7 +303,7 @@ function ScoreHabit(habitId,direction){
 
 // ------------- pomodoro ---------------------------
 
-var timerInterval; //Used for timer interval
+var timerInterval; //Used for timer interval in startTimer() function.
 
 /**
  * Start Timer: 
@@ -303,7 +311,7 @@ var timerInterval; //Used for timer interval
  * @param {function} duringTimerFunction this function runs every second while the timer runs.
  * @param {function} endTimerFunction this function runs when timer reachs 00:00.
  */
-function startTimer(duration,duringTimerFunction,endTimerFunction) {  
+function startTimer(duration,duringTimerFunction,endTimerFunction) { 
     var timer = duration, minutes, seconds;
     var duringTimer = function () { duringTimerFunction() };
     var endTimer = function () { endTimerFunction() };
@@ -331,6 +339,7 @@ function startTimer(duration,duringTimerFunction,endTimerFunction) {
 //start pomodoro session - duration in seconds
 function startPomodoro(duration){
     Vars.TimerRunnig = true;
+    Vars.onBreak = false;
     startTimer(duration,duringPomodoro,pomodoroEnds);
 }
 
@@ -339,14 +348,15 @@ function duringPomodoro(){
     //Show time on icon badge 
     chrome.browserAction.setBadgeBackgroundColor({color: "green"});
     chrome.browserAction.setBadgeText({ text: Vars.Timer });
-    //Block Site alredy opened
+    //Block current tab if necessary
     CurrentTab(blockSiteOverlay);
 }
+
 
 //runs When Pomodoro Timer Ends
 function pomodoroEnds(){
     stopTimer();
-    var msg ="Pomodoro ended";
+    var msg ="Pomodoro ended."+"\n"+"You have done "+Vars.PomodorosToday.value+" today!";
     //If Pomodoro Habit + is enabled
     if(Vars.UserData.PomoHabitPlus){
         FetchHabiticaData(true);
@@ -369,16 +379,72 @@ function pomodoroEnds(){
     });
     //notify
     notify("Time's Up", msg);
+    if(Vars.UserData.ManualBreak){
+        manualBreak();
+    }else{
+        startBreak(Vars.UserData.BreakDuration*60);
+    }
+}
+
+//start break session - duration in seconds
+function startBreak(duration){
+    stopTimer();
+    Vars.TimerRunnig = true;
+    Vars.onBreak = true;
+    startTimer(duration,duringBreak,breakEnds);
+}
+
+//start break session - duration in seconds
+function manualBreak(){
+    stopTimer();
+    Vars.TimerRunnig = false;
+    Vars.onBreak = true;
+}
+
+//runs during Break session
+function duringBreak(){
+    //Show time on icon badge 
+    chrome.browserAction.setBadgeBackgroundColor({color: "blue"});
+    chrome.browserAction.setBadgeText({ text: Vars.Timer });
+}
+
+//runs when Break session ends
+function breakEnds(){
+    stopTimer();
+    var msg ="Back to work";
+    //notify
+    notify("Time's Up", msg);
+    startBreakExtension(Vars.UserData.BreakExtention*60);
+}
+
+//start break session - duration in seconds
+function startBreakExtension(duration){
+    stopTimer();
+    Vars.TimerRunnig = true;
+    Vars.onBreakExtension=true;
+    Vars.onBreak=true;
+    startTimer(duration,duringBreakExtension,pomodoroInterupted);
+}
+
+//runs during Break session
+function duringBreakExtension(){
+    //Show time on icon badge 
+    chrome.browserAction.setBadgeBackgroundColor({color: "red"});
+    chrome.browserAction.setBadgeText({ text: Vars.Timer });
 }
 
 //runs when pomodoro is interupted (stoped before timer ends/break extension over)
 function pomodoroInterupted(){
    var protectedStop = Vars.UserData.PomoProtectedStop;
-   var duration = (Vars.UserData.PomoDurationMins*60)-Vars.TimerValue
-   if(protectedStop && duration <= Consts.ProtectedStopDuration){
-       return;
+   var duration = (Vars.UserData.PomoDurationMins*60)-Vars.TimerValue;
+   var portectedStopActivated = protectedStop && duration <= Consts.ProtectedStopDuration && !Vars.onBreakExtension;
+   var failedBreakExtension = Vars.UserData.BreakExtentionFails && Vars.onBreakExtension;
+   var breakExtensionZero = !Vars.UserData.BreakExtentionFails && (Vars.UserData.BreakExtention == 0);
+   stopTimer();
+   if(portectedStopActivated || breakExtensionZero){
+        return;
    }
-   if(Vars.UserData.PomoHabitMinus){
+   if(Vars.UserData.PomoHabitMinus || failedBreakExtension){
         FetchHabiticaData();
         var result = ScoreHabit(Vars.PomodoroTaskId,'down');
         var msg = "";
@@ -390,21 +456,26 @@ function pomodoroInterupted(){
             msg = "ERROR: "+result.error;
         }
         console.log(msg);
-        notify("Timer Interupted!", msg);
+        notify("Pomodoro Failed!", msg);
     }  
 }
 
 //Stop timer - reset to start position
 function stopTimer(){
-    Vars.TimerRunnig = false;
-    Vars.onBreak = false;
+    
     clearInterval(timerInterval);
     Vars.Timer = "00:00";
     chrome.browserAction.setBadgeText({
         text: ''
     });
+
     CurrentTab(unblockSiteOverlay); //if current tab is blocked, unblock it
     CurrentTab(function(tab){callbackTabActive({tabId: tab.id})}); //ConfirmPurchase check
+    
+    Vars.TimerRunnig = false;
+    Vars.onBreak = false;
+    Vars.onBreakExtension = false;
+
 }
 
 //Create Chrome Notification

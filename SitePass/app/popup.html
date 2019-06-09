@@ -39,30 +39,28 @@
             <p class="setting-header">Pomodoro</p>
             <label><b>Pomodoro Duration (In Minutes)</b><br/><input id="PomoDuration" type="text"></label><br>
             <hr>
-            <label><b>Pomodoro Habit Task</b></label><br>
-            <label><input type="checkbox" id="PomoHabitPlus"> <span class="plus_minus_icon">+</span> habit when pomodoro is done</label><br>
-            <label><input type="checkbox" id="PomoHabitMinus"> <span class="plus_minus_icon">-</span> habit when pomodoro fails</label><br>
-            <label><input type="checkbox" id="PomoProtectedStop">Don't fail if stopped in the first 10sec</label><br>
-            <span class="setting-note">Pomodoro fails if stopped before timer ends or Break Extention is over</span>
-            <hr>
-            
-            <p class="setting-header commingSoon">Comming soon...</p>
-           
-            
             <label><b>Break Duration (In Minutes)</b><br/><input id="BreakDuration" type="text"></label><br>
             <label><input type="checkbox" id="ManualBreak">Start breaks manually</label><br>
             <label><input type="checkbox" id="BreakFreePass">During break all sites are free</label><br>
             <label><b>Break Extention (In Minutes)</b><br/><input id="BreakExtention" type="text"></label><br>
-            <label><input type="checkbox" id="BreakExtentionFails">Fail Pomodoro after Break Extention</label><br>
-            
+            <hr>
+            <label><b>Pomodoro Habit Task</b></label><br>
+            <label><input type="checkbox" id="PomoHabitPlus"> <span class="plus_minus_icon">+</span> habit when pomodoro is done</label><br>
+            <label><input type="checkbox" id="PomoHabitMinus"> <span class="plus_minus_icon">-</span> habit if stopped before timer ends</label><br>
+            <label><input type="checkbox" id="PomoProtectedStop">Don't <span class="plus_minus_icon">-</span> if stopped at the first 10sec</label><br>
+            <label><input type="checkbox" id="BreakExtentionFails"><span class="plus_minus_icon">-</span> habit if Break Extention is over</label><br>
             <hr>
 
-            <label><b>Pomodoro Combo Set Habit Task</b></label><br>
-            <label><input type="checkbox" id="PomoSetHabitPlus"> <span class="plus_minus_icon">+</span> habit for pomodoro set complete</label><br>
+            
+            <p class="setting-header commingSoon">Comming soon...</p>
+
             <label><b>Pomodoros in Set  </b><input style="width:50px;margin-top: 5px;" id="PomoSetNum" type="number" min="0" max="6"></label><br>
             <span class="setting-note">Set 0 for infinite loop </span><br>
             <label><input type="checkbox" id="PomoSetFailReset">Failed Pomodoro resets set counting</label><br>
             <span class="setting-note">If this is NOT checked failing pomodoro won't reset count. Thus set is counted from total pomodoros during the day.</span>
+            <hr>
+            <label><b>Pomodoro Combo Set Habit Task</b></label><br>
+            <label><input type="checkbox" id="PomoSetHabitPlus"> <span class="plus_minus_icon">+</span> habit for pomodoro set complete</label><br>
             <br>
             
         </div>

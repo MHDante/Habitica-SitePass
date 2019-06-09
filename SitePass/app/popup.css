@@ -162,6 +162,35 @@ a{
 .tomatoWait:hover{
     background-image: url(img/pomodoroStart.png);
 }
+.tomatoBreak{
+    background-image: url(img/pomodoroBreak.png);
+}
+.tomatoBreak:hover{
+    background-image: url(img/pomodoroStart.png);
+}
+.tomatoWin{
+    background-image: url(img/pomodoroWin.png);
+}
+.tomatoWin:hover{
+    background-image: url(img/pomodoroBreak.png);
+}
+.tomatoWin:not(:hover):after {
+    content: attr(data-pomodoros);
+    display: inline-block;
+    position: relative;
+    font-family: pixeled;
+    top: -30px;
+    left: 20px;
+    font-size: 11px;
+    color:black;
+}
+.tomatoWarning{
+    background-image: url(img/pomodoroWarning.png);
+}
+.tomatoWarning:hover{
+    background-image: url(img/pomodoroStart.png);
+}
+
 .blocked:before{
     content: "";
     text-align: center;
@@ -253,7 +282,6 @@ a{
     display: inline-block;
     width: 12px;
     text-align: center;
-    vertical-align: middle;
 }
 #Footer2 {
     display: inline-block;

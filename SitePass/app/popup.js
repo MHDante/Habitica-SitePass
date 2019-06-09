@@ -35,16 +35,23 @@ document.addEventListener("DOMContentLoaded", function () {
     $("#Dosh").append(Vars.Monies.toFixed(1));
     $("#MyHp").append(Vars.Hp.toFixed(0));
 
-    //Start Pomodoro Timer
+    //Pomodoro Button actions
     $("#PomoButton").click(function () {
-        var seconds = 60 * Vars.UserData.PomoDurationMins;
-        if(!Vars.TimerRunnig){
-            background.startPomodoro(seconds);
+        var pomoSeconds = 60 * Vars.UserData.PomoDurationMins;
+        var breakSeconds = 60 * Vars.UserData.BreakDuration;
+        if(Vars.onBreak && !Vars.TimerRunnig){
+            background.stopTimer();
+            background.startBreak(breakSeconds);
+        }
+        else if(!Vars.TimerRunnig || Vars.onBreak || Vars.onBreakExtension){
+            background.stopTimer();
+            background.startPomodoro(pomoSeconds);
         }else{
             background.stopTimer();
             background.pomodoroInterupted();   
         }
     });
+
     //Update Timer display
     updateTimerDisplay();
     setInterval(function () {
@@ -145,11 +152,16 @@ function CredentialFields() {
     $("#APIToken").val(Vars.UserData.Credentials.apiToken);
     $("#Duration").val(Vars.UserData.PassDurationMins);
     $("#PomoDuration").val(Vars.UserData.PomoDurationMins);
+    $("#BreakDuration").val(Vars.UserData.BreakDuration);
+    $("#BreakExtention").val(Vars.UserData.BreakExtention);
     $("#PomoHabitPlus").prop('checked', Vars.UserData.PomoHabitPlus);
     $("#PomoHabitMinus").prop('checked', Vars.UserData.PomoHabitMinus);
     $("#PomoProtectedStop").prop('checked', Vars.UserData.PomoProtectedStop);
+    $("#ManualBreak").prop('checked', Vars.UserData.ManualBreak);
+    $("#BreakFreePass").prop('checked', Vars.UserData.BreakFreePass);
+    $("#BreakExtentionFails").prop('checked', Vars.UserData.BreakExtentionFails);
     
-    //Update Pomodoros Today
+    //Update Pomodoros Today, reset on new day
     today = new Date().setHours(0,0,0,0);
     if(Vars.PomodorosToday.date!= today){
         Vars.PomodorosToday.value=0;
@@ -161,9 +173,14 @@ function CredentialFields() {
     $("#APIToken").on("keyup", function () { updateCredentials(); });
     $("#Duration").on("keyup", function () { updateCredentials(); });
     $("#PomoDuration").on("keyup", function () { updateCredentials(); });
+    $("#BreakDuration").on("keyup", function () { updateCredentials(); });
+    $("#BreakExtention").on("keyup", function () { updateCredentials(); });
     $("#PomoHabitPlus").click(function () { updateCredentials(); });
     $("#PomoHabitMinus").click(function () { updateCredentials(); });
     $("#PomoProtectedStop").click(function () { updateCredentials(); });
+    $("#ManualBreak").click(function () { updateCredentials(); });
+    $("#BreakFreePass").click(function () { updateCredentials(); });
+    $("#BreakExtentionFails").click(function () { updateCredentials(); });
     //ugh.
 
     $("#SaveButton").click(function () {
@@ -233,13 +250,22 @@ function updateCredentials() {
     Vars.EditingSettings = true;
     Vars.UserData.Credentials.uid = $("#UID").val();
     Vars.UserData.Credentials.apiToken = $("#APIToken").val();
+
     var flDuration = parseFloat($("#Duration").val());
     if (!isNaN(flDuration)) Vars.UserData.PassDurationMins = flDuration;
     var pmDuration = parseFloat($("#PomoDuration").val());
     if (!isNaN(pmDuration)) Vars.UserData.PomoDurationMins = pmDuration;
+    var brDuration = parseFloat($("#BreakDuration").val());
+    if (!isNaN(brDuration)) Vars.UserData.BreakDuration = brDuration;
+    var exDuration = parseFloat($("#BreakExtention").val());
+    if (!isNaN(exDuration)) Vars.UserData.BreakExtention = exDuration;
+
     Vars.UserData.PomoHabitPlus = $("#PomoHabitPlus").prop('checked');
     Vars.UserData.PomoHabitMinus = $("#PomoHabitMinus").prop('checked');
     Vars.UserData.PomoProtectedStop = $("#PomoProtectedStop").prop('checked');
+    Vars.UserData.ManualBreak = $("#ManualBreak").prop('checked');
+    Vars.UserData.BreakFreePass = $("#BreakFreePass").prop('checked');
+    Vars.UserData.BreakExtentionFails = $("#BreakExtentionFails").prop('checked');
 }
 
 function updateTimerDisplay(){
@@ -248,7 +274,25 @@ function updateTimerDisplay(){
     var seconds = parseInt(time[0])*60+parseInt(time[1]);
     var duration = Vars.UserData.PomoDurationMins*60;
 
-    if(Vars.TimerRunnig){ //Pomodoro running
+    if(Vars.onBreakExtension){
+        $('#pomodoro').css("background-color", "red");
+            $('#pomodoro').css("color", "coral");
+            tomatoSetClass("tomatoWarning");
+    }
+    else if(Vars.onBreak){
+        if(Vars.TimerRunnig){
+            $('#pomodoro').css("background-color", "cornflowerblue");
+            $('#pomodoro').css("color", "aqua");
+            tomatoSetClass("tomatoBreak");
+        }
+        else{//Manual Break
+            $('#pomodoro').css("background-color", "green");
+            $('#pomodoro').css("color", "lightgreen");
+            tomatoSetClass("tomatoWin");
+        }
+        $("#SiteTable tbody").toggleClass('blocked',false);
+    }
+    else if(Vars.TimerRunnig){ //Pomodoro running
         $('#pomodoro').css("background-color", "green"); 
         $('#pomodoro').css("color", "lightgreen");
         if(duration-seconds <= Consts.ProtectedStopDuration && Vars.UserData.PomoProtectedStop){
@@ -266,7 +310,7 @@ function updateTimerDisplay(){
     }
 }
 
-var TOMATO_CLASSES = ["tomatoProgress","tomatoProgressStart","tomatoWait"];
+var TOMATO_CLASSES = ["tomatoProgress","tomatoProgressStart","tomatoWait","tomatoBreak","tomatoWin","tomatoWarning"];
 function tomatoSetClass(className){
     TOMATO_CLASSES.forEach(function(entry) {
         $('.tomato').toggleClass(entry, false);

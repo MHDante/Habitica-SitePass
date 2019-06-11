@@ -43,6 +43,7 @@
             <label><input type="checkbox" id="ManualBreak">Start breaks manually</label><br>
             <label><input type="checkbox" id="BreakFreePass">During break all sites are free</label><br>
             <label><b>Break Extention (In Minutes)</b><br/><input id="BreakExtention" type="text"></label><br>
+            <label style="display: inline-flex;"><input type="checkbox" id="BreakExtentionNotify">Notify me in Habitca when Break Extension starts</label><br>
             <hr>
             <label><b>Pomodoro Habit Task</b></label><br>
             <label><input type="checkbox" id="PomoHabitPlus"> <span class="plus_minus_icon">+</span> habit when pomodoro is done</label><br>
@@ -52,23 +53,24 @@
             <hr>
 
             
-            <p class="setting-header commingSoon">Comming soon...</p>
+            <div class="commingSoon">
+                <label><b>Pomodoros in Set  </b><input style="width:50px;margin-top: 5px;" id="PomoSetNum" type="number" min="1" max="6"></label><br>
+                <hr>
+                <label><b>Pomodoro Combo Set Habit Task</b></label><br>
+                <label><input type="checkbox" id="PomoSetHabitPlus"> <span class="plus_minus_icon">+</span> habit for pomodoro set complete</label><br>
+                <label><input type="checkbox" id="PomoSetFailReset">Count Set from total done today</label><br>
+                <span class="setting-note">For example, if this is checked and "Pomodoros in Set" is 4, <span class="plus_minus_icon">+</span> combo habit in habitica 
+                for every 4 pomodoros done during the day (Instead of having to finish 4 pomodoros in a row). So you gain reward for doing 4,8,12... pomodoros during the day.</span>
+                <br>
+            </div>
 
-            <label><b>Pomodoros in Set  </b><input style="width:50px;margin-top: 5px;" id="PomoSetNum" type="number" min="0" max="6"></label><br>
-            <span class="setting-note">Set 0 for infinite loop </span><br>
-            <label><input type="checkbox" id="PomoSetFailReset">Failed Pomodoro resets set counting</label><br>
-            <span class="setting-note">If this is NOT checked failing pomodoro won't reset count. Thus set is counted from total pomodoros during the day.</span>
-            <hr>
-            <label><b>Pomodoro Combo Set Habit Task</b></label><br>
-            <label><input type="checkbox" id="PomoSetHabitPlus"> <span class="plus_minus_icon">+</span> habit for pomodoro set complete</label><br>
-            <br>
-            
         </div>
         <br><br><br>
         <div id="Footer2">
             <a href="https://habitica.com" target="_blank"><div class="footer_icons"><span class="habitica_icon"></span></div></a>
             <div class="footer_icons" style="color: goldenrod;" id="Dosh"><span class="gold_icon"></span></div>
             <div class="footer_icons" style="color: red;" id="MyHp"><span class="hp_icon"></span></div>
+            <div class="footer_icons" id="RefreshStats"><span class="refresh_icon"></span></div>
         </div>
     </div>
 

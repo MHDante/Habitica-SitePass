@@ -49,6 +49,7 @@ var Vars = {
     onBreakExtension:false
 };
 
+
 function UserSettings(copyFrom) {
     this.BlockedSites = copyFrom ? copyFrom.BlockedSites : {};
     this.Credentials = copyFrom ? copyFrom.Credentials :{uid:"",apiToken:""};
@@ -62,6 +63,7 @@ function UserSettings(copyFrom) {
     this.BreakFreePass = copyFrom ? copyFrom.BreakFreePass :false;
     this.BreakExtention = copyFrom ? copyFrom.BreakExtention :1;
     this.BreakExtentionFails = copyFrom ? copyFrom.BreakExtentionFails :false;
+    this.BreakExtentionNotify = copyFrom ? copyFrom.BreakExtentionNotify :false;
     
     this.GetBlockedSite = function (hostname) {
         return this.BlockedSites[hostname];
@@ -169,7 +171,7 @@ chrome.storage.sync.get(Consts.PomodorosTodayDataKey, function (result) {
     }
 });
 
-//Habitica Api general call
+// ----- Habitica Api general call ----- //
 function callAPI(method, route, postData) {
 	var xhr = new XMLHttpRequest();
     xhr.open(method, Consts.serverUrl + route, false);
@@ -177,7 +179,7 @@ function callAPI(method, route, postData) {
 	xhr.setRequestHeader('Content-Type', 'application/json');
 	xhr.setRequestHeader('x-api-user', Vars.UserData.Credentials.uid);
 	xhr.setRequestHeader('x-api-key', Vars.UserData.Credentials.apiToken);
-	if (typeof postData !== 'undefined')  xhr.sendend(postData);
+	if (typeof postData !== 'undefined')  xhr.send(postData);
 	else                                  xhr.send();
 	return (xhr.responseText);
 }
@@ -317,14 +319,9 @@ function startTimer(duration,duringTimerFunction,endTimerFunction) {
     var endTimer = function () { endTimerFunction() };
 
     timerInterval = setInterval(function () {
-        minutes = parseInt(timer / 60, 10)
-        seconds = parseInt(timer % 60, 10);
-
-        minutes = minutes < 10 ? "0" + minutes : minutes;
-        seconds = seconds < 10 ? "0" + seconds : seconds;
-       
-        Vars.Timer = minutes + ":" + seconds;
-        Vars.TimerValue = minutes*60+seconds;
+        
+        Vars.Timer = secondsToTimeString(timer);
+        Vars.TimerValue =timer;
         
         duringTimer();
        
@@ -334,6 +331,15 @@ function startTimer(duration,duringTimerFunction,endTimerFunction) {
         }
 
     }, 1000);
+}
+
+//Convert seconds to time string, for example: 65 -> "01:05"
+function secondsToTimeString(seconds){
+    var minutes = parseInt(seconds / 60, 10)
+    var seconds = parseInt(seconds % 60, 10);
+    minutes = minutes < 10 ? "0" + minutes : minutes;
+    seconds = seconds < 10 ? "0" + seconds : seconds;
+    return minutes + ":" + seconds;
 }
 
 //start pomodoro session - duration in seconds
@@ -399,6 +405,7 @@ function manualBreak(){
     stopTimer();
     Vars.TimerRunnig = false;
     Vars.onBreak = true;
+    Vars.Timer = "Nice!";
 }
 
 //runs during Break session
@@ -424,6 +431,8 @@ function startBreakExtension(duration){
     Vars.onBreakExtension=true;
     Vars.onBreak=true;
     startTimer(duration,duringBreakExtension,pomodoroInterupted);
+    duration/60
+    notifyHabitica("Back to work! "+secondsToTimeString(Vars.UserData.BreakExtention*60)+" minutes left for Break Extension.");
 }
 
 //runs during Break session
@@ -526,5 +535,14 @@ function unblockSiteOverlay(tab){
         chrome.tabs.sendMessage(tabId,msg);
     };
 }
+
+//Sends Private Message to the user in Habitica (Used as notification in the mobile app!)
+function notifyHabitica(msg){
+    if(Vars.UserData.BreakExtentionNotify){
+        var data = {message: msg, toUserId:Vars.UserData.Credentials.uid};
+        callAPI("POST", 'members/send-private-message',JSON.stringify(data));
+    }
+}
+
 
 

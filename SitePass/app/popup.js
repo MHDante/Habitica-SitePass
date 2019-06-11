@@ -1,7 +1,6 @@
 Node.prototype.AppendText = function (string) { this.appendChild(document.createTextNode(string)); }
 Node.prototype.AppendBreak = function () { this.appendChild(document.createElement("br")); }
 
-
 var background = chrome.extension.getBackgroundPage();
 var Vars = background.Vars;
 var Consts = background.Consts;
@@ -51,6 +50,11 @@ document.addEventListener("DOMContentLoaded", function () {
             background.pomodoroInterupted();   
         }
     });
+    
+    $("#RefreshStats").click(function () {
+        background.FetchHabiticaData();
+        location.reload();
+    });
 
     //Update Timer display
     updateTimerDisplay();
@@ -58,7 +62,6 @@ document.addEventListener("DOMContentLoaded", function () {
         updateTimerDisplay();
     }, 1000);
 });
-
 
 function AddSiteToTable(site, fadein) {
     var table = $("#SiteTable");
@@ -160,7 +163,8 @@ function CredentialFields() {
     $("#ManualBreak").prop('checked', Vars.UserData.ManualBreak);
     $("#BreakFreePass").prop('checked', Vars.UserData.BreakFreePass);
     $("#BreakExtentionFails").prop('checked', Vars.UserData.BreakExtentionFails);
-    
+    $("#BreakExtentionNotify").prop('checked', Vars.UserData.BreakExtentionNotify);
+
     //Update Pomodoros Today, reset on new day
     today = new Date().setHours(0,0,0,0);
     if(Vars.PomodorosToday.date!= today){
@@ -181,6 +185,7 @@ function CredentialFields() {
     $("#ManualBreak").click(function () { updateCredentials(); });
     $("#BreakFreePass").click(function () { updateCredentials(); });
     $("#BreakExtentionFails").click(function () { updateCredentials(); });
+    $("#BreakExtentionNotify").click(function () { updateCredentials(); });
     //ugh.
 
     $("#SaveButton").click(function () {
@@ -266,6 +271,7 @@ function updateCredentials() {
     Vars.UserData.ManualBreak = $("#ManualBreak").prop('checked');
     Vars.UserData.BreakFreePass = $("#BreakFreePass").prop('checked');
     Vars.UserData.BreakExtentionFails = $("#BreakExtentionFails").prop('checked');
+    Vars.UserData.BreakExtentionNotify = $("#BreakExtentionNotify").prop('checked');
 }
 
 function updateTimerDisplay(){

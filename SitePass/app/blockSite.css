@@ -17,8 +17,8 @@
     background-repeat: no-repeat;
     width: 211px;
     height:200px;
-    top: 160px;
-    left: calc(50% - 100px);
+    top: 190px;
+    left: calc(50% - 110px);
     position: fixed;
     z-index: 99999;
     padding-top: 10%;

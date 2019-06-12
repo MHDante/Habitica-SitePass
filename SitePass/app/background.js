@@ -5,12 +5,13 @@ var Consts = {
     serverPathUser : 'user/',
     serverPathTask: 'tasks/sitepass',
     serverPathPomodoroHabit:'tasks/sitepassPomodoro',
+    serverPathPomodoroSetHabit:'tasks/sitepassPomodoroSet',
     serverPathUserTasks: 'tasks/user',
     RewardTemplate :
         {
             text: "SitePass",
             value: 0,
-            notes:  "Reward utilized by Habitica SitePass."+
+            notes:  "Reward utilized by Habitica SiteKeeper."+
                     " Changes value depending on last accessed website.",
             alias: "sitepass",
             type: "reward"
@@ -20,9 +21,19 @@ var Consts = {
         text: ":tomato: Pomodoro",
         type: "habit",
         alias: "sitepassPomodoro",
-        notes:  "Habit utilized by Habitica SitePass. "+
-                "Please change the difficulty manualy according to your needs.",
+        notes:  "Habit utilized by Habitica SiteKeeper. "+
+                "Change the difficulty manualy according to your needs.",
         priority: 1
+    },
+    PomodoroSetHabitTemplate :
+    {
+        text: ":tomato::tomato::tomato: Pomodoro Combo!",
+        type: "habit",
+        alias: "sitepassPomodoroSet",
+        notes:  "Habit utilized by Habitica SiteKeeper. "+
+                "Change the difficulty manualy according to your needs.",
+        down: false,
+        priority: 1.5
     },
     urlFilter: { urls: ["<all_urls>"], types: ["main_frame"] },
     opt_extraInfoSpec: ["blocking"],
@@ -36,6 +47,7 @@ var Vars = {
     EditingSettings:false,
     RewardTask: Consts.RewardTemplate,
     PomodoroTaskId:null,
+    PomodoroSetTaskId:null,
     PomodorosToday:{value:0,date:0},
     Monies: 0,
     Exp: 0,
@@ -46,14 +58,15 @@ var Vars = {
     TimerValue: 0, //in seconds
     TimerRunnig:false,
     onBreak:false,
-    onBreakExtension:false
+    onBreakExtension:false,
+    PomoSetCounter:0
 };
 
 
 function UserSettings(copyFrom) {
     this.BlockedSites = copyFrom ? copyFrom.BlockedSites : {};
     this.Credentials = copyFrom ? copyFrom.Credentials :{uid:"",apiToken:""};
-    this.PassDurationMins = copyFrom ? copyFrom.PassDurationMins : 10;
+    this.PassDurationMins = copyFrom ? copyFrom.PassDurationMins : 30;
     this.PomoDurationMins = copyFrom ? copyFrom.PomoDurationMins : 25;
     this.PomoHabitPlus = copyFrom ? copyFrom.PomoHabitPlus :false; //Hit + on habit when pomodoro done
     this.PomoHabitMinus = copyFrom ? copyFrom.PomoHabitMinus :false; //Hit - on habit when pomodoro is interupted
@@ -61,9 +74,11 @@ function UserSettings(copyFrom) {
     this.BreakDuration = copyFrom ? copyFrom.BreakDuration :5;
     this.ManualBreak = copyFrom ? copyFrom.ManualBreak :true;
     this.BreakFreePass = copyFrom ? copyFrom.BreakFreePass :false;
-    this.BreakExtention = copyFrom ? copyFrom.BreakExtention :1;
+    this.BreakExtention = copyFrom ? copyFrom.BreakExtention :2;
     this.BreakExtentionFails = copyFrom ? copyFrom.BreakExtentionFails :false;
     this.BreakExtentionNotify = copyFrom ? copyFrom.BreakExtentionNotify :false;
+    this.PomoSetNum = copyFrom ? copyFrom.PomoSetNum :4;
+    this.PomoSetHabitPlus = copyFrom ? copyFrom.PomoSetHabitPlus :false;
     
     this.GetBlockedSite = function (hostname) {
         return this.BlockedSites[hostname];
@@ -234,9 +249,10 @@ function FetchHabiticaData(skipTasks) {
     }
     if(!skipTasks){
         var tasksObj;
+        
         //get pomodoro task id
         tasksObj = getData(true, credentials, Consts.serverPathPomodoroHabit);
-        if (tasksObj && tasksObj.data["alias"] == "sitepassPomodoro") {
+        if (tasksObj && tasksObj.data["alias"] == Consts.PomodoroHabitTemplate.alias) {
             Vars.PomodoroTaskId = tasksObj.data.id;
         }else{
             var result = CreatePomodoroHabit();
@@ -244,6 +260,20 @@ function FetchHabiticaData(skipTasks) {
                 notify("ERROR",result.error);
             }else{
                 Vars.PomodoroTaskId = result;
+            }
+            
+        }
+
+        //get pomodoro Set task id
+        tasksObj = getData(true, credentials, Consts.serverPathPomodoroSetHabit);
+        if (tasksObj && tasksObj.data["alias"] == Consts.PomodoroSetHabitTemplate.alias) {
+            Vars.PomodoroSetTaskId = tasksObj.data.id;
+        }else{
+            var result = CreatePomodoroSetHabit();
+            if(result.error){
+                notify("ERROR",result.error);
+            }else{
+                Vars.PomodoroSetTaskId = result;
             }
             
         }
@@ -283,6 +313,16 @@ function CreatePomodoroHabit() {
     var p = JSON.parse(callAPI("POST", Consts.serverPathUserTasks,data));
     if (p.success != true) {
         return {error:'Failed to Create Pomodoro Habit task'};
+    }else{
+        return p.data.id;
+     }
+}
+
+function CreatePomodoroSetHabit() {
+    var data = JSON.stringify(Consts.PomodoroSetHabitTemplate);
+    var p = JSON.parse(callAPI("POST", Consts.serverPathUserTasks,data));
+    if (p.success != true) {
+        return {error:'Failed to Create Pomodoro Set Habit task'};
     }else{
         return p.data.id;
      }
@@ -362,11 +402,14 @@ function duringPomodoro(){
 //runs When Pomodoro Timer Ends
 function pomodoroEnds(){
     stopTimer();
-    var msg ="Pomodoro ended."+"\n"+"You have done "+Vars.PomodorosToday.value+" today!";
-    //If Pomodoro Habit + is enabled
-    if(Vars.UserData.PomoHabitPlus){
+    var title = "Time's Up"
+    var msg ="Pomodoro ended."+"\n"+"You have done "+Vars.PomodorosToday.value+" today!"; //default msg if habit not enabled
+    var setComplete = Vars.PomoSetCounter >= Vars.UserData.PomoSetNum -1;
+
+    //If Pomodoro / Pomodoro Set Habit + is enabled
+    if(Vars.UserData.PomoHabitPlus || (setComplete && Vars.UserData.PomoSetHabitPlus)){
         FetchHabiticaData(true);
-        var result = ScoreHabit(Vars.PomodoroTaskId,'up');
+        var result = (setComplete && Vars.UserData.PomoSetHabitPlus)  ? ScoreHabit(Vars.PomodoroSetTaskId,'up') : ScoreHabit(Vars.PomodoroTaskId,'up');
         if(!result.error){
             var deltaGold = (result.gp-Vars.Monies).toFixed(2);
             var deltaExp = (result.exp-Vars.Exp).toFixed(2);
@@ -383,13 +426,21 @@ function pomodoroEnds(){
     chrome.storage.sync.set(Pomodoros, function() {
         console.log('PomodorosToday is set to ' + JSON.stringify(Pomodoros));
     });
-    //notify
-    notify("Time's Up", msg);
-    if(Vars.UserData.ManualBreak){
+
+    Vars.PomoSetCounter ++; //Updae set counter
+
+    if(setComplete){
+        title = "Pomodoro Set Complete!" 
+        Vars.PomoSetCounter = 0; //Reset Pomo set Count 
+    }
+    else if(Vars.UserData.ManualBreak){
         manualBreak();
     }else{
         startBreak(Vars.UserData.BreakDuration*60);
     }
+
+    //notify
+    notify(title, msg);
 }
 
 //start break session - duration in seconds
@@ -431,7 +482,6 @@ function startBreakExtension(duration){
     Vars.onBreakExtension=true;
     Vars.onBreak=true;
     startTimer(duration,duringBreakExtension,pomodoroInterupted);
-    duration/60
     notifyHabitica("Back to work! "+secondsToTimeString(Vars.UserData.BreakExtention*60)+" minutes left for Break Extension.");
 }
 
@@ -450,6 +500,7 @@ function pomodoroInterupted(){
    var failedBreakExtension = Vars.UserData.BreakExtentionFails && Vars.onBreakExtension;
    var breakExtensionZero = !Vars.UserData.BreakExtentionFails && (Vars.UserData.BreakExtention == 0);
    stopTimer();
+   Vars.PomoSetCounter = 0; //Reset Pomo set Count
    if(portectedStopActivated || breakExtensionZero){
         return;
    }
@@ -471,7 +522,7 @@ function pomodoroInterupted(){
 
 //Stop timer - reset to start position
 function stopTimer(){
-    
+
     clearInterval(timerInterval);
     Vars.Timer = "00:00";
     chrome.browserAction.setBadgeText({

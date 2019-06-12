@@ -164,6 +164,8 @@ function CredentialFields() {
     $("#BreakFreePass").prop('checked', Vars.UserData.BreakFreePass);
     $("#BreakExtentionFails").prop('checked', Vars.UserData.BreakExtentionFails);
     $("#BreakExtentionNotify").prop('checked', Vars.UserData.BreakExtentionNotify);
+    $("#PomoSetNum").val(Vars.UserData.PomoSetNum);
+    $("#PomoSetHabitPlus").prop('checked', Vars.UserData.PomoSetHabitPlus);
 
     //Update Pomodoros Today, reset on new day
     today = new Date().setHours(0,0,0,0);
@@ -186,6 +188,8 @@ function CredentialFields() {
     $("#BreakFreePass").click(function () { updateCredentials(); });
     $("#BreakExtentionFails").click(function () { updateCredentials(); });
     $("#BreakExtentionNotify").click(function () { updateCredentials(); });
+    $("#PomoSetNum").bind('keyup input change', function(){updateCredentials();});
+    $("#PomoSetHabitPlus").click(function () { updateCredentials(); });
     //ugh.
 
     $("#SaveButton").click(function () {
@@ -256,6 +260,7 @@ function updateCredentials() {
     Vars.UserData.Credentials.uid = $("#UID").val();
     Vars.UserData.Credentials.apiToken = $("#APIToken").val();
 
+    //TODO better code...
     var flDuration = parseFloat($("#Duration").val());
     if (!isNaN(flDuration)) Vars.UserData.PassDurationMins = flDuration;
     var pmDuration = parseFloat($("#PomoDuration").val());
@@ -264,6 +269,8 @@ function updateCredentials() {
     if (!isNaN(brDuration)) Vars.UserData.BreakDuration = brDuration;
     var exDuration = parseFloat($("#BreakExtention").val());
     if (!isNaN(exDuration)) Vars.UserData.BreakExtention = exDuration;
+    var pomoNum = parseFloat($("#PomoSetNum").val()); 
+    if (!isNaN(pomoNum)) Vars.UserData.PomoSetNum = pomoNum;
 
     Vars.UserData.PomoHabitPlus = $("#PomoHabitPlus").prop('checked');
     Vars.UserData.PomoHabitMinus = $("#PomoHabitMinus").prop('checked');
@@ -272,10 +279,12 @@ function updateCredentials() {
     Vars.UserData.BreakFreePass = $("#BreakFreePass").prop('checked');
     Vars.UserData.BreakExtentionFails = $("#BreakExtentionFails").prop('checked');
     Vars.UserData.BreakExtentionNotify = $("#BreakExtentionNotify").prop('checked');
+    Vars.UserData.PomoSetHabitPlus = $("#PomoSetHabitPlus").prop('checked');
 }
 
 function updateTimerDisplay(){
     $('#Time').html(Vars.Timer);
+    $("#Time").attr("data-pomodoros-set",Vars.PomoSetCounter+"/"+Vars.UserData.PomoSetNum);
     var time = Vars.Timer.split(':');
     var seconds = parseInt(time[0])*60+parseInt(time[1]);
     var duration = Vars.UserData.PomoDurationMins*60;

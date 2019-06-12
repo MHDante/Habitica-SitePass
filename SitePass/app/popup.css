@@ -1,3 +1,6 @@
+:root {
+    --main-color: #2995CD;
+  }
 
 @font-face {
     font-family: 'pixeled';
@@ -25,7 +28,7 @@ table {
 }
 
 body {
-    width: 250px;
+    width: 260px;
     height: 450px;
     border-collapse:collapse;
     display : table;
@@ -124,7 +127,7 @@ a{
     height: 100%;
     text-align: center;
     vertical-align: top;
-    background-color: #2995CD;
+    background-color: var(--main-color);
     color: #555;
     display: inline-block;
     line-height: 1.5em;
@@ -135,7 +138,7 @@ a{
     color: #36205D;
     font-weight: bold;
     text-align: center;
-    background-color: #2995CD;
+    background-color: var(--main-color);
     padding: 9px;
 }
 .tomato {
@@ -225,7 +228,7 @@ a{
     margin: 7px;
 }
 #pomodoro {
-    background-color: #2995CD;
+    background-color: var(--main-color);
     padding: 10px;
     text-align: center;
     margin: auto;
@@ -243,6 +246,15 @@ a{
     font-family: 'pixeled',Arial, sans-serif;
     width: 100px;
     display: inline-block;
+}
+#Time:after {
+    content: attr(data-pomodoros-set);
+    font-size: 9px;
+    display: inline-block;
+    position: absolute;
+    right: 0;
+    margin-left: 4px;
+    top: 0;
 }
 #Footer {
     display : table-row;
@@ -311,6 +323,32 @@ a{
     width: 12px;
     text-align: center;
 }
+.xbtn {
+    border: 1px solid #878190;
+    border-radius: 2px;
+    display: inline-block;
+    width: 12px;
+    text-align: center;
+    font-size: 11px;
+    background-color: #878190;
+    color: white;
+    cursor: pointer;
+}
+.addbtn {
+    background-color: var(--main-color);
+    width: 99%;
+    display: inline-block;
+    margin-top: 4px;
+    color: white;
+    text-align: center;
+    font-weight: bold;
+    font-size: 14px;
+    opacity: 0.5;
+    border-radius: 5px;
+    border: 1px solid gray;
+    vertical-align: middle;
+    cursor: pointer;
+}
 #Footer2 {
     display: inline-block;
     width: 100%;
@@ -321,4 +359,9 @@ a{
     height: 26px;
     padding: 7px;
     box-shadow: 0px 10px 5px #888, 0px 0px 5px #888;
+}
+
+input[type="time"] {
+    width: 33%;
+    font-size: 11px;
 }

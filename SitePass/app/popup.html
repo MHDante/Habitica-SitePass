@@ -10,7 +10,7 @@
     <a id="BlockLink" href="#">Block Site!</a>
     <!-- Pomodoro Timer -->
     <div id="pomodoro">
-        <span id="PomoButton" data-pomodoros="0" class="tomato"></span><span id="Time">00:00</span> 
+        <span id="PomoButton" data-pomodoros="0" class="tomato"></span><span id="Time" data-pomodoros-set="0/4">00:00</span> 
     </div>
     <!-- Blocked Sites -->
     <p><b>Blocked Sites:</b></p>
@@ -25,7 +25,7 @@
         </div>
         <div id="Credentials">
             <br>
-            <a href="https://habitica.fandom.com/wiki/Habitica_SitePass" target="_blank" style="color:#878190;">Help & Credits</a>
+            <a href="https://habitica.fandom.com/wiki/Habitica_Pomodoro_SiteKeeper" target="_blank" style="color:#878190;">Help & Credits</a>
             &nbsp&nbsp&nbsp<a href="https://github.com/ofekmiz/Habitica-Pomodoro-SiteKeeper/issues" target="_blank" style="color:#878190;"><span class="bug_icon"></span>Report a bug</a>
             <hr>
             <button id="SaveButton" type="submit">Save/Update</button>
@@ -35,7 +35,28 @@
             <label><b>Habitica API Token:</b><br/><input id="APIToken" type="text"></label><br>
             <p class="setting-header">Pay to pass</p>
             <label><b>Pass Duration (In Minutes)</b><br/><input id="Duration" type="text"></label><br>
-            <sapn class="setting-note">Sites with cost 0 are blocked only during pomodoro</sapn>
+            <sapn class="setting-note">All sites are blocked during pomodoro. Sites with cost 0 are blocked only during pomodoro.</sapn>
+            
+            <div class="commingSoon">
+                <label><b>Free Pass Schedule:</b></label><br>
+                <sapn class="setting-note">Choose day, start hour, end hour</sapn><br>
+                <span class="xbtn">x</span>
+                <select style="width: 18%;font-size: 11px;height: 20px;" >
+                    <option value="Every Day">All</option>
+                    <option value="Sunday">Sun</option>
+                    <option value="Monday">Mon</option>
+                    <option value="Tuesday">Tue</option>
+                    <option value="Wednesday">Wed</option>
+                    <option value="Thursday">Thu</option>
+                    <option value="Saturday">Fri</option>
+                    <option value="Thursday">Sat</option>
+                </select>
+                <input  type="time" name="startTime"></input>
+                <input  type="time" name="endTime"></input><br>
+                <span class="addbtn">+</span><br>
+
+            </div>
+               
             <p class="setting-header">Pomodoro</p>
             <label><b>Pomodoro Duration (In Minutes)</b><br/><input id="PomoDuration" type="text"></label><br>
             <hr>
@@ -51,19 +72,10 @@
             <label><input type="checkbox" id="PomoProtectedStop">Don't <span class="plus_minus_icon">-</span> if stopped at the first 10sec</label><br>
             <label><input type="checkbox" id="BreakExtentionFails"><span class="plus_minus_icon">-</span> habit if Break Extention is over</label><br>
             <hr>
-
-            
-            <div class="commingSoon">
-                <label><b>Pomodoros in Set  </b><input style="width:50px;margin-top: 5px;" id="PomoSetNum" type="number" min="1" max="6"></label><br>
-                <hr>
-                <label><b>Pomodoro Combo Set Habit Task</b></label><br>
-                <label><input type="checkbox" id="PomoSetHabitPlus"> <span class="plus_minus_icon">+</span> habit for pomodoro set complete</label><br>
-                <label><input type="checkbox" id="PomoSetFailReset">Count Set from total done today</label><br>
-                <span class="setting-note">For example, if this is checked and "Pomodoros in Set" is 4, <span class="plus_minus_icon">+</span> combo habit in habitica 
-                for every 4 pomodoros done during the day (Instead of having to finish 4 pomodoros in a row). So you gain reward for doing 4,8,12... pomodoros during the day.</span>
-                <br>
-            </div>
-
+            <label><b>Pomodoros in Set  </b><input id="PomoSetNum" type="number" step="1"></label><br>
+            <hr>
+            <label><b>Pomodoro Combo Set Habit Task</b></label><br>
+            <label><input type="checkbox" id="PomoSetHabitPlus"> <span class="plus_minus_icon">+</span> habit for pomodoro set complete</label><br>
         </div>
         <br><br><br>
         <div id="Footer2">

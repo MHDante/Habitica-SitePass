@@ -153,12 +153,10 @@ a{
     margin-left: -20px;
     cursor: pointer;
 }
-.tomatoProgressStart,.tomatoProgress{
+.tomatoProgress{
     background-image: url(img/pomodoroProgress.png);
 }
-.tomatoProgressStart:hover{
-    background-image: url(img/pomodoroProtectStop.png);
-}
+
 .tomatoProgress:hover{
     background-image: url(img/pomodoroQuit.png);
 }
@@ -205,6 +203,22 @@ a{
 }
 .tomatoWarning:hover{
     background-image: url(img/pomodoroStart.png);
+}
+#PomoStop:hover + .tomatoBreak, #PomoStop:hover + .tomatoWin{
+    background-image: url(img/pomodoroProtectStop.png);
+}
+#PomoStop:hover + .tomatoWin:after{
+    content: "";
+}
+
+#PomoStop{
+    display: block;
+    width: 10px;
+    cursor: pointer;
+    position: absolute;
+}
+#PomoStop:hover{
+color:white;
 }
 
 .blocked:before{

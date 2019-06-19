@@ -10,6 +10,7 @@
     <a id="BlockLink" href="#">Block Site!</a>
     <!-- Pomodoro Timer -->
     <div id="pomodoro">
+        <div id="PomoStop">X</div>
         <span id="PomoButton" data-pomodoros="0" class="tomato"></span><span id="Time" data-pomodoros-set="0/4">00:00</span> 
     </div>
     <!-- Blocked Sites -->
@@ -69,8 +70,7 @@
             <label><b>Pomodoro Habit Task</b></label><br>
             <label><input type="checkbox" id="PomoHabitPlus"> <span class="plus_minus_icon">+</span> habit when pomodoro is done</label><br>
             <label><input type="checkbox" id="PomoHabitMinus"> <span class="plus_minus_icon">-</span> habit if stopped before timer ends</label><br>
-            <label><input type="checkbox" id="PomoProtectedStop">Don't <span class="plus_minus_icon">-</span> if stopped at the first 10sec</label><br>
-            <label><input type="checkbox" id="BreakExtentionFails"><span class="plus_minus_icon">-</span> habit if Break Extention is over</label><br>
+            <label><input type="checkbox" id="BreakExtentionFails"> <span class="plus_minus_icon">-</span> habit if Break Extention is over</label><br>
             <hr>
             <label><b>Pomodoros in Set  </b><input id="PomoSetNum" type="number" step="1"></label><br>
             <hr>

@@ -50,6 +50,9 @@ document.addEventListener("DOMContentLoaded", function () {
             background.pomodoroInterupted();   
         }
     });
+    $("#PomoStop").click(function () {
+        background.pomoReset();
+    });
     
     $("#RefreshStats").click(function () {
         background.FetchHabiticaData();
@@ -159,7 +162,6 @@ function CredentialFields() {
     $("#BreakExtention").val(Vars.UserData.BreakExtention);
     $("#PomoHabitPlus").prop('checked', Vars.UserData.PomoHabitPlus);
     $("#PomoHabitMinus").prop('checked', Vars.UserData.PomoHabitMinus);
-    $("#PomoProtectedStop").prop('checked', Vars.UserData.PomoProtectedStop);
     $("#ManualBreak").prop('checked', Vars.UserData.ManualBreak);
     $("#BreakFreePass").prop('checked', Vars.UserData.BreakFreePass);
     $("#BreakExtentionFails").prop('checked', Vars.UserData.BreakExtentionFails);
@@ -183,7 +185,6 @@ function CredentialFields() {
     $("#BreakExtention").on("keyup", function () { updateCredentials(); });
     $("#PomoHabitPlus").click(function () { updateCredentials(); });
     $("#PomoHabitMinus").click(function () { updateCredentials(); });
-    $("#PomoProtectedStop").click(function () { updateCredentials(); });
     $("#ManualBreak").click(function () { updateCredentials(); });
     $("#BreakFreePass").click(function () { updateCredentials(); });
     $("#BreakExtentionFails").click(function () { updateCredentials(); });
@@ -274,7 +275,6 @@ function updateCredentials() {
 
     Vars.UserData.PomoHabitPlus = $("#PomoHabitPlus").prop('checked');
     Vars.UserData.PomoHabitMinus = $("#PomoHabitMinus").prop('checked');
-    Vars.UserData.PomoProtectedStop = $("#PomoProtectedStop").prop('checked');
     Vars.UserData.ManualBreak = $("#ManualBreak").prop('checked');
     Vars.UserData.BreakFreePass = $("#BreakFreePass").prop('checked');
     Vars.UserData.BreakExtentionFails = $("#BreakExtentionFails").prop('checked');
@@ -293,6 +293,7 @@ function updateTimerDisplay(){
         $('#pomodoro').css("background-color", "red");
             $('#pomodoro').css("color", "coral");
             tomatoSetClass("tomatoWarning");
+            $("#PomoStop").show();
     }
     else if(Vars.onBreak){
         if(Vars.TimerRunnig){
@@ -305,27 +306,26 @@ function updateTimerDisplay(){
             $('#pomodoro').css("color", "lightgreen");
             tomatoSetClass("tomatoWin");
         }
+        $("#PomoStop").show();
         $("#SiteTable tbody").toggleClass('blocked',false);
     }
     else if(Vars.TimerRunnig){ //Pomodoro running
         $('#pomodoro').css("background-color", "green"); 
         $('#pomodoro').css("color", "lightgreen");
-        if(duration-seconds <= Consts.ProtectedStopDuration && Vars.UserData.PomoProtectedStop){
-            tomatoSetClass("tomatoProgressStart");
-        }else{
-            tomatoSetClass("tomatoProgress");
-        }
+        tomatoSetClass("tomatoProgress");
         $("#SiteTable tbody").toggleClass('blocked',true);
+        $("#PomoStop").hide();
     }else{ //pomodoro not running
         $('#pomodoro').css("background-color", "#2995CD")
         $('#pomodoro').css("color", "#36205D");
         tomatoSetClass("tomatoWait"); 
         $("#SiteTable tbody").toggleClass('blocked',false);
         $("#PomoButton").attr("data-pomodoros",Vars.PomodorosToday.value);
+        $("#PomoStop").hide();
     }
 }
 
-var TOMATO_CLASSES = ["tomatoProgress","tomatoProgressStart","tomatoWait","tomatoBreak","tomatoWin","tomatoWarning"];
+var TOMATO_CLASSES = ["tomatoProgress","tomatoWait","tomatoBreak","tomatoWin","tomatoWarning"];
 function tomatoSetClass(className){
     TOMATO_CLASSES.forEach(function(entry) {
         $('.tomato').toggleClass(entry, false);

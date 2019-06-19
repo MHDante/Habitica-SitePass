@@ -40,7 +40,6 @@ var Consts = {
     userDataKey: "USER_DATA",
     PomodorosTodayDataKey:"PomodorosToday",
     NotificationId : "sitepass_notification",
-    ProtectedStopDuration : 10 //Don't fail pomodoro if stoped in the first x seconds
 };
 
 var Vars = {
@@ -70,7 +69,6 @@ function UserSettings(copyFrom) {
     this.PomoDurationMins = copyFrom ? copyFrom.PomoDurationMins : 25;
     this.PomoHabitPlus = copyFrom ? copyFrom.PomoHabitPlus :false; //Hit + on habit when pomodoro done
     this.PomoHabitMinus = copyFrom ? copyFrom.PomoHabitMinus :false; //Hit - on habit when pomodoro is interupted
-    this.PomoProtectedStop = copyFrom ? copyFrom.PomoProtectedStop :false;
     this.BreakDuration = copyFrom ? copyFrom.BreakDuration :5;
     this.ManualBreak = copyFrom ? copyFrom.ManualBreak :true;
     this.BreakFreePass = copyFrom ? copyFrom.BreakFreePass :false;
@@ -228,7 +226,7 @@ function getData(silent, credentials, serverPath) {
                     type: "basic",
                     iconUrl: "img/icon.png",
                     title: "Habitica SitePass Connection Error",
-                    message: "The service might be temporarily unavailable. Contact @MHDante if it persists. Error =" +
+                    message: "The service might be temporarily unavailable. Contact @HorizonM if it persists. Error =" +
                         xhr.status
                 },
                 function() {});
@@ -494,14 +492,10 @@ function duringBreakExtension(){
 
 //runs when pomodoro is interupted (stoped before timer ends/break extension over)
 function pomodoroInterupted(){
-   var protectedStop = Vars.UserData.PomoProtectedStop;
-   var duration = (Vars.UserData.PomoDurationMins*60)-Vars.TimerValue;
-   var portectedStopActivated = protectedStop && duration <= Consts.ProtectedStopDuration && !Vars.onBreakExtension;
    var failedBreakExtension = Vars.UserData.BreakExtentionFails && Vars.onBreakExtension;
    var breakExtensionZero = !Vars.UserData.BreakExtentionFails && (Vars.UserData.BreakExtention == 0);
-   stopTimer();
-   Vars.PomoSetCounter = 0; //Reset Pomo set Count
-   if(portectedStopActivated || breakExtensionZero){
+   pomoReset();
+   if(breakExtensionZero){
         return;
    }
    if(Vars.UserData.PomoHabitMinus || failedBreakExtension){
@@ -520,7 +514,7 @@ function pomodoroInterupted(){
     }  
 }
 
-//Stop timer - reset to start position
+//Stop timer
 function stopTimer(){
 
     clearInterval(timerInterval);
@@ -536,6 +530,12 @@ function stopTimer(){
     Vars.onBreak = false;
     Vars.onBreakExtension = false;
 
+}
+
+//Stop timer - reset to start position
+function pomoReset(){
+    stopTimer()
+    Vars.PomoSetCounter = 0; //Reset Pomo set Count
 }
 
 //Create Chrome Notification

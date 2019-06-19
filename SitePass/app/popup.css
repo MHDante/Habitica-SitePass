@@ -234,6 +234,7 @@ color:white;
     height: 57px;
     position: absolute;
     background-image: url(img/chainLock.png);
+    background-repeat: no-repeat;
 }
 .setting-note{
     color: gray;
@@ -290,14 +291,14 @@ color:white;
 #Credentials {
     display: none;
 }
-.commingSoon {
+.comingSoon {
     background-color: lemonchiffon;
     border: 2px solid gray;
     padding: 2px;
     opacity: 0.7;
 }
-.commingSoon:before {
-    content: "- Comming Soon -";
+.comingSoon:before {
+    content: "- Coming Soon -";
     display: inline-block;
     width: calc(100% - 10px);
     padding: 5px;

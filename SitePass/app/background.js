@@ -77,6 +77,8 @@ function UserSettings(copyFrom) {
     this.BreakExtentionNotify = copyFrom ? copyFrom.BreakExtentionNotify :false;
     this.PomoSetNum = copyFrom ? copyFrom.PomoSetNum :4;
     this.PomoSetHabitPlus = copyFrom ? copyFrom.PomoSetHabitPlus :false;
+    this.LongBreakDuration = copyFrom ? copyFrom.LongBreakDuration :30;
+    this.LongBreakNotify = copyFrom ? copyFrom.LongBreakNotify :false;
     
     this.GetBlockedSite = function (hostname) {
         return this.BlockedSites[hostname];
@@ -381,7 +383,8 @@ function secondsToTimeString(seconds){
 }
 
 //start pomodoro session - duration in seconds
-function startPomodoro(duration){
+function startPomodoro(){
+    var duration = 60 * Vars.UserData.PomoDurationMins;
     Vars.TimerRunnig = true;
     Vars.onBreak = false;
     startTimer(duration,duringPomodoro,pomodoroEnds);
@@ -428,13 +431,12 @@ function pomodoroEnds(){
     Vars.PomoSetCounter ++; //Updae set counter
 
     if(setComplete){
-        title = "Pomodoro Set Complete!" 
-        Vars.PomoSetCounter = 0; //Reset Pomo set Count 
+        title = "Pomodoro Set Complete!";
     }
-    else if(Vars.UserData.ManualBreak){
+    if(Vars.UserData.ManualBreak){
         manualBreak();
     }else{
-        startBreak(Vars.UserData.BreakDuration*60);
+        startBreak();
     }
 
     //notify
@@ -442,7 +444,13 @@ function pomodoroEnds(){
 }
 
 //start break session - duration in seconds
-function startBreak(duration){
+function startBreak(){
+    var duration;
+    if(Vars.PomoSetCounter == Vars.UserData.PomoSetNum){
+        duration = 60 * Vars.UserData.LongBreakDuration
+    }else{
+        duration = 60 * Vars.UserData.BreakDuration;
+    }
     stopTimer();
     Vars.TimerRunnig = true;
     Vars.onBreak = true;
@@ -467,10 +475,20 @@ function duringBreak(){
 //runs when Break session ends
 function breakEnds(){
     stopTimer();
-    var msg ="Back to work";
+    var msg;
+    if(Vars.PomoSetCounter == Vars.UserData.PomoSetNum){
+        msg = "Long Break is over";
+        pomoReset();
+        if(Vars.UserData.LongBreakNotify){
+            notifyHabitica("Long Break is over");
+        }    
+    }
+    else{
+        msg ="Back to work";
+        startBreakExtension(Vars.UserData.BreakExtention*60);
+    }
     //notify
     notify("Time's Up", msg);
-    startBreakExtension(Vars.UserData.BreakExtention*60);
 }
 
 //start break session - duration in seconds
@@ -480,7 +498,9 @@ function startBreakExtension(duration){
     Vars.onBreakExtension=true;
     Vars.onBreak=true;
     startTimer(duration,duringBreakExtension,pomodoroInterupted);
-    notifyHabitica("Back to work! "+secondsToTimeString(Vars.UserData.BreakExtention*60)+" minutes left for Break Extension.");
+    if(Vars.UserData.BreakExtentionNotify){
+        notifyHabitica("Back to work! "+secondsToTimeString(Vars.UserData.BreakExtention*60)+" minutes left for Break Extension.");
+    }
 }
 
 //runs during Break session
@@ -589,10 +609,8 @@ function unblockSiteOverlay(tab){
 
 //Sends Private Message to the user in Habitica (Used as notification in the mobile app!)
 function notifyHabitica(msg){
-    if(Vars.UserData.BreakExtentionNotify){
-        var data = {message: msg, toUserId:Vars.UserData.Credentials.uid};
-        callAPI("POST", 'members/send-private-message',JSON.stringify(data));
-    }
+    var data = {message: msg, toUserId:Vars.UserData.Credentials.uid};
+    callAPI("POST", 'members/send-private-message',JSON.stringify(data));
 }
 
 

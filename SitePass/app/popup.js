@@ -36,15 +36,17 @@ document.addEventListener("DOMContentLoaded", function () {
 
     //Pomodoro Button actions
     $("#PomoButton").click(function () {
-        var pomoSeconds = 60 * Vars.UserData.PomoDurationMins;
-        var breakSeconds = 60 * Vars.UserData.BreakDuration;
         if(Vars.onBreak && !Vars.TimerRunnig){
             background.stopTimer();
-            background.startBreak(breakSeconds);
+            background.startBreak();
         }
-        else if(!Vars.TimerRunnig || Vars.onBreak || Vars.onBreakExtension){
-            background.stopTimer();
-            background.startPomodoro(pomoSeconds);
+        else if(!Vars.TimerRunnig || Vars.onBreak || Vars.onBreakExtension){    
+            if(Vars.PomoSetCounter == Vars.UserData.PomoSetNum){ //Set complete
+                background.pomoReset();
+            }else{//next pomodoro
+                background.stopTimer();
+                background.startPomodoro();
+            } 
         }else{
             background.stopTimer();
             background.pomodoroInterupted();   
@@ -160,6 +162,7 @@ function CredentialFields() {
     $("#PomoDuration").val(Vars.UserData.PomoDurationMins);
     $("#BreakDuration").val(Vars.UserData.BreakDuration);
     $("#BreakExtention").val(Vars.UserData.BreakExtention);
+    $("#LongBreakDuration").val(Vars.UserData.LongBreakDuration);
     $("#PomoHabitPlus").prop('checked', Vars.UserData.PomoHabitPlus);
     $("#PomoHabitMinus").prop('checked', Vars.UserData.PomoHabitMinus);
     $("#ManualBreak").prop('checked', Vars.UserData.ManualBreak);
@@ -168,6 +171,7 @@ function CredentialFields() {
     $("#BreakExtentionNotify").prop('checked', Vars.UserData.BreakExtentionNotify);
     $("#PomoSetNum").val(Vars.UserData.PomoSetNum);
     $("#PomoSetHabitPlus").prop('checked', Vars.UserData.PomoSetHabitPlus);
+    $("#LongBreakNotify").prop('checked', Vars.UserData.LongBreakNotify);
 
     //Update Pomodoros Today, reset on new day
     today = new Date().setHours(0,0,0,0);
@@ -183,6 +187,7 @@ function CredentialFields() {
     $("#PomoDuration").on("keyup", function () { updateCredentials(); });
     $("#BreakDuration").on("keyup", function () { updateCredentials(); });
     $("#BreakExtention").on("keyup", function () { updateCredentials(); });
+    $("#LongBreakDuration").on("keyup", function () { updateCredentials(); });
     $("#PomoHabitPlus").click(function () { updateCredentials(); });
     $("#PomoHabitMinus").click(function () { updateCredentials(); });
     $("#ManualBreak").click(function () { updateCredentials(); });
@@ -191,6 +196,7 @@ function CredentialFields() {
     $("#BreakExtentionNotify").click(function () { updateCredentials(); });
     $("#PomoSetNum").bind('keyup input change', function(){updateCredentials();});
     $("#PomoSetHabitPlus").click(function () { updateCredentials(); });
+    $("#LongBreakNotify").click(function () { updateCredentials(); });
     //ugh.
 
     $("#SaveButton").click(function () {
@@ -272,6 +278,8 @@ function updateCredentials() {
     if (!isNaN(exDuration)) Vars.UserData.BreakExtention = exDuration;
     var pomoNum = parseFloat($("#PomoSetNum").val()); 
     if (!isNaN(pomoNum)) Vars.UserData.PomoSetNum = pomoNum;
+    var longBr = parseFloat($("#LongBreakDuration").val()); 
+    if (!isNaN(longBr)) Vars.UserData.LongBreakDuration = longBr;
 
     Vars.UserData.PomoHabitPlus = $("#PomoHabitPlus").prop('checked');
     Vars.UserData.PomoHabitMinus = $("#PomoHabitMinus").prop('checked');
@@ -280,14 +288,15 @@ function updateCredentials() {
     Vars.UserData.BreakExtentionFails = $("#BreakExtentionFails").prop('checked');
     Vars.UserData.BreakExtentionNotify = $("#BreakExtentionNotify").prop('checked');
     Vars.UserData.PomoSetHabitPlus = $("#PomoSetHabitPlus").prop('checked');
+    Vars.UserData.LongBreakNotify = $("#LongBreakNotify").prop('checked');
 }
 
 function updateTimerDisplay(){
     $('#Time').html(Vars.Timer);
     $("#Time").attr("data-pomodoros-set",Vars.PomoSetCounter+"/"+Vars.UserData.PomoSetNum);
     var time = Vars.Timer.split(':');
-    var seconds = parseInt(time[0])*60+parseInt(time[1]);
-    var duration = Vars.UserData.PomoDurationMins*60;
+    //var seconds = parseInt(time[0])*60+parseInt(time[1]);
+    //var duration = Vars.UserData.PomoDurationMins*60;
 
     if(Vars.onBreakExtension){
         $('#pomodoro').css("background-color", "red");

@@ -13,6 +13,8 @@
         <div id="PomoStop">X</div>
         <span id="PomoButton" data-pomodoros="0" class="tomato"></span><span id="Time" data-pomodoros-set="0/4">00:00</span> 
     </div>
+    <!-- Vacation mode -->
+    <div class="vacationBanner">Vacation mode is enabled!<br> All sites are free</div>
     <!-- Blocked Sites -->
     <p><b>Blocked Sites:</b></p>
     <table id="SiteTable"></table>
@@ -37,7 +39,12 @@
             <p class="setting-header">Pay to pass</p>
             <label><b>Pass Duration (In Minutes)</b><br/><input id="Duration" type="text"></label><br>
             <sapn class="setting-note">All sites are blocked during pomodoro. Sites with cost 0 are blocked only during pomodoro.</sapn>
+            <label><b>Vacation Mode</b><input type="checkbox" id="VacationMode"></label><br>
+            <sapn class="setting-note">All websites are free when enabled.</sapn>
             
+           
+           <!------------------Canceled Feature for now...--------------------------
+           
             <div class="comingSoon">
                 <label><b>Free Pass Schedule:</b></label><br>
                 <sapn class="setting-note">Choose day, start hour, end hour</sapn><br>
@@ -57,7 +64,8 @@
                 <span class="addbtn">+</span><br>
 
             </div>
-               
+            ------------------------------------------------------------------------>
+
             <p class="setting-header">Pomodoro</p>
             <label><b>Pomodoro Duration (In Minutes)</b><br/><input id="PomoDuration" type="text"></label><br>
             <hr>

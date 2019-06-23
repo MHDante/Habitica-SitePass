@@ -52,10 +52,13 @@ document.addEventListener("DOMContentLoaded", function () {
             background.pomodoroInterupted();   
         }
     });
+
+    //Pomodoro X button (stop pomodoro during break)
     $("#PomoStop").click(function () {
         background.pomoReset();
     });
     
+    //Refresh stats button
     $("#RefreshStats").click(function () {
         background.FetchHabiticaData();
         location.reload();
@@ -66,12 +69,26 @@ document.addEventListener("DOMContentLoaded", function () {
     setInterval(function () {
         updateTimerDisplay();
     }, 1000);
+
+    //Vacation Mode Banner
+    if(Vars.UserData.VacationMode){
+        $(".vacationBanner").show();
+    }
 });
 
 function AddSiteToTable(site, fadein) {
     var table = $("#SiteTable");
     var cost = site.cost;
     if (cost % 1 != 0) cost = cost.toFixed(2);
+
+    var passExpiryElement = "";
+    if(site.passExpiry){
+        var passExpiry =  new Date(site.passExpiry);
+        if(site.passExpiry>Date.now()){
+            passExpiry = passExpiry.getHours() + ":" + passExpiry.getMinutes();
+            passExpiryElement = '<br><span class="passExp">'+passExpiry+'</span>'
+        }      
+    }
 
     var tbody = $(document.createElement("tbody"));
     tbody.attr("id", site.hostname);
@@ -81,7 +98,7 @@ function AddSiteToTable(site, fadein) {
                 '<a class="buy" href="#">' +
                     '<span class="gold_icon"></span><br>' + cost +
             '</a></td>' +
-            '<td style="width:100%"><div class="hostname">' + site.hostname + '</div></td>' +
+            '<td style="width:100%"><div class="hostname">' + site.hostname + passExpiryElement +'</div></td>' +
             '<td><a class="edit" href="#"><img src="img/pencil.png"></a></td>' +
             '<td><a class="delete" href="#"><img src="img/trash.png"></a></td>' +
         '</tr>' +
@@ -110,6 +127,7 @@ function AddSiteToTable(site, fadein) {
         tbody.fadeIn();
     }
 }
+
 function Toggle(obj) {
     if ($(obj).is(":visible")) {
         obj.fadeOut({ complete: function() {
@@ -172,6 +190,7 @@ function CredentialFields() {
     $("#PomoSetNum").val(Vars.UserData.PomoSetNum);
     $("#PomoSetHabitPlus").prop('checked', Vars.UserData.PomoSetHabitPlus);
     $("#LongBreakNotify").prop('checked', Vars.UserData.LongBreakNotify);
+    $("#VacationMode").prop('checked', Vars.UserData.VacationMode);
 
     //Update Pomodoros Today, reset on new day
     today = new Date().setHours(0,0,0,0);
@@ -197,6 +216,7 @@ function CredentialFields() {
     $("#PomoSetNum").bind('keyup input change', function(){updateCredentials();});
     $("#PomoSetHabitPlus").click(function () { updateCredentials(); });
     $("#LongBreakNotify").click(function () { updateCredentials(); });
+    $("#VacationMode").click(function () { updateCredentials(); });
     //ugh.
 
     $("#SaveButton").click(function () {
@@ -289,6 +309,7 @@ function updateCredentials() {
     Vars.UserData.BreakExtentionNotify = $("#BreakExtentionNotify").prop('checked');
     Vars.UserData.PomoSetHabitPlus = $("#PomoSetHabitPlus").prop('checked');
     Vars.UserData.LongBreakNotify = $("#LongBreakNotify").prop('checked');
+    Vars.UserData.VacationMode = $("#VacationMode").prop('checked');
 }
 
 function updateTimerDisplay(){

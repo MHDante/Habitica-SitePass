@@ -79,6 +79,7 @@ function UserSettings(copyFrom) {
     this.PomoSetHabitPlus = copyFrom ? copyFrom.PomoSetHabitPlus :false;
     this.LongBreakDuration = copyFrom ? copyFrom.LongBreakDuration :30;
     this.LongBreakNotify = copyFrom ? copyFrom.LongBreakNotify :false;
+    this.VacationMode = copyFrom ? copyFrom.VacationMode :false;
     
     this.GetBlockedSite = function (hostname) {
         return this.BlockedSites[hostname];
@@ -104,8 +105,8 @@ function BlockedSite(hostname, cost, passExpiry) {
 
 //Checks the hostname and block it if the user dosent have enough gold or pomodoro is active
 function checkAndBlockHostname(hostname){
-    
-    var freePass = Vars.UserData.BreakFreePass && Vars.onBreak && Vars.TimerRunnig; //free pass during break session
+    //free pass during break session, or Vacation Mode and not in pomodoro session
+    var freePass = (Vars.UserData.BreakFreePass && Vars.onBreak && Vars.TimerRunnig)||(Vars.UserData.VacationMode && (!Vars.TimerRunnig || Vars.onBreak)); 
     var site = Vars.UserData.GetBlockedSite(hostname);
     var pomodoro = Vars.TimerRunnig && !Vars.onBreak;
     if (!site || site.passExpiry > Date.now() || pomodoro || site.cost == 0 || freePass) return { cancel: false };
@@ -343,7 +344,7 @@ function ScoreHabit(habitId,direction){
     return { lvl: p.data.lvl, hp: p.data.hp, exp: p.data.exp, mp: p.data.mp, gp: p.data.gp };
 }
 
-// ------------- pomodoro ---------------------------
+// ------------- Pomodoro Timer ---------------------------
 
 var timerInterval; //Used for timer interval in startTimer() function.
 

@@ -380,3 +380,21 @@ input[type="time"] {
     width: 33%;
     font-size: 11px;
 }
+.vacationBanner{
+    background-color: gold;
+    width: calc(100% + 20px);
+    padding: 3px;
+    margin-left: -10px;
+    text-align: center;
+    color: black;
+    display: none;
+}
+span.passExp {
+    color: gold;
+    font-size: 12px;
+}
+span.passExp:before {
+    content: "\231B"; /*HourGlass Icon*/
+    margin-right: 3px;
+    font-size: 15px;
+}

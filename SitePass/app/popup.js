@@ -52,6 +52,16 @@ document.addEventListener("DOMContentLoaded", function () {
             background.pomodoroInterupted();   
         }
     });
+    
+    //Pomodoro Quick Settings
+    $("#QuickSettings").click(function () {
+        $("#pomodoroSettings").show();
+        $("#pomodoro").hide();
+    });
+    $("#quickSave").click(function () {
+        $("#pomodoroSettings").hide();
+        $("#pomodoro").show();
+    });
 
     //Pomodoro X button (stop pomodoro during break)
     $("#PomoStop").click(function () {
@@ -156,6 +166,7 @@ function CredentialFields() {
     var div = $("#Credentials");
     if (Vars.ServerResponse == 401) {
         $("#CredError").slideDown();
+        
         div.show();
     } else {
         var label = $("#AdvSettings");
@@ -241,9 +252,9 @@ function UpdateBlockCommand() {
     var currentSite = Vars.UserData.GetBlockedSite(CurrentTabHostname);
 
     if (currentSite) {
-        $("#BlockLink").text("Un-Block Site!");
+        $("#BlockLink").html("<span class='unblock_Icon'></span>Un-Block Site!");
     } else {
-        $("#BlockLink").text("Block Site!");
+        $("#BlockLink").html("<span class='block_Icon'></span>Block Site!");
     }
 }
 
@@ -320,18 +331,20 @@ function updateTimerDisplay(){
     //var duration = Vars.UserData.PomoDurationMins*60;
 
     if(Vars.onBreakExtension){
+        $("#QuickSettings").hide();
         $('#pomodoro').css("background-color", "red");
-            $('#pomodoro').css("color", "coral");
-            tomatoSetClass("tomatoWarning");
-            $("#PomoStop").show();
+        $('#pomodoro').css("color", "coral");
+        tomatoSetClass("tomatoWarning");
+        $("#PomoStop").show();
     }
     else if(Vars.onBreak){
-        if(Vars.TimerRunnig){
+        $("#QuickSettings").hide();
+        if(Vars.TimerRunnig){ //---On Break---
             $('#pomodoro').css("background-color", "cornflowerblue");
             $('#pomodoro').css("color", "aqua");
             tomatoSetClass("tomatoBreak");
         }
-        else{//Manual Break
+        else{//---Manual Break---
             $('#pomodoro').css("background-color", "green");
             $('#pomodoro').css("color", "lightgreen");
             tomatoSetClass("tomatoWin");
@@ -339,19 +352,23 @@ function updateTimerDisplay(){
         $("#PomoStop").show();
         $("#SiteTable tbody").toggleClass('blocked',false);
     }
-    else if(Vars.TimerRunnig){ //Pomodoro running
+    else if(Vars.TimerRunnig){ //---Pomodoro running---
+        $("#QuickSettings").show();
         $('#pomodoro').css("background-color", "green"); 
         $('#pomodoro').css("color", "lightgreen");
         tomatoSetClass("tomatoProgress");
         $("#SiteTable tbody").toggleClass('blocked',true);
         $("#PomoStop").hide();
-    }else{ //pomodoro not running
+        $("#QuickSettings").hide();
+    }else{ //---pomodoro not running---
+        $("#QuickSettings").show();
         $('#pomodoro').css("background-color", "#2995CD")
         $('#pomodoro').css("color", "#36205D");
         tomatoSetClass("tomatoWait"); 
         $("#SiteTable tbody").toggleClass('blocked',false);
         $("#PomoButton").attr("data-pomodoros",Vars.PomodorosToday.value);
         $("#PomoStop").hide();
+        
     }
 }
 

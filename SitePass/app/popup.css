@@ -41,10 +41,12 @@ body {
 }
 .footer_icons {
     margin: 0;
-    font-size: 22px;
-    width: auto;
-    display: inline;
+    font-family: 'pixeled';
+    font-size: 12px;
+    display: inline-block;
     margin-right: 10px;
+    vertical-align: middle;
+    line-height: 17pt;
 }
 .reward-item {
     background-color: #36205D;
@@ -64,12 +66,24 @@ body {
 a{
     color:#36205D;
 }
+.warning_icon{
+    background-image: url(img/warning.png);
+    background-repeat: no-repeat;
+    width: 24px;
+    height: 24px;
+    margin-right: 4px;
+    margin-left: 2px;
+    vertical-align: bottom;
+    display: inline-block;
+    margin-bottom: 0px;
+    background-position: 0;
+}
 .gold_icon {
     background-image: url(img/coin.png);
     background-repeat: no-repeat;
     width: 25px;
     height: 25px;
-    margin-right: 2px;
+    margin-right: 4px;
     margin-left: 2px;
     vertical-align: top;
     display: inline-block;
@@ -80,7 +94,7 @@ a{
     background-repeat: no-repeat;
     width: 25px;
     height: 25px;
-    margin-right: 2px;
+    margin-right: 4px;
     margin-left: 2px;
     vertical-align: top;
     display: inline-block;
@@ -99,16 +113,39 @@ a{
     float: right;
     cursor: pointer;
 }
-.bug_icon {
-    background-image: url(img/bug.png);
+.links{
+    color:#878190;
+    font-size: 12px;
+}
+.bug_icon,.help_icon,.rate_icon,.donate_icon,.block_Icon,.unblock_Icon {
     background-repeat: no-repeat;
-    width: 15px;
-    height: 15px;
+    width: 16px;
+    height: 16px;
     margin-right: 2px;
     margin-left: 2px;
     vertical-align: top;
     display: inline-block;
     background-position: 0;
+}
+.block_Icon{
+    background-image: url(img/stop.png);
+    margin-right: 6px;
+}
+.unblock_Icon{
+    background-image: url(img/tick.png);
+    margin-right: 6px;
+}
+.bug_icon {
+    background-image: url(img/bug.png);
+}
+.help_icon{
+    background-image: url(img/question.png);
+}
+.rate_icon{
+    background-image: url(img/star.png);
+}
+.donate_icon{
+    background-image: url(img/like.png);
 }
 .habitica_icon {
     background-image: url(img/habitica.png);
@@ -140,6 +177,7 @@ a{
     text-align: center;
     background-color: var(--main-color);
     padding: 9px;
+    border-radius: 7px;
 }
 .tomato {
     
@@ -211,6 +249,7 @@ a{
     content: "";
 }
 
+
 #PomoStop{
     display: block;
     width: 10px;
@@ -219,6 +258,19 @@ a{
 }
 #PomoStop:hover{
 color:white;
+}
+#QuickSettings{
+    background-image: url(img/settings.png);
+    display: block;
+    cursor: pointer;
+    position: absolute;
+    width: 24px;
+    height: 24px;
+    margin-left: -5px;
+    margin-top: -5px;
+}
+#QuickSettings:hover{
+    background-image: url(img/settings_hover.png);
 }
 
 .blocked:before{
@@ -243,6 +295,17 @@ color:white;
     margin: 7px;
 }
 #pomodoro {
+    background-color: var(--main-color);
+    padding: 10px;
+    text-align: center;
+    margin: auto;
+    margin-top: 10px;
+    width: 100%;
+    margin-left: -7px;
+    webkit-box-shadow: 0 2px 2px 0 rgba(26, 24, 29, 0.16), 0 1px 4px 0 rgba(26, 24, 29, 0.12);
+     box-shadow: 0 2px 2px 0 rgba(26, 24, 29, 0.16), 0 1px 4px 0 rgba(26, 24, 29, 0.12);
+}
+#pomodoroSettings {
     background-color: var(--main-color);
     padding: 10px;
     text-align: center;
@@ -281,7 +344,17 @@ color:white;
 }
 #CredError {
     display: none;
-    color: rgb(255, 0, 0);
+    color: gold;
+    line-height: 21px;
+    font-weight: 100;
+    font-size: 14px;
+    padding-right: 5px;
+    padding-left: 4px;
+    margin: 3px;
+    padding: 6px;
+    background-color: red;
+    border-radius: 7px;
+
 }
 #AdvSettings {
     display: none;
@@ -310,10 +383,20 @@ color:white;
     margin-top: 5px;
     margin-bottom: 5px;
 }
-#SaveButton{
+#SaveButton,#quickSave{
     background-color: gold;
     width: 100%;
     cursor: pointer;
+}
+#quickSave{
+    margin-top:10px;
+    border-radius: 10px;
+}
+#pomodoroSettings{
+    display:none;
+    text-align: left; 
+    color: rgb(54, 32, 93);
+    line-height: 22px;
 }
 #AdvSettings:hover input:checked:before {
     content: "Don't Forget to Save!";
@@ -397,4 +480,11 @@ span.passExp:before {
     content: "\231B"; /*HourGlass Icon*/
     margin-right: 3px;
     font-size: 15px;
+}
+.lightTextInput{
+    width: 30px;
+    border-radius: 7px;
+    text-align: center;
+    border: none;
+    background-color: aqua;
 }

@@ -57,10 +57,20 @@ document.addEventListener("DOMContentLoaded", function () {
     $("#QuickSettings").click(function () {
         $("#pomodoroSettings").show();
         $("#pomodoro").hide();
+        $("#quickSet-PomoDuration").val(Vars.UserData.PomoDurationMins);
+        $("#quickSet-BreakDuration").val(Vars.UserData.BreakDuration);
+        $("#quickSet-LongBreakDuration").val(Vars.UserData.LongBreakDuration);
+        $("#quickSet-PomoSetNum").val(Vars.UserData.PomoSetNum);
     });
+
     $("#quickSave").click(function () {
         $("#pomodoroSettings").hide();
         $("#pomodoro").show();
+        $("#PomoDuration").val($("#quickSet-PomoDuration").val());
+        $("#BreakDuration").val($("#quickSet-BreakDuration").val());
+        $("#LongBreakDuration").val($("#quickSet-LongBreakDuration").val());
+        $("#PomoSetNum").val($("#quickSet-PomoSetNum").val());
+        updateCredentials();
     });
 
     //Pomodoro X button (stop pomodoro during break)

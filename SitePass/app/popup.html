@@ -14,20 +14,23 @@
         <div id="PomoStop">X</div>
         <span id="PomoButton" data-pomodoros="0" class="tomato"></span><span id="Time" data-pomodoros-set="0/4">00:00</span> 
     </div>
+   
+    <!-- Quick Settings -->
     <div id="pomodoroSettings">
-    <label><b>Pomodoro (Minutes):  </b><input id="PomoDuration" class="lightTextInput" type="text"></label><br>  
-    <label><b>Break (Minutes):  </b><input id="PomoDuration" class="lightTextInput" type="text"></label><br> 
-    <label><b>Pomodoros In Set:  </b><input id="PomoDuration" class="lightTextInput" type="text"></label><br>
-    <label><b>Long Break (Minutes):  </b><input  id="PomoDuration" class="lightTextInput" type="text"></label><br>   
+    <label><b>Pomodoro (Minutes):  </b><input id="quickSet-PomoDuration" class="lightTextInput" type="text"></label><br>  
+    <label><b>Break (Minutes):  </b><input id="quickSet-BreakDuration" class="lightTextInput" type="text"></label><br> 
+    <label><b>Pomodoros In Set:  </b><input id="quickSet-PomoSetNum" class="lightTextInput" type="text"></label><br>
+    <label><b>Long Break (Minutes):  </b><input  id="quickSet-LongBreakDuration" class="lightTextInput" type="text"></label><br>   
     <button id="quickSave" type="submit">Ok</button>
-
     </div>
 
     <!-- Vacation mode -->
     <div class="vacationBanner">Vacation mode is enabled!<br> All sites are free</div>
+    
     <!-- Blocked Sites -->
     <p><b>Blocked Sites:</b></p>
     <table id="SiteTable"></table>
+    
     <!-- Footer -->
     <div id="Footer">
         <br>

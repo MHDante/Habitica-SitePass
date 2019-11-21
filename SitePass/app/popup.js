@@ -63,7 +63,7 @@ document.addEventListener("DOMContentLoaded", function () {
         $("#quickSet-PomoSetNum").val(Vars.UserData.PomoSetNum);
     });
 
-    $("#quickSave").click(function () {
+    $("#quickSave").click(function () { //Quick setting save (ok button)
         $("#pomodoroSettings").hide();
         $("#pomodoro").show();
         $("#PomoDuration").val($("#quickSet-PomoDuration").val());
@@ -71,6 +71,7 @@ document.addEventListener("DOMContentLoaded", function () {
         $("#LongBreakDuration").val($("#quickSet-LongBreakDuration").val());
         $("#PomoSetNum").val($("#quickSet-PomoSetNum").val());
         updateCredentials();
+        Vars.EditingSettings = false;
     });
 
     //Pomodoro X button (stop pomodoro during break)

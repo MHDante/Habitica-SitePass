@@ -1,4 +1,6 @@
 
+//this file is not used due to googles privacy policy changes for content_script permissions.
+
 console.log("Habitica SitePass Running");
 
 var blockRequest = "block";

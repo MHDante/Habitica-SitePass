@@ -592,7 +592,22 @@ function blockSiteOverlay(tab){
         content:message
     }
     if(Vars.UserData.GetBlockedSite(site)){
-        chrome.tabs.sendMessage(tabId,msg);
+        //var imageURL = chrome.extension.getURL("/img/siteKeeper.png");
+        chrome.tabs.executeScript({
+            code: `
+            document.body.classList.add('blockedSite');
+            document.body.setAttribute('data-html',"`+ message +`");
+            `
+        });
+       
+        chrome.tabs.insertCSS({
+            file: "blockSite.css"  
+        });
+
+        var imageURL = chrome.extension.getURL("/img/siteKeeper.png");
+        chrome.tabs.insertCSS({
+        code: '.blockedSite:after { background-image:url("'+imageURL+'"); }'
+        });
     };
 }
 
@@ -604,7 +619,9 @@ function unblockSiteOverlay(tab){
         request:"unblock"
     }
     if(Vars.UserData.GetBlockedSite(site)){
-        chrome.tabs.sendMessage(tabId,msg);
+        chrome.tabs.executeScript({
+            code: `document.body.className = document.body.className.replace( "blockedSite", '' );`
+        });
     };
 }
 

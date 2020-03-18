@@ -12,7 +12,7 @@ document.addEventListener("DOMContentLoaded", function () {
         UpdateBlockCommand();
     });
 
-    $("#BlockLink").click(function () {
+    $("#BlockLink").click(function () {    
         var currentSite = Vars.UserData.GetBlockedSite(CurrentTabHostname);
         if (currentSite) removeSite(currentSite);
         else {

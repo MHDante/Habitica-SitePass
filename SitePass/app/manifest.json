@@ -3,15 +3,11 @@
 
     "name": "Habitica Pomodoro SiteKeeper",
     "description": "Pomodoro Timer and SiteBlocker that Plugs into Habitica and turns your time-wasting navigation tendencies into rewards.",
-    "version": "3.5",
+    "version": "4.2",
 
     "permissions": [
         "storage",
-        "activeTab",
-        "webRequest",
-        "webRequestBlocking",
-        "*://*.habitica.com/",
-        "webNavigation",
+        "<all_urls>",
         "notifications",
         "tabs"
     ],
@@ -29,10 +25,12 @@
 
     "background": {
         "page": "background.html",
-        "persistent": true
+        "persistent": false
         
     },
     "web_accessible_resources": [
-          "img/siteKeeper.png"
+          "img/siteKeeper.png",
+          "img/siteKeeper2.png",
+          "img/siteKeeper3.png"
       ]
 }

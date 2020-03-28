@@ -2,9 +2,12 @@ Node.prototype.AppendText = function (string) { this.appendChild(document.create
 Node.prototype.AppendBreak = function () { this.appendChild(document.createElement("br")); }
 
 var background = chrome.extension.getBackgroundPage();
+console.log(background);
 var Vars = background.Vars;
 var Consts = background.Consts;
-var CurrentTabHostname = 
+var CurrentTabHostname; 
+
+//----- on popup load -----//
 document.addEventListener("DOMContentLoaded", function () {
 
     getCurrentTabUrl(function (url) {
@@ -95,7 +98,25 @@ document.addEventListener("DOMContentLoaded", function () {
     if(Vars.UserData.VacationMode){
         $(".vacationBanner").show();
     }
+
+    //Custome pomodoro habits
+    $("#customPomodoroTask").empty();
+    $("#customSetTask").empty();
+    for(var i in Vars.PomodoroTaskCustomList){
+        var title = Vars.PomodoroTaskCustomList[i].title;
+        var taskId = Vars.PomodoroTaskCustomList[i].id;
+        var option = document.createElement("option");
+        option.value = taskId;
+        option.innerHTML = title;
+        $("#customPomodoroTask").append(option);
+        $("#customSetTask").append(option.cloneNode(true));
+    }
+    $("#customPomodoroTask").val(Vars.PomodoroTaskId);
+    $("#customSetTask").val(Vars.PomodoroSetTaskId);
 });
+
+
+//----- Functions -----//
 
 function AddSiteToTable(site, fadein) {
     var table = $("#SiteTable");
@@ -106,8 +127,11 @@ function AddSiteToTable(site, fadein) {
     if(site.passExpiry){
         var passExpiry =  new Date(site.passExpiry);
         if(site.passExpiry>Date.now()){
-            passExpiry = passExpiry.getHours() + ":" + passExpiry.getMinutes();
-            passExpiryElement = '<br><span class="passExp">'+passExpiry+'</span>'
+            var hrs =  passExpiry.getHours();
+            hrs = hrs < 10 ? "0" + hrs : hrs;
+            var min = passExpiry.getMinutes();
+            min = min < 10 ? "0" + min : min;
+            passExpiryElement = '<br><span class="passExp">'+ hrs + ":" + min +'</span>'
         }      
     }
 
@@ -213,6 +237,10 @@ function CredentialFields() {
     $("#PomoSetHabitPlus").prop('checked', Vars.UserData.PomoSetHabitPlus);
     $("#LongBreakNotify").prop('checked', Vars.UserData.LongBreakNotify);
     $("#VacationMode").prop('checked', Vars.UserData.VacationMode);
+    $("#customPomodoroTaskEnabled").prop('checked',Vars.UserData.CustomPomodoroTask);
+    $("#customSetTaskEnabled").prop('checked',Vars.UserData.CustomSetTask);
+    $("#customPomodoroTask").val(Vars.UserData.PomodoroTaskId);
+    $("#customSetTask").val(Vars.UserData.PomodoroSetTaskId);
 
     //Update Pomodoros Today, reset on new day
     today = new Date().setHours(0,0,0,0);
@@ -239,6 +267,10 @@ function CredentialFields() {
     $("#PomoSetHabitPlus").click(function () { updateCredentials(); });
     $("#LongBreakNotify").click(function () { updateCredentials(); });
     $("#VacationMode").click(function () { updateCredentials(); });
+    $("#customPomodoroTask").click(function () { updateCredentials(); });
+    $("#customSetTask").click(function () { updateCredentials(); });
+    $("#customPomodoroTaskEnabled").click(function () { updateCredentials(); });
+    $("#customSetTaskEnabled").click(function () { updateCredentials(); });
     //ugh.
 
     $("#SaveButton").click(function () {
@@ -332,6 +364,13 @@ function updateCredentials() {
     Vars.UserData.PomoSetHabitPlus = $("#PomoSetHabitPlus").prop('checked');
     Vars.UserData.LongBreakNotify = $("#LongBreakNotify").prop('checked');
     Vars.UserData.VacationMode = $("#VacationMode").prop('checked');
+    Vars.UserData.CustomPomodoroTask = $("#customPomodoroTaskEnabled").prop('checked');
+    Vars.UserData.CustomSetTask = $("#customSetTaskEnabled").prop('checked');
+    Vars.UserData.PomodoroSetTaskId = $("#customSetTask").val();
+    Vars.UserData.PomodoroTaskId = $("#customPomodoroTask").val();
+    
+
+
 }
 
 function updateTimerDisplay(){

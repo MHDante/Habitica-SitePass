@@ -7,6 +7,7 @@ var Consts = {
     serverPathPomodoroHabit: 'tasks/sitepassPomodoro',
     serverPathPomodoroSetHabit: 'tasks/sitepassPomodoroSet',
     serverPathUserTasks: 'tasks/user',
+    serverPathUserHabits: 'tasks/user?type=habits',
     RewardTemplate: {
         text: "SitePass",
         value: 0,
@@ -42,6 +43,7 @@ var Vars = {
     RewardTask: Consts.RewardTemplate,
     PomodoroTaskId: null,
     PomodoroSetTaskId: null,
+    PomodoroTaskCustomList:[],
     PomodorosToday: {
         value: 0,
         date: 0
@@ -81,6 +83,10 @@ function UserSettings(copyFrom) {
     this.LongBreakDuration = copyFrom ? copyFrom.LongBreakDuration : 30;
     this.LongBreakNotify = copyFrom ? copyFrom.LongBreakNotify : false;
     this.VacationMode = copyFrom ? copyFrom.VacationMode : false;
+    this.CustomPomodoroTask = copyFrom ? copyFrom.CustomPomodoroTask : false;
+    this.CustomSetTask = copyFrom ? copyFrom.CustomSetTask : false;
+    this.PomodoroSetTaskId = copyFrom ? copyFrom.PomodoroSetTaskId : null;
+    this.PomodoroTaskId = copyFrom ? copyFrom.PomodoroTaskId : null;
 
     this.GetBlockedSite = function (hostname) {
         return this.BlockedSites[hostname];
@@ -153,32 +159,58 @@ var callbackTabActive = function (details) {
     });
 };
 
-var callbackTabUpdate = function (tabId) {
+// var callbackTabUpdate = function (tabId) {
+//     chrome.tabs.get(tabId, function callback(tab) {
+//         //css insert
+//         chrome.tabs.insertCSS({
+//             file: "pageOverlay.css"
+//         });
+//         setTimeout(function (arg) {
+//             mainSiteBlockFunction(arg);
+//         }, 1000, tab);   
+//     });
+// };
+
+function callbackTabUpdate(tabId){
     chrome.tabs.get(tabId, function callback(tab) {
+        //css insert
         chrome.tabs.insertCSS({
             file: "pageOverlay.css"
         });
         mainSiteBlockFunction(tab);
     });
-};
+}
+
+//returns the url string without the extension's url params
+function removeUrlParams(tab){
+    var site = new URL(tab.url);
+    var urlParams = new URLSearchParams(site.search);
+    urlParams.delete("habiticaSiteKeeperPage"); 
+    urlParams.delete("cost"); 
+    urlParams.delete("time"); 
+    urlParams.delete("paid"); 
+    urlParams.delete("gold"); 
+    site.search = urlParams.toString();
+    return site.toString();
+}
 
 function mainSiteBlockFunction(tab) {
     if (!Vars.TimerRunnig || Vars.onBreak) {
         unblockSiteOverlay(tab);
         var site = new URL(tab.url);
-
         //Pay to pass or can't afford page
         var urlParams = new URLSearchParams(site.search);
         var siteKeeperPage = urlParams.get("habiticaSiteKeeperPage");  
-
+        var paidSite = Vars.UserData.GetBlockedSite(site.hostname) ? Vars.UserData.GetBlockedSite(site.hostname).passExpiry >= Date.now() : false;
         //block
         if (siteKeeperPage === "payToPass" || siteKeeperPage === "noPass") {
             
             var paid = urlParams.get("paid");
             var goToHost = site.hostname;
             var goToSite = Vars.UserData.GetBlockedSite(goToHost);
-
-            if (paid === "false" || siteKeeperPage === "noPass"){
+            
+            //No Pass
+            if (!paidSite && (paid === "false" || siteKeeperPage === "noPass")){
                 var imageURLPayToPass = chrome.extension.getURL("/img/siteKeeper2.png");
                 var imageURLNoPass = chrome.extension.getURL("/img/siteKeeper3.png");
                 chrome.tabs.insertCSS({
@@ -190,30 +222,22 @@ function mainSiteBlockFunction(tab) {
                 chrome.tabs.executeScript({
                     file:'pageOverlay.js'
                 });
+               
              }
             //confirm payment
-            else if (paid === "true" && siteKeeperPage === "payToPass") {
+            else if (!paidSite && (paid === "true" && siteKeeperPage === "payToPass")) {
                 ConfirmPurchase(goToSite);
                 var passDurationMiliSec = Vars.UserData.PassDurationMins * 60 * 1000;
-                goToSite.passExpiry = Date.now() + passDurationMiliSec;   
-                var url = site;
-                chrome.tabs.remove(tab.id);
-                urlParams.delete("habiticaSiteKeeperPage"); 
-                urlParams.delete("cost"); 
-                urlParams.delete("time"); 
-                urlParams.delete("paid"); 
-                urlParams.delete("gold"); 
-                url.search = urlParams.toString();
-                chrome.tabs.create({url:url.toString()});
+                goToSite.passExpiry = Date.now() + passDurationMiliSec;
+                var urlString =  removeUrlParams(tab);
+                chrome.tabs.update({url:urlString});   
             }
+            return;
         }
-        //check
-        else{
+        else {
             var checkSite = checkBlockedHostname(site);
             if (!checkSite.block) return;  
-            chrome.tabs.update(tab.id, {
-                url: checkSite.redirectUrl
-            });
+            chrome.tabs.update({url: checkSite.redirectUrl});
         }
 
         //Check if the user is not on the same site for longer than passDuration
@@ -225,11 +249,14 @@ function mainSiteBlockFunction(tab) {
     }
 }
 
-
-
 //Switching and updating tabs
 chrome.tabs.onActivated.addListener(callbackTabActive);
-chrome.tabs.onUpdated.addListener(callbackTabUpdate);
+chrome.tabs.onUpdated.addListener(function(tabid, changeinfo, tab) {
+    var url = tab.url;
+        if (url !== undefined && changeinfo.status == "complete") {
+            callbackTabUpdate(tabid);
+    }
+   });
 
 // ReSharper disable once PossiblyUnassignedProperty
 chrome.storage.sync.get(Consts.userDataKey, function (result) {
@@ -292,32 +319,54 @@ function FetchHabiticaData(skipTasks) {
     if (!skipTasks) {
         var tasksObj;
 
-        //get pomodoro task id
-        tasksObj = getData(true, credentials, Consts.serverPathPomodoroHabit);
-        if (tasksObj && tasksObj.data["alias"] == Consts.PomodoroHabitTemplate.alias) {
-            Vars.PomodoroTaskId = tasksObj.data.id;
-        } else {
-            var result = CreatePomodoroHabit();
-            if (result.error) {
-                notify("ERROR", result.error);
-            } else {
-                Vars.PomodoroTaskId = result;
-            }
+        //get custom pomodoro tasks list (all habits)
+        var allHabits;
+        allHabits = getData(true, credentials, Consts.serverPathUserHabits);
+        console.log(allHabits);
+        if(allHabits.success){
+            Vars.PomodoroTaskCustomList = [];
+            for (var i in allHabits.data) {
+                var title = allHabits.data[i].text;
+                var id = allHabits.data[i].id;
+                Vars.PomodoroTaskCustomList.push({title,id});
+              }
+              console.log(Vars.PomodoroTaskCustomList);
+        }
 
+        //get pomodoro task id
+        if(!Vars.UserData.CustomPomodoroTask){
+            tasksObj = getData(true, credentials, Consts.serverPathPomodoroHabit);
+            if (tasksObj && tasksObj.data["alias"] == Consts.PomodoroHabitTemplate.alias) {
+                Vars.PomodoroTaskId = tasksObj.data.id;
+            } else {
+                var result = CreatePomodoroHabit();
+                if (result.error) {
+                    notify("ERROR", result.error);
+                } else {
+                    Vars.PomodoroTaskId = result;
+                }
+
+            }
+        }else{
+            Vars.PomodoroTaskId = Vars.UserData.PomodoroTaskId;
         }
 
         //get pomodoro Set task id
-        tasksObj = getData(true, credentials, Consts.serverPathPomodoroSetHabit);
-        if (tasksObj && tasksObj.data["alias"] == Consts.PomodoroSetHabitTemplate.alias) {
-            Vars.PomodoroSetTaskId = tasksObj.data.id;
-        } else {
-            var result = CreatePomodoroSetHabit();
-            if (result.error) {
-                notify("ERROR", result.error);
+        if(!Vars.UserData.CustomSetTask){
+            tasksObj = getData(true, credentials, Consts.serverPathPomodoroSetHabit);
+            if (tasksObj && tasksObj.data["alias"] == Consts.PomodoroSetHabitTemplate.alias) {
+                Vars.PomodoroSetTaskId = tasksObj.data.id;
             } else {
-                Vars.PomodoroSetTaskId = result;
-            }
+                var result = CreatePomodoroSetHabit();
+                if (result.error) {
+                    notify("ERROR", result.error);
+                } else {
+                    Vars.PomodoroSetTaskId = result;
+                }
 
+            }
+        }else{
+            Vars.PomodoroSetTaskId = Vars.UserData.PomodoroSetTaskId;
         }
 
         //Reward task update/create
@@ -471,7 +520,6 @@ function pomodoroEnds() {
     var title = "Time's Up"
     var msg = "Pomodoro ended." + "\n" + "You have done " + Vars.PomodorosToday.value + " today!"; //default msg if habit not enabled
     var setComplete = Vars.PomoSetCounter >= Vars.UserData.PomoSetNum - 1;
-
     //If Pomodoro / Pomodoro Set Habit + is enabled
     if (Vars.UserData.PomoHabitPlus || (setComplete && Vars.UserData.PomoSetHabitPlus)) {
         FetchHabiticaData(true);
@@ -503,6 +551,14 @@ function pomodoroEnds() {
     } else {
         startBreak();
     }
+    
+    //Badge
+    chrome.browserAction.setBadgeBackgroundColor({
+        color: "green"
+    });
+    chrome.browserAction.setBadgeText({
+        text: "\u2713"
+    });
 
     //notify
     notify(title, msg);

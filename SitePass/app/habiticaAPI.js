@@ -1,4 +1,7 @@
 function callHabiticaAPI(serverPathUrl,xClientHeader,credentials,method,postData) {
+    if(!serverPathUrl || !xClientHeader || !credentials){
+        return false;
+    }
     var xhr = new XMLHttpRequest();
     xhr.open(method, serverPathUrl, false);
     xhr.setRequestHeader('x-client', xClientHeader);
@@ -11,6 +14,9 @@ function callHabiticaAPI(serverPathUrl,xClientHeader,credentials,method,postData
 }
 
 function getHabiticaData(serverPathUrl,xClientHeader,credentials){
+    if(!serverPathUrl || !xClientHeader || !credentials){
+        return false;
+    }
     var xhr = new XMLHttpRequest();
     xhr.open("GET", serverPathUrl, false);
     xhr.setRequestHeader('x-client', xClientHeader);

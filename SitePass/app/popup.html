@@ -36,7 +36,7 @@
         <br>
         <div style="padding:4px;" class="setting-header">
             <p id="CredError"><span class="warning_icon"></span>Credential error! The extension is currently not updating Habitica!</p>
-            <label id="AdvSettings"><input type="checkbox">Show Advanced Settings</label>
+            <label id="AdvSettings"><input type="checkbox">Advanced Settings</label>
         </div>
         <div id="Credentials">
             <br>
@@ -48,62 +48,54 @@
             <hr>
             <button id="SaveButton" type="submit">Save/Update</button>
             <hr>
+
             <p class="setting-header">User</p>
             <label><b>Habitica User ID:</b><br/><input id="UID" type="text"></label><br>
-            <label><b>Habitica API Token:</b><br/><input id="APIToken" type="text"></label><br>
+            <label><b>Habitica API Token:</b><br/><input id="APIToken" type="password"></label><br>
             <p class="setting-header">Pay to pass</p>
-            <label><b>Pass Duration (In Minutes)</b><br/><input id="Duration" type="text"></label><br>
+            <label><b>Pass Duration (Minutes):  </b><input id="Duration" type="text"></label><br>
             <sapn class="setting-note">All sites are blocked during pomodoro. Sites with cost 0 are blocked only during pomodoro.</sapn>
             <label><b>Vacation Mode</b><input type="checkbox" id="VacationMode"></label><br>
             <sapn class="setting-note">All websites are free when enabled.</sapn>
-            
-           
-           <!------------------Canceled Feature for now (Free Pass Schedule) --------------------------
-           
-            <div class="comingSoon">
-                <label><b>Free Pass Schedule:</b></label><br>
-                <sapn class="setting-note">Choose day, start hour, end hour</sapn><br>
-                <span class="xbtn">x</span>
-                <select style="width: 18%;font-size: 11px;height: 20px;" >
-                    <option value="Every Day">All</option>
-                    <option value="Sunday">Sun</option>
-                    <option value="Monday">Mon</option>
-                    <option value="Tuesday">Tue</option>
-                    <option value="Wednesday">Wed</option>
-                    <option value="Thursday">Thu</option>
-                    <option value="Saturday">Fri</option>
-                    <option value="Thursday">Sat</option>
-                </select>
-                <input  type="time" name="startTime"></input>
-                <input  type="time" name="endTime"></input><br>
-                <span class="addbtn">+</span><br>
-
-            </div>
-            ------------------------------------------------------------------------>
 
             <p class="setting-header">Pomodoro</p>
-            <label><b>Pomodoro Duration (In Minutes)</b><br/><input id="PomoDuration" type="text"></label><br>
+            <label><b>Pomodoro Duration (Minutes):  </b><input id="PomoDuration" type="text"></label><br>
             <hr>
-            <label><b>Break Duration (In Minutes)</b><br/><input id="BreakDuration" type="text"></label><br>
+
+            <label><b>Break Duration (Minutes):  </b><input id="BreakDuration" type="text"></label>
             <label><input type="checkbox" id="ManualBreak">Start breaks manually</label><br>
             <label><input type="checkbox" id="BreakFreePass">During break all sites are free</label><br>
-            <label><b>Break Extention (In Minutes)</b><br/><input id="BreakExtention" type="text"></label><br>
+            <label><b>Break Extention (Minutes):  </b><input id="BreakExtention" type="text"></label><br>
             <label style="display: inline-flex;"><input type="checkbox" id="BreakExtentionNotify">Notify me in Habitca when Break Extension starts</label><br>
             <hr>
+
             <label><b>Pomodoro Habit Task</b></label><br>
             <label><input type="checkbox" id="PomoHabitPlus"> <span class="plus_minus_icon">+</span> habit when pomodoro is done</label><br>
             <label><input type="checkbox" id="PomoHabitMinus"> <span class="plus_minus_icon">-</span> habit if stopped before timer ends</label><br>
             <label><input type="checkbox" id="BreakExtentionFails"> <span class="plus_minus_icon">-</span> habit if Break Extention is over</label><br>
+            
+            <label><input type="checkbox" id="customPomodoroTaskEnabled">Custom Habit:</label>     
+            <select id="customPomodoroTask">
+            </select>
             <hr>
+
             <label><b>Pomodoros in Set  </b><input id="PomoSetNum" type="number" step="1"></label><br>
             <hr>
+
             <label><b>Pomodoro Combo Set Habit Task</b></label><br>
             <label><input type="checkbox" id="PomoSetHabitPlus"> <span class="plus_minus_icon">+</span> habit for pomodoro set complete</label><br>
+            
+            <label><input type="checkbox" id="customSetTaskEnabled">Custom Habit:</label>     
+            <select id="customSetTask">
+            </select>
             <hr>
-            <label><b>Long Break Duration (In Minutes)</b><br/><input id="LongBreakDuration" type="text"></label><br>
+
+            <label><b>Long Break Duration (Minutes):  </b><input id="LongBreakDuration" type="text"></label><br>
             <label style="display: inline-flex;"><input type="checkbox" id="LongBreakNotify">Notify me in Habitca when the long break is over</label><br>
         </div>
+
         <br><br><br>
+
         <div id="Footer2">
             <a href="https://habitica.com" target="_blank"><div class="footer_icons"><span class="habitica_icon"></span></div></a>
             <div class="footer_icons" style="color: goldenrod;" id="Dosh"><span class="gold_icon"></span></div>

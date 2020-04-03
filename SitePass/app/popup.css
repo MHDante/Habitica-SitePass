@@ -9,17 +9,39 @@
          url('fonts/pixeled/pixeled-webfont.woff') format('woff');
     font-weight: normal;
     font-style: normal;
-
 }
-input[type="text"], input[type="number"],input[type="password"] ,select{
-    text-align: center;
-    width: 30px;
-    border-radius: 7px;
-    text-align: center;
-    background-color: aqua;
+
+td.gp a {
+    text-decoration: none !important;
 }
 input[type="number"]{
     width: 40px;
+}
+
+:not(#AdvSettings) > input[type=checkbox]:before {
+    content: "";
+    display: block;
+    width: 10px;
+    height: 10px;
+    border: 1px solid #878190;
+    background-color: #f9f9f9;
+    border-radius: 15px;
+    visibility:visible;
+    cursor: pointer;
+}
+:not(#AdvSettings) > input[type=checkbox]:hover:before {
+    background-color: powderblue;
+}
+:not(#AdvSettings) > input:checked:before {
+    content: "\2713";
+    color: #878190;
+    line-height: 6px;
+    font-size: 16px;
+    font-weight: bold;
+}
+
+input[type=checkbox]{
+    visibility: hidden;
 }
 
 label {
@@ -324,12 +346,12 @@ color:white;
 }
 #pomodoroSettings {
     background-color: var(--main-color);
-    padding: 10px;
+    padding: 10px !important;
     text-align: center;
     margin: auto;
     margin-top: 10px;
     width: 100%;
-    margin-left: -7px;
+    margin-left: -10px;
     webkit-box-shadow: 0 2px 2px 0 rgba(26, 24, 29, 0.16), 0 1px 4px 0 rgba(26, 24, 29, 0.12);
      box-shadow: 0 2px 2px 0 rgba(26, 24, 29, 0.16), 0 1px 4px 0 rgba(26, 24, 29, 0.12);
 }
@@ -404,10 +426,15 @@ color:white;
     background-color: gold;
     width: 100%;
     cursor: pointer;
+    border: 1px solid gray;
+    border-radius: 5px;
 }
+#SaveButton:hover,#quickSave:hover{
+    background-color:#ffe764;
+}
+
 #quickSave{
     margin-top:10px;
-    border-radius: 10px;
 }
 #pomodoroSettings{
     display:none;
@@ -523,13 +550,7 @@ span.passExp:before {
     margin-right: 3px;
     font-size: 15px;
 }
-.lightTextInput{
-    width: 30px;
-    border-radius: 7px;
-    text-align: center;
-    border: none;
-    background-color: aqua;
-}
+
 #customPomodoroTask , #customSetTask{
    width: 128px;
 }
@@ -551,4 +572,78 @@ input#UID, #APIToken {
     border-radius: 10px;
     -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.5);
     background-color: var(--main-color); 
+}
+
+input[type="text"], input[type="number"], input[type="password"], select {
+    text-align: center;
+    width: 25px;
+    border-radius: 5px;
+    text-align: center;
+    /* background-color: powderblue;
+    color: rgb(54, 32, 93); */
+    background-color: #f9f9f9;
+    color: #45424a;
+    border: 1px solid #878190;
+}
+.lightTextInput{
+    width: 25px;
+    text-align: center;
+    border: none !important;
+    background-color: powderblue !important;
+    color: rgb(54, 32, 93) !important;
+}
+#PomoSetNum{
+    width: 40px;
+    text-align: middle;
+}
+input#VacationMode:before {
+    width: 15px !important;
+    height: 15px !important;
+    margin-top: -3px;
+    font-size: 24px !important;
+    line-height: 7px !important;
+    border-radius: 5px !important;
+}
+/* tooltip */
+.tooltip:hover:before {
+    content: "";
+    display: block;
+    position: absolute;
+    border-left: 5px solid transparent;
+    border-right: 5px solid transparent;
+    border-bottom: 5px solid #878190;
+    margin-top: 20px;
+    margin-left: 3px;
+}
+
+.tooltip:hover:after {
+    content: "";
+    font-size: 11px;
+    display: block;
+    position: absolute;
+    margin-top: 24px;
+    background-color: #878190;
+    color: #f1f1f1;;
+    font-weight: bold;
+    padding: 5px;
+    border-radius: 5px;
+    width: 95px;
+    margin-left: -41px;
+    text-align: center;
+}
+.bug_icon, .help_icon, .rate_icon, .donate_icon{
+    margin-left: 34px;
+    margin-bottom: 5px;
+}
+.bug_icon:hover:after {
+    content: "Report Bug / Suggest Feature";
+}
+.help_icon:hover:after {
+    content: "User Guide";
+}
+.rate_icon:hover:after {
+    content: "Rate :)";
+}
+.donate_icon:hover:after {
+    content: "Buy me a coffee (Thank you !)";
 }

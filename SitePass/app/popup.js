@@ -233,6 +233,7 @@ function CredentialFields() {
     $("#BreakFreePass").prop('checked', Vars.UserData.BreakFreePass);
     $("#BreakExtentionFails").prop('checked', Vars.UserData.BreakExtentionFails);
     $("#BreakExtentionNotify").prop('checked', Vars.UserData.BreakExtentionNotify);
+    $("#SoundNotify").prop('checked', Vars.UserData.SoundNotify);
     $("#PomoSetNum").val(Vars.UserData.PomoSetNum);
     $("#PomoSetHabitPlus").prop('checked', Vars.UserData.PomoSetHabitPlus);
     $("#LongBreakNotify").prop('checked', Vars.UserData.LongBreakNotify);
@@ -263,6 +264,7 @@ function CredentialFields() {
     $("#BreakFreePass").click(function () { updateCredentials(); });
     $("#BreakExtentionFails").click(function () { updateCredentials(); });
     $("#BreakExtentionNotify").click(function () { updateCredentials(); });
+    $("#SoundNotify").click(function () { updateCredentials(); });
     $("#PomoSetNum").bind('keyup input change', function(){updateCredentials();});
     $("#PomoSetHabitPlus").click(function () { updateCredentials(); });
     $("#LongBreakNotify").click(function () { updateCredentials(); });
@@ -361,6 +363,7 @@ function updateCredentials() {
     Vars.UserData.BreakFreePass = $("#BreakFreePass").prop('checked');
     Vars.UserData.BreakExtentionFails = $("#BreakExtentionFails").prop('checked');
     Vars.UserData.BreakExtentionNotify = $("#BreakExtentionNotify").prop('checked');
+    Vars.UserData.SoundNotify = $("#SoundNotify").prop('checked');
     Vars.UserData.PomoSetHabitPlus = $("#PomoSetHabitPlus").prop('checked');
     Vars.UserData.LongBreakNotify = $("#LongBreakNotify").prop('checked');
     Vars.UserData.VacationMode = $("#VacationMode").prop('checked');

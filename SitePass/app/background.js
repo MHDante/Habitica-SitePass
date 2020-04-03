@@ -78,6 +78,7 @@ function UserSettings(copyFrom) {
     this.BreakExtention = copyFrom ? copyFrom.BreakExtention : 2;
     this.BreakExtentionFails = copyFrom ? copyFrom.BreakExtentionFails : false;
     this.BreakExtentionNotify = copyFrom ? copyFrom.BreakExtentionNotify : false;
+    this.SoundNotify = copyFrom ? copyFrom.SoundNotify : true;
     this.PomoSetNum = copyFrom ? copyFrom.PomoSetNum : 4;
     this.PomoSetHabitPlus = copyFrom ? copyFrom.PomoSetHabitPlus : false;
     this.LongBreakDuration = copyFrom ? copyFrom.LongBreakDuration : 30;
@@ -158,18 +159,6 @@ var callbackTabActive = function (details) {
         mainSiteBlockFunction(tab);
     });
 };
-
-// var callbackTabUpdate = function (tabId) {
-//     chrome.tabs.get(tabId, function callback(tab) {
-//         //css insert
-//         chrome.tabs.insertCSS({
-//             file: "pageOverlay.css"
-//         });
-//         setTimeout(function (arg) {
-//             mainSiteBlockFunction(arg);
-//         }, 1000, tab);   
-//     });
-// };
 
 function callbackTabUpdate(tabId){
     chrome.tabs.get(tabId, function callback(tab) {
@@ -562,6 +551,9 @@ function pomodoroEnds() {
 
     //notify
     notify(title, msg);
+    
+    //play sound
+    playSound("pomodoroEnd");
 }
 
 //start break session - duration in seconds
@@ -613,6 +605,8 @@ function breakEnds() {
     }
     //notify
     notify("Time's Up", msg);
+    //play sound
+    playSound("breakEnd");
 }
 
 //start break session - duration in seconds
@@ -746,4 +740,19 @@ function notifyHabitica(msg) {
         toUserId: Vars.UserData.Credentials.uid
     };
     callAPI("POST", 'members/send-private-message', JSON.stringify(data));
+}
+
+function playSound(sound){
+    if (Vars.UserData.SoundNotify) {
+        var myAudio;
+        switch (sound){
+            case "pomodoroEnd":
+                myAudio = new Audio(chrome.runtime.getURL("audio/pomodoroEnd.mp3"));
+                break;
+            case "breakEnd":
+                myAudio = new Audio(chrome.runtime.getURL("audio/breakEnd.mp3"));
+                break;
+        }
+        myAudio.play();
+    }
 }

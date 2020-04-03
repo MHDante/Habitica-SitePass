@@ -40,14 +40,14 @@
         </div>
         <div id="Credentials">
             <br>
-            <a href="https://habitica.fandom.com/wiki/Habitica_Pomodoro_SiteKeeper" target="_blank" class="links"><span class="help_icon"></span>Help</a>
-            <a href="https://github.com/ofekmiz/Habitica-Pomodoro-SiteKeeper/issues" target="_blank" class="links""><span class="bug_icon"></span>Bug/Suggest</a>
-            <a href="https://chrome.google.com/webstore/detail/habitica-pomodoro-sitekee/iaanigfbldakklgdfcnbjonbehpbpecl" target="_blank" class="links""><span class="rate_icon"></span>Rate</a>
-            <a href="https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=JWLY9LF58U52Y&source=url" target="_blank" class="links""><span class="donate_icon"></span>Donate</a>
+            <a href="https://habitica.fandom.com/wiki/Habitica_Pomodoro_SiteKeeper" target="_blank" class="links"><span class="tooltip help_icon"></span></a>
+            <a href="https://github.com/ofekmiz/Habitica-Pomodoro-SiteKeeper/issues" target="_blank" class="links""><span class="tooltip bug_icon"></span></a>
+            <a href="https://chrome.google.com/webstore/detail/habitica-pomodoro-sitekee/iaanigfbldakklgdfcnbjonbehpbpecl" target="_blank" class="links""><span class="tooltip rate_icon"></span></a>
+            <a href="https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=JWLY9LF58U52Y&source=url" target="_blank" class="links""><span class="tooltip donate_icon"></span></a>
 
-            <hr>
+            <br><br>
             <button id="SaveButton" type="submit">Save/Update</button>
-            <hr>
+            <br><br>
 
             <p class="setting-header">User</p>
             <label><b>Habitica User ID:</b><br/><input id="UID" type="text"></label><br>
@@ -66,7 +66,6 @@
             <label><input type="checkbox" id="ManualBreak">Start breaks manually</label><br>
             <label><input type="checkbox" id="BreakFreePass">During break all sites are free</label><br>
             <label><b>Break Extention (Minutes):  </b><input id="BreakExtention" type="text"></label><br>
-            <label style="display: inline-flex;"><input type="checkbox" id="BreakExtentionNotify">Notify me in Habitca when Break Extension starts</label><br>
             <hr>
 
             <label><b>Pomodoro Habit Task</b></label><br>
@@ -91,7 +90,11 @@
             <hr>
 
             <label><b>Long Break Duration (Minutes):  </b><input id="LongBreakDuration" type="text"></label><br>
-            <label style="display: inline-flex;"><input type="checkbox" id="LongBreakNotify">Notify me in Habitca when the long break is over</label><br>
+            <hr>
+            <b>Notifications</b>
+            <label style="display: inline-flex;"><input type="checkbox" id="BreakExtentionNotify"> Habitca Notification - Break Extension</label><br>
+            <label style="display: inline-flex;"><input type="checkbox" id="LongBreakNotify">Habitca Notification - Long break over</label><br>
+            <label style="display: inline-flex;"><input type="checkbox" id="SoundNotify">Sound Notifications</label><br>
         </div>
 
         <br><br><br>

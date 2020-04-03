@@ -3,7 +3,7 @@
 
     "name": "Habitica Pomodoro SiteKeeper",
     "description": "Pomodoro Timer and SiteBlocker that Plugs into Habitica and turns your time-wasting navigation tendencies into rewards.",
-    "version": "4.3",
+    "version": "5",
 
     "permissions": [
         "storage",
@@ -32,6 +32,8 @@
     "web_accessible_resources": [
           "img/siteKeeper.png",
           "img/siteKeeper2.png",
-          "img/siteKeeper3.png"
+          "img/siteKeeper3.png",
+          "audio/pomodoroEnd.mp3",
+          "audio/breakEnd.mp3"
       ]
 }

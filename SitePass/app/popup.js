@@ -99,6 +99,29 @@ document.addEventListener("DOMContentLoaded", function () {
         $(".vacationBanner").show();
     }
 
+    //Hide Edit Options
+    if(Vars.UserData.HideEdit){
+        $("#BlockLink").hide();
+        $(".edit").hide();
+        $(".delete").hide();
+    }
+    if(!Vars.UserData.ConnectHabitica){
+        $(".habitica-setting").fadeTo( "slow" , 0.3);
+        $(".buy").hide();
+        $(".edit").hide();
+    }
+    $("#ConnectHabitica").click(function() {
+        if($("#ConnectHabitica").is(':checked')){
+            $(".habitica-setting").fadeTo( "slow" , 1); 
+            $(".buy").show();
+            $(".edit").show();
+        }else{
+            $(".habitica-setting").fadeTo( "slow" , 0.3);
+            $(".buy").hide();
+            $(".edit").hide();
+        }
+    });
+
     //Custome pomodoro habits
     $("#customPomodoroTask").empty();
     $("#customSetTask").empty();
@@ -137,6 +160,8 @@ function AddSiteToTable(site, fadein) {
 
     var tbody = $(document.createElement("tbody"));
     tbody.attr("id", site.hostname);
+    
+    //Single Blocked wensite UI
     var html =
         '<tr class="reward-item">' +
             '<td class="gp">' +
@@ -171,6 +196,11 @@ function AddSiteToTable(site, fadein) {
         tbody.hide();
         tbody.fadeIn();
     }
+    if(!Vars.UserData.ConnectHabitica){
+        $(".buy").hide();
+        $(".edit").hide(); 
+        $(".cost-input").hide(); 
+    }
 }
 
 function Toggle(obj) {
@@ -199,9 +229,8 @@ function CostSubmit(r) {
 
 function CredentialFields() {
     var div = $("#Credentials");
-    if (Vars.ServerResponse == 401) {
-        $("#CredError").slideDown();
-        
+    if (Vars.ServerResponse == 401 && Vars.UserData.ConnectHabitica) {
+        $("#CredError").slideDown(); 
         div.show();
     } else {
         var label = $("#AdvSettings");
@@ -218,8 +247,10 @@ function CredentialFields() {
             }
         });
     }
+    
     //Come on, Google!
 
+    //Set Options according to UserData in background.js
     $("#UID").val(Vars.UserData.Credentials.uid);
     $("#APIToken").val(Vars.UserData.Credentials.apiToken);
     $("#Duration").val(Vars.UserData.PassDurationMins);
@@ -234,6 +265,7 @@ function CredentialFields() {
     $("#BreakExtentionFails").prop('checked', Vars.UserData.BreakExtentionFails);
     $("#BreakExtentionNotify").prop('checked', Vars.UserData.BreakExtentionNotify);
     $("#SoundNotify").prop('checked', Vars.UserData.SoundNotify);
+    $("#HideEdit").prop('checked', Vars.UserData.HideEdit);
     $("#PomoSetNum").val(Vars.UserData.PomoSetNum);
     $("#PomoSetHabitPlus").prop('checked', Vars.UserData.PomoSetHabitPlus);
     $("#LongBreakNotify").prop('checked', Vars.UserData.LongBreakNotify);
@@ -242,6 +274,10 @@ function CredentialFields() {
     $("#customSetTaskEnabled").prop('checked',Vars.UserData.CustomSetTask);
     $("#customPomodoroTask").val(Vars.UserData.PomodoroTaskId);
     $("#customSetTask").val(Vars.UserData.PomodoroSetTaskId);
+    $("#ConnectHabitica").prop('checked',Vars.UserData.ConnectHabitica);
+    $("#MuteBlockedSites").prop('checked',Vars.UserData.MuteBlockedSites);
+    $("#TranspartOverlay").prop('checked',Vars.UserData.TranspartOverlay);
+    $("#TickSound").prop('checked',Vars.UserData.TickSound);
 
     //Update Pomodoros Today, reset on new day
     today = new Date().setHours(0,0,0,0);
@@ -250,7 +286,9 @@ function CredentialFields() {
         Vars.PomodorosToday.date = today;
     } 
     $("#PomoButton").attr("data-pomodoros",Vars.PomodorosToday.value);
+     
 
+    //Update Options on change
     $("#UID").on("keyup", function () { updateCredentials(); });
     $("#APIToken").on("keyup", function () { updateCredentials(); });
     $("#Duration").on("keyup", function () { updateCredentials(); });
@@ -265,6 +303,7 @@ function CredentialFields() {
     $("#BreakExtentionFails").click(function () { updateCredentials(); });
     $("#BreakExtentionNotify").click(function () { updateCredentials(); });
     $("#SoundNotify").click(function () { updateCredentials(); });
+    $("#HideEdit").click(function () { updateCredentials(); });
     $("#PomoSetNum").bind('keyup input change', function(){updateCredentials();});
     $("#PomoSetHabitPlus").click(function () { updateCredentials(); });
     $("#LongBreakNotify").click(function () { updateCredentials(); });
@@ -273,6 +312,11 @@ function CredentialFields() {
     $("#customSetTask").click(function () { updateCredentials(); });
     $("#customPomodoroTaskEnabled").click(function () { updateCredentials(); });
     $("#customSetTaskEnabled").click(function () { updateCredentials(); });
+    $("#ConnectHabitica").click(function () { updateCredentials(); });
+    $("#MuteBlockedSites").click(function () { updateCredentials(); });
+    $("#TranspartOverlay").click(function () { updateCredentials(); });
+    $("#TickSound").click(function () { updateCredentials(); });
+    
     //ugh.
 
     $("#SaveButton").click(function () {
@@ -369,11 +413,13 @@ function updateCredentials() {
     Vars.UserData.VacationMode = $("#VacationMode").prop('checked');
     Vars.UserData.CustomPomodoroTask = $("#customPomodoroTaskEnabled").prop('checked');
     Vars.UserData.CustomSetTask = $("#customSetTaskEnabled").prop('checked');
+    Vars.UserData.HideEdit = $("#HideEdit").prop('checked');
     Vars.UserData.PomodoroSetTaskId = $("#customSetTask").val();
     Vars.UserData.PomodoroTaskId = $("#customPomodoroTask").val();
-    
-
-
+    Vars.UserData.ConnectHabitica = $("#ConnectHabitica").prop('checked');
+    Vars.UserData.MuteBlockedSites = $("#MuteBlockedSites").prop('checked');
+    Vars.UserData.TranspartOverlay = $("#TranspartOverlay").prop('checked');
+    Vars.UserData.TickSound = $("#TickSound").prop('checked');
 }
 
 function updateTimerDisplay(){

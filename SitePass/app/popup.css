@@ -92,6 +92,7 @@ body {
 .hostname {
     overflow: hidden;
     width: 130px;
+    padding-left:4px;
 }
 .cost-input {
     background-color: #00BCD4;
@@ -196,6 +197,7 @@ a{
 .gp {
     width: auto;
     height: 100%;
+    min-height: 46px;
     text-align: center;
     vertical-align: top;
     background-color: var(--main-color);
@@ -321,8 +323,8 @@ color:white;
     line-height: 59px;
     background-color: #54000057;
     display: block;
-    width: 95%;
-    height: 57px;
+    width: 94.5%;
+    height: 62px;
     position: absolute;
     background-image: url(img/chainLock.png);
     background-repeat: no-repeat;
@@ -332,6 +334,9 @@ color:white;
     font-size: 12px;
     display: inline-block;
     margin: 7px;
+}
+.setting-note a{
+    color: gray;
 }
 #pomodoro {
     background-color: var(--main-color);
@@ -371,7 +376,7 @@ color:white;
     position: absolute;
     right: 0;
     margin-left: 4px;
-    top: 0;
+    top: -8px;
 }
 #Footer {
     display : table-row;
@@ -596,13 +601,35 @@ input[type="text"], input[type="number"], input[type="password"], select {
     width: 40px;
     text-align: middle;
 }
-input#VacationMode:before {
-    width: 15px !important;
-    height: 15px !important;
-    margin-top: -3px;
+input.switch:before {
+    width: 23px !important;
+    height: 12px !important;
+    margin-top: -2px;
     font-size: 24px !important;
     line-height: 7px !important;
-    border-radius: 5px !important;
+    border-radius: 9px !important;
+    content: "" !important;
+    padding:1px;
+}
+input.switch:checked:before {
+    background-color: #878190 !important;
+}
+input.switch:after {
+    content: "" !important;
+    display: block !important;
+    border: 1px solid #878190 !important;
+    visibility: initial;
+    width: 8px !important;
+    height: 8px;
+    border-radius: 20px;
+    position: absolute;
+    background-color: #f9f9f9;
+    margin-top: -13px;
+    margin-left: 3px;
+    transition: all 0.3s ease-in-out;
+}
+input.switch:checked:after {
+    margin-left: 13px !important;
 }
 /* tooltip */
 .tooltip:hover:before {
@@ -645,5 +672,9 @@ input#VacationMode:before {
     content: "Rate :)";
 }
 .donate_icon:hover:after {
-    content: "Buy me a coffee (Thank you !)";
+    content: "Buy me a coffee (Thank you!)";
+}
+.buy .gold_icon {
+    margin-bottom: 3px;
+    margin-top: 3px;
 }

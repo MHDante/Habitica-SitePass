@@ -35,7 +35,7 @@ var Consts = {
     },
     userDataKey: "USER_DATA",
     PomodorosTodayDataKey: "PomodorosToday",
-    NotificationId: "sitepass_notification",
+    NotificationId: "sitepass_notification"
 };
 
 var Vars = {
@@ -43,7 +43,7 @@ var Vars = {
     RewardTask: Consts.RewardTemplate,
     PomodoroTaskId: null,
     PomodoroSetTaskId: null,
-    PomodoroTaskCustomList:[],
+    PomodoroTaskCustomList: [],
     PomodorosToday: {
         value: 0,
         date: 0
@@ -63,6 +63,7 @@ var Vars = {
 
 
 function UserSettings(copyFrom) {
+    //Get User Setting from copyFrom , or set default user settings
     this.BlockedSites = copyFrom ? copyFrom.BlockedSites : {};
     this.Credentials = copyFrom ? copyFrom.Credentials : {
         uid: "",
@@ -88,10 +89,33 @@ function UserSettings(copyFrom) {
     this.CustomSetTask = copyFrom ? copyFrom.CustomSetTask : false;
     this.PomodoroSetTaskId = copyFrom ? copyFrom.PomodoroSetTaskId : null;
     this.PomodoroTaskId = copyFrom ? copyFrom.PomodoroTaskId : null;
+    this.HideEdit = copyFrom ? copyFrom.HideEdit : false;
+    this.ConnectHabitica = copyFrom ? copyFrom.ConnectHabitica : true;
+    this.MuteBlockedSites = copyFrom ? copyFrom.MuteBlockedSites : true;
+    this.TranspartOverlay = copyFrom ? copyFrom.TranspartOverlay : true;
+    this.TickSound = copyFrom ? copyFrom.TickSound : false;
 
+    //returns site object or false
     this.GetBlockedSite = function (hostname) {
         return this.BlockedSites[hostname];
     }
+
+    this.GetSiteCost = function (site) {
+        return site.cost;
+    }
+
+    this.GetSiteHostName = function (site) {
+        return site.hostname;
+    }
+
+    this.GetSitePassExpiry = function (site) {
+        return site.passExpiry;
+    }
+
+    this.isSitePassExpired = function (site) {
+        return site.passExpiry <= Date.now();
+    }
+
     this.RemoveBlockedSite = function (site) {
         if (site.hostname) {
             delete this.BlockedSites[site.hostname];
@@ -111,43 +135,39 @@ function BlockedSite(hostname, cost, passExpiry) {
     this.passExpiry = passExpiry;
 }
 
-//Checks the hostname and block it if the user dosent have enough gold or pomodoro is active
-function checkBlockedHostname(siteUrl) {
+// Checks the hostname and block it if the user dosent have enough gold or pomodoro is active.
+// Returns Json object:
+// if site not blocked: {block:false}
+// if site is blocked and affordable: {block:true, payToPass: true, cost:string , hostname:string ,passTime:string}
+// if site is blocked and not affordable {block:true, payToPass: false, hostname:string}
+function checkBlockedUrl(siteUrl) {
+
     var hostname = siteUrl.hostname;
+
     //free pass during break session, or Vacation Mode and not in pomodoro session
     var freePass = (Vars.UserData.BreakFreePass && Vars.onBreak && Vars.TimerRunnig) || (Vars.UserData.VacationMode && (!Vars.TimerRunnig || Vars.onBreak));
     var site = Vars.UserData.GetBlockedSite(hostname);
     var pomodoro = Vars.TimerRunnig && !Vars.onBreak;
-    if (!site || site.passExpiry > Date.now() || pomodoro || site.cost == 0 || freePass) {
+
+    if (!site || site.passExpiry > Date.now() || pomodoro || site.cost == 0 || freePass || !Vars.UserData.ConnectHabitica) {
         return {
-            block: false,
-            redirectUrl: null
+            block: false
         }; //do not block
     };
 
-    var url = new URL(siteUrl);
-    var urlParams = new URLSearchParams(url.search);
-
     FetchHabiticaData();
     if (site.cost > Vars.Monies) {
-        urlParams.set("habiticaSiteKeeperPage", "noPass");
-        url.search = urlParams.toString();
         return {
             block: true,
             payToPass: false,
-            redirectUrl: url.toString()
+            hostname: hostname
         } //block website - can't afford
-    }
-    urlParams.set("habiticaSiteKeeperPage", "payToPass");
-    urlParams.set("cost", site.cost.toFixed(2));
-    urlParams.set("gold", Vars.Monies.toFixed(2));
-    urlParams.set("time", Vars.UserData.PassDurationMins);
-    urlParams.set("paid", "false");
-    url.search = urlParams.toString();
-    return {
+    } else return {
         block: true,
         payToPass: true,
-        redirectUrl: url.toString()
+        cost: site.cost.toFixed(2),
+        hostname: hostname,
+        passTime: Vars.UserData.PassDurationMins
     } //block website - pay to pass
 }
 
@@ -160,7 +180,7 @@ var callbackTabActive = function (details) {
     });
 };
 
-function callbackTabUpdate(tabId){
+function callbackTabUpdate(tabId) {
     chrome.tabs.get(tabId, function callback(tab) {
         //css insert
         chrome.tabs.insertCSS({
@@ -168,65 +188,31 @@ function callbackTabUpdate(tabId){
         });
         mainSiteBlockFunction(tab);
     });
+
 }
 
-//returns the url string without the extension's url params
-function removeUrlParams(tab){
-    var site = new URL(tab.url);
-    var urlParams = new URLSearchParams(site.search);
-    urlParams.delete("habiticaSiteKeeperPage"); 
-    urlParams.delete("cost"); 
-    urlParams.delete("time"); 
-    urlParams.delete("paid"); 
-    urlParams.delete("gold"); 
-    site.search = urlParams.toString();
-    return site.toString();
-}
 
 function mainSiteBlockFunction(tab) {
     if (!Vars.TimerRunnig || Vars.onBreak) {
         unblockSiteOverlay(tab);
         var site = new URL(tab.url);
-        //Pay to pass or can't afford page
-        var urlParams = new URLSearchParams(site.search);
-        var siteKeeperPage = urlParams.get("habiticaSiteKeeperPage");  
-        var paidSite = Vars.UserData.GetBlockedSite(site.hostname) ? Vars.UserData.GetBlockedSite(site.hostname).passExpiry >= Date.now() : false;
-        //block
-        if (siteKeeperPage === "payToPass" || siteKeeperPage === "noPass") {
-            
-            var paid = urlParams.get("paid");
-            var goToHost = site.hostname;
-            var goToSite = Vars.UserData.GetBlockedSite(goToHost);
-            
-            //No Pass
-            if (!paidSite && (paid === "false" || siteKeeperPage === "noPass")){
-                var imageURLPayToPass = chrome.extension.getURL("/img/siteKeeper2.png");
-                var imageURLNoPass = chrome.extension.getURL("/img/siteKeeper3.png");
-                chrome.tabs.insertCSS({
-                    code: `
-                    #payToPass:after { background-image:url("` + imageURLPayToPass + `"); }
-                    #noPass:after { background-image:url("` + imageURLNoPass + `"); }
-                    `
-                });
-                chrome.tabs.executeScript({
-                    file:'pageOverlay.js'
-                });
-               
-             }
-            //confirm payment
-            else if (!paidSite && (paid === "true" && siteKeeperPage === "payToPass")) {
-                ConfirmPurchase(goToSite);
-                var passDurationMiliSec = Vars.UserData.PassDurationMins * 60 * 1000;
-                goToSite.passExpiry = Date.now() + passDurationMiliSec;
-                var urlString =  removeUrlParams(tab);
-                chrome.tabs.update({url:urlString});   
+        var checkSite = checkBlockedUrl(site);
+
+        muteBlockedtabs();
+
+        //block - Pay to pass or can't afford page
+        if (checkSite.block == true) {
+
+            //pay to pass  
+            if (checkSite.payToPass == true) {
+                payToPassOverlay(tab, checkSite);
+            }
+
+            //can't afford
+            else {
+                cantAffordOverlay(tab, checkSite);
             }
             return;
-        }
-        else {
-            var checkSite = checkBlockedHostname(site);
-            if (!checkSite.block) return;  
-            chrome.tabs.update({url: checkSite.redirectUrl});
         }
 
         //Check if the user is not on the same site for longer than passDuration
@@ -238,14 +224,61 @@ function mainSiteBlockFunction(tab) {
     }
 }
 
+//Create "Pay X coins To Visit" site overlay
+function payToPassOverlay(tab, site) {
+    var opacity = Vars.UserData.TranspartOverlay ? "0.85" : "1"; 
+    var imageURLPayToPass = chrome.extension.getURL("/img/siteKeeper2.png");
+    chrome.tabs.insertCSS({
+        code: `
+        .payToPass:after { background-image:url("` + imageURLPayToPass + `"); }
+        .payToPass::before {background-color:rgba(0,0,0,`+opacity+`)}`
+    });
+
+    chrome.tabs.executeScript(tab.id, {
+        file: 'pageOverlay.js'
+    }, function (tab) {
+        chrome.tabs.executeScript(tab.id, {
+            code: `
+            document.getElementById("payToPass_btn").style.display = 'block';
+            document.getElementById("SitekeeperOverlay").style.display = 'block';
+            document.getElementById("SitekeeperOverlay").setAttribute("data-html","You're trying to Access ` + site.hostname + `\\n Pay ` + site.cost + ` Gold to access for ` + site.passTime + ` Minutes ");
+            document.getElementById("SitekeeperOverlay").className = "payToPass"; `
+        });
+    });
+}
+
+//Create "Cant Afford To Visit" site overlay
+function cantAffordOverlay(tab, site) {
+    var opacity = Vars.UserData.TranspartOverlay ? "0.85" : "1"; 
+    var imageURLNoPass = chrome.extension.getURL("/img/siteKeeper3.png");
+    chrome.tabs.insertCSS({
+        code: `
+        .noPass:after { background-image:url("` + imageURLNoPass + `"); }
+        .noPass::before {background-color:rgba(0,0,0,`+opacity+`)}`
+    });
+
+    chrome.tabs.executeScript(tab.id, {
+        file: 'pageOverlay.js'
+    }, function (tab) {
+        chrome.tabs.executeScript(tab.id, {
+            code: `
+            document.getElementById("SitekeeperOverlay").style.display = 'block'; 
+            document.getElementById("payToPass_btn").style.display = 'none';
+            document.getElementById("SitekeeperOverlay").setAttribute("data-html","You can't afford to visit ` + site.hostname + `\\n You shall not pass! ");
+            document.getElementById("SitekeeperOverlay").className = "noPass"; `
+        });
+    });
+}
+
+
 //Switching and updating tabs
 chrome.tabs.onActivated.addListener(callbackTabActive);
-chrome.tabs.onUpdated.addListener(function(tabid, changeinfo, tab) {
+chrome.tabs.onUpdated.addListener(function (tabid, changeinfo, tab) {
     var url = tab.url;
-        if (url !== undefined && changeinfo.status == "complete") {
-            callbackTabUpdate(tabid);
+    if (url !== undefined && changeinfo.status == "complete") {
+        callbackTabUpdate(tabid);
     }
-   });
+});
 
 // ReSharper disable once PossiblyUnassignedProperty
 chrome.storage.sync.get(Consts.userDataKey, function (result) {
@@ -262,13 +295,43 @@ chrome.storage.sync.get(Consts.PomodorosTodayDataKey, function (result) {
     }
 });
 
+//Mute all tabs with blocked sites, unmute other tabs.
+function muteBlockedtabs() {
+    if (Vars.UserData.MuteBlockedSites) {
+        chrome.tabs.getAllInWindow(null, function (tabs) {
+            for (var i = 0; i < tabs.length; i++) {
+                var hostname = new URL(tabs[i].url).hostname;
+                var site = Vars.UserData.GetBlockedSite(hostname);
+                if (!site) {
+                    chrome.tabs.update(tabs[i].id, {
+                        "muted": false
+                    });
+                } else if (checkBlockedUrl(site).block) {
+                    chrome.tabs.update(tabs[i].id, {
+                        "muted": true
+                    });
+                } else {
+                    chrome.tabs.update(tabs[i].id, {
+                        "muted": false
+                    });
+                }
+            }
+        });
+    }
+}
 
 // ----- Habitica Api general call ----- //
 function callAPI(method, route, postData) {
+    if (!Vars.UserData.ConnectHabitica) {
+        return null;
+    }
     return callHabiticaAPI(Consts.serverUrl + route, Consts.xClientHeader, Vars.UserData.Credentials, method, postData);
 }
 
 function getData(silent, credentials, serverPath) {
+    if (!Vars.UserData.ConnectHabitica) {
+        return null;
+    }
     var xhr = getHabiticaData(Consts.serverUrl + serverPath, Consts.xClientHeader, credentials);
     Vars.ServerResponse = xhr.status;
     if (xhr.status == 401) {
@@ -276,7 +339,7 @@ function getData(silent, credentials, serverPath) {
                 type: "basic",
                 iconUrl: "img/icon.png",
                 title: "Habitica SitePass Credentials Error",
-                message: "Click on the gold coin icon in the top right of your browser to set your credentials."
+                message: "Click on the extension icon at the top right of your browser to set your credentials."
             },
             function () {});
         return null;
@@ -312,18 +375,21 @@ function FetchHabiticaData(skipTasks) {
         var allHabits;
         allHabits = getData(true, credentials, Consts.serverPathUserHabits);
         console.log(allHabits);
-        if(allHabits.success){
+        if (allHabits.success) {
             Vars.PomodoroTaskCustomList = [];
             for (var i in allHabits.data) {
                 var title = allHabits.data[i].text;
                 var id = allHabits.data[i].id;
-                Vars.PomodoroTaskCustomList.push({title,id});
-              }
-              console.log(Vars.PomodoroTaskCustomList);
+                Vars.PomodoroTaskCustomList.push({
+                    title,
+                    id
+                });
+            }
+            console.log(Vars.PomodoroTaskCustomList);
         }
 
         //get pomodoro task id
-        if(!Vars.UserData.CustomPomodoroTask){
+        if (!Vars.UserData.CustomPomodoroTask) {
             tasksObj = getData(true, credentials, Consts.serverPathPomodoroHabit);
             if (tasksObj && tasksObj.data["alias"] == Consts.PomodoroHabitTemplate.alias) {
                 Vars.PomodoroTaskId = tasksObj.data.id;
@@ -336,12 +402,12 @@ function FetchHabiticaData(skipTasks) {
                 }
 
             }
-        }else{
+        } else {
             Vars.PomodoroTaskId = Vars.UserData.PomodoroTaskId;
         }
 
         //get pomodoro Set task id
-        if(!Vars.UserData.CustomSetTask){
+        if (!Vars.UserData.CustomSetTask) {
             tasksObj = getData(true, credentials, Consts.serverPathPomodoroSetHabit);
             if (tasksObj && tasksObj.data["alias"] == Consts.PomodoroSetHabitTemplate.alias) {
                 Vars.PomodoroSetTaskId = tasksObj.data.id;
@@ -354,7 +420,7 @@ function FetchHabiticaData(skipTasks) {
                 }
 
             }
-        }else{
+        } else {
             Vars.PomodoroSetTaskId = Vars.UserData.PomodoroSetTaskId;
         }
 
@@ -414,10 +480,20 @@ function CreatePomodoroSetHabit() {
     }
 }
 
+//Confirm Purchase
+chrome.runtime.onMessage.addListener(function (message) {
+    if (message.msg == "Confirm_Purchase" && message.sender == "HabiticaPomodoro") {
+        var site = Vars.UserData.GetBlockedSite(message.hostname);
+        ConfirmPurchase(site);
+    }
+});
+
 function ConfirmPurchase(site) {
     UpdateRewardTask(site.cost);
     callAPI("POST", Consts.serverPathTask + "/score/down");
     Vars.Monies -= site.cost;
+    var passDurationMiliSec = Vars.UserData.PassDurationMins * 60 * 1000;
+    site.passExpiry = Date.now() + passDurationMiliSec;
 }
 
 //direction 'up' or 'down'
@@ -483,6 +559,7 @@ function secondsToTimeString(seconds) {
 
 //start pomodoro session - duration in seconds
 function startPomodoro() {
+    muteBlockedtabs();
     var duration = 60 * Vars.UserData.PomoDurationMins;
     Vars.TimerRunnig = true;
     Vars.onBreak = false;
@@ -500,6 +577,11 @@ function duringPomodoro() {
     });
     //Block current tab if necessary
     CurrentTab(blockSiteOverlay);
+    
+    //Tick Sound
+    if(Vars.UserData.TickSound){
+        playSound("clockTicking");
+    }
 }
 
 
@@ -540,7 +622,7 @@ function pomodoroEnds() {
     } else {
         startBreak();
     }
-    
+
     //Badge
     chrome.browserAction.setBadgeBackgroundColor({
         color: "green"
@@ -551,7 +633,7 @@ function pomodoroEnds() {
 
     //notify
     notify(title, msg);
-    
+
     //play sound
     playSound("pomodoroEnd");
 }
@@ -705,32 +787,38 @@ function CurrentTab(func) {
         });
 }
 
-//Block Site With Overlay
+//Block Site With Timer Overlay
 function blockSiteOverlay(tab) {
+    var opacity = Vars.UserData.TranspartOverlay ? "0.85" : "1"; 
     var site = new URL(tab.url).hostname;
     var message = "Stay Focused! Time Left: " + Vars.Timer;
     if (Vars.UserData.GetBlockedSite(site)) {
         chrome.tabs.executeScript({
             code: `
             document.body.classList.add('blockedSite');
-            document.body.setAttribute('data-html',"` + message + `");               
+            document.body.setAttribute('data-html',"` + message + `");            
             `
         });
         var imageURL = chrome.extension.getURL("/img/siteKeeper.png");
         chrome.tabs.insertCSS({
-            code: '.blockedSite:after { background-image:url("' + imageURL + '"); }'
+            code: `
+            .blockedSite:after {background-image:url("` + imageURL + `");}
+            .blockedSite:before{background-color:rgba(0,0,0,`+opacity+`)}
+            `
         });
     };
 }
 
 //Remove Overlay from current Blocked Site
 function unblockSiteOverlay(tab) {
-    var site = new URL(tab.url).hostname;
-    if (Vars.UserData.GetBlockedSite(site)) {
-        chrome.tabs.executeScript({
-            code: `document.body.className = document.body.className.replace( "blockedSite", '' );`
-        });
-    };
+    chrome.tabs.executeScript(tab.id, {
+        code: `document.body.className = document.body.className.replace( "blockedSite", '' );
+            var blockElementExists = document.getElementById("SitekeeperOverlay");
+            if(blockElementExists){
+                document.getElementById("SitekeeperOverlay").style.display = 'none'; 
+            }
+            `
+    });
 }
 
 //Sends Private Message to the user in Habitica (Used as notification in the mobile app!)
@@ -742,16 +830,20 @@ function notifyHabitica(msg) {
     callAPI("POST", 'members/send-private-message', JSON.stringify(data));
 }
 
-function playSound(sound){
+function playSound(sound) {
     if (Vars.UserData.SoundNotify) {
         var myAudio;
-        switch (sound){
+        switch (sound) {
             case "pomodoroEnd":
                 myAudio = new Audio(chrome.runtime.getURL("audio/pomodoroEnd.mp3"));
                 break;
             case "breakEnd":
                 myAudio = new Audio(chrome.runtime.getURL("audio/breakEnd.mp3"));
                 break;
+            case "clockTicking":
+                myAudio = new Audio(chrome.runtime.getURL("audio/clockTicking.mp3"));
+                break;
+                
         }
         myAudio.play();
     }

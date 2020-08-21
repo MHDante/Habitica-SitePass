@@ -1,9 +1,9 @@
-.blockedSite:before , #payToPass:before,  #noPass:before{
+.blockedSite:before , .payToPass:before,  .noPass:before{
       content: attr(data-html);
       display: block;
       width: 100%;
       height: 100%;
-      background-color: rgba(0, 0, 0, 0.85);
+      background-color:black;
       position: fixed;
       z-index: 99999;
       color:gold;
@@ -13,17 +13,17 @@
       white-space: pre;
       font-family: monospace !important;
   }
-  .blockedSite:after, #payToPass:after,#noPass:after {
+  .blockedSite:after, .payToPass:after,.noPass:after {
     content:"";
     background-repeat: no-repeat;
     width: 211px;
     height:200px;
-    top: 210px;
+    top: calc(50% - 210px);
     left: calc(50% - 110px);
     position: fixed;
     z-index: 99999;
-    padding-top: 10%;
     font-family: monospace !important;
+    opacity:  1 !important;
 }
 #payToPass_btn{
     position: fixed;
@@ -41,16 +41,18 @@
     font-family: monospace !important;
     font-size: 16px;
     cursor: pointer;
+    display:none;
 }
-#payToPass,#noPass{
+.payToPass,.noPass{
   top:0px;
   position: fixed;
   width: 100vw;
   height: 100vh;
   z-index: 99999999999;
   font-family: monospace !important;
+  line-height: 45px;
 }
-#payToPass:before , #noPass:before{
+.payToPass:before , .noPass:before{
   padding-top: 7%;
 }
 
@@ -71,5 +73,6 @@
   cursor: pointer;
   font-family: monospace !important;
   font-size: 16px;
+  line-height: 20px;
 }
 

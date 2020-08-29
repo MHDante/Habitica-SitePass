@@ -7,61 +7,109 @@
     <script src="popup.js"></script>
 </head>
 <body>
-    <a id="BlockLink" href="#">Block Site!</a>
+    <a id="BlockLink" href="#"><span class="block_Icon"></span>Block Site!</a>
     <!-- Pomodoro Timer -->
     <div id="pomodoro">
-        <span id="PomoStart" class="tomato"></span><span id="Time">00:00</span> 
+        <div id="QuickSettings"></div>
+        <div id="PomoStop">X</div>
+        <span id="PomoButton" data-pomodoros="0" class="tomato"></span><span id="Time" data-pomodoros-set="0/4">00:00</span> 
     </div>
+   
+    <!-- Quick Settings -->
+    <div id="pomodoroSettings">
+    <label><b>Pomodoro (Minutes):  </b><input id="quickSet-PomoDuration" class="lightTextInput" type="text"></label><br>  
+    <label><b>Break (Minutes):  </b><input id="quickSet-BreakDuration" class="lightTextInput" type="text"></label><br> 
+    <label><b>Pomodoros In Set:  </b><input id="quickSet-PomoSetNum" class="lightTextInput" type="text"></label><br>
+    <label><b>Long Break (Minutes):  </b><input  id="quickSet-LongBreakDuration" class="lightTextInput" type="text"></label><br>   
+    <button id="quickSave" type="submit">Ok</button>
+    </div>
+
+    <!-- Vacation mode -->
+    <div class="vacationBanner">Vacation mode is enabled!<br> All sites are free</div>
+    
     <!-- Blocked Sites -->
     <p><b>Blocked Sites:</b></p>
     <table id="SiteTable"></table>
+    
     <!-- Footer -->
     <div id="Footer">
-        
-        <p id="CredError">Credential error! The extension is currently not updating Habitica!</p>
         <br>
         <div style="padding:4px;" class="setting-header">
-            <label id="AdvSettings"><input type="checkbox">Show Advanced Settings</label>
+            <p id="CredError"><span class="warning_icon"></span>Credential error! The extension is currently not updating Habitica!</p>
+            <label id="AdvSettings"><input type="checkbox">Advanced Settings</label>
         </div>
         <div id="Credentials">
-            <p class="setting-header">User</p>
-            <label><b>Habitica User ID:</b><br/><input id="UID" type="text"></label><br>
-            <label><b>Habitica API Token:</b><br/><input id="APIToken" type="text"></label><br>
-            <p class="setting-header">Pay to pass</p>
-            <label><b>Pass Duration (In Minutes)</b><br/><input id="Duration" type="text"></label><br>
-            <sapn class="setting-note">Sites with cost 0 are blocked only during pomodoro</sapn>
-            <p class="setting-header">Pomodoro</p>
-            <label><b>Pomodoro Duration (In Minutes)</b><br/><input id="PomoDuration" type="text"></label><br>
-            <hr>
-            <label><b>Pomodoro Habit Task</b></label><br>
-            <label><input type="checkbox" id="PomoHabitPlus"> <span class="plus_minus_icon">+</span> habit when pomodoro is done</label><br>
-            <label><input type="checkbox" id="PomoHabitMinus"> <span class="plus_minus_icon">-</span> habit when pomodoro fails</label><br>
-            <span class="setting-note">Pomodoro fails if stopped before timer ends or Break Extention is over</span>
-            <hr>
-            <p class="setting-header commingSoon">Comming soon...</p>
+            <br>
+            <a href="https://habitica.fandom.com/wiki/Habitica_Pomodoro_SiteKeeper" target="_blank" class="links"><span class="tooltip help_icon"></span></a>
+            <a href="https://github.com/ofekmiz/Habitica-Pomodoro-SiteKeeper/issues" target="_blank" class="links""><span class="tooltip bug_icon"></span></a>
+            <a href="https://chrome.google.com/webstore/detail/habitica-pomodoro-sitekee/iaanigfbldakklgdfcnbjonbehpbpecl" target="_blank" class="links""><span class="tooltip rate_icon"></span></a>
+            <!-- <a href="https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=JWLY9LF58U52Y&source=url" target="_blank" class="links""><span class="tooltip donate_icon"></span></a> -->
+            <a href="https://www.buymeacoffee.com/ofex" target="_blank" class="links""><span class="tooltip donate_icon"></span></a>
 
-            <label><b>Break Duration (In Minutes)</b><br/><input id="BreakDuration" type="text"></label><br>
-            <label><b>Break Extention (In Minutes)</b><br/><input id="BreakExtention" type="text"></label><br>
-            <input type="checkbox" id="BreakFreePass">During break all sites are free<br>
-            <input type="checkbox" id="BreakExtentionEnabled">Fail Pomodoro after Break Extention<br>
-            <hr>
-
-            <label><b>Pomodoro Combo Set Habit </b></label><br>
-            <label><input type="checkbox" id="PomoSetHabitPlus"> <span class="plus_minus_icon">+</span> habit for pomodoro set complete</label><br>
-            <label><b>Pomodoros in Set  </b><input style="width:50px;margin-top: 5px;" id="PomoSetNum" type="number"></label><br>
-            <span class="setting-note">Choose 0 for infinite loop<br>(Break Extentions won't fail you)</span>
-            <hr>
-            
+            <br><br>
             <button id="SaveButton" type="submit">Save/Update</button>
             <br><br>
-            <a href="https://habitica.fandom.com/wiki/Habitica_SitePass" target="_blank" style="color:#878190;">Help & Credits</a>
-            <br>
+
+            <p class="setting-header">User</p>
+            <label><b>Connect to Habitica</b><input type="checkbox" checked id="ConnectHabitica" class="switch"></label><br>
+            <label class="habitica-setting"><b>Habitica User ID:</b><br/><input id="UID" type="text"></label><br>
+            <label class="habitica-setting"><b>Habitica API Token:</b><br/><input id="APIToken" type="password"></label><br> 
+            <sapn class="setting-note habitica-setting">User ID and API token can be found here: <a href="https://habitica.com/user/settings/api" target="_blank">https://habitica.com/user/settings/api</a></sapn><br> 
+            <p class="setting-header habitica-setting">Pay to pass</p>
+            <label class="habitica-setting"><b>Pass Duration (Minutes):  </b><input id="Duration" type="text"></label><br>
+            <sapn class="setting-note habitica-setting">All sites are blocked during pomodoro. Sites with cost 0 are blocked only during pomodoro.</sapn>
+            <label class="habitica-setting"><b>Vacation Mode</b><input type="checkbox" id="VacationMode" class="switch"></label><br>
+            <sapn class="setting-note habitica-setting">All websites are free when enabled.</sapn><br>
+            <p class="setting-header">Website blocker</p>
+            <label><input type="checkbox" id="HideEdit">Hide edit options</label>
+            <label><input type="checkbox" id="MuteBlockedSites">Mute blocked websites</label>
+            <label><input type="checkbox" id="TranspartOverlay">Overlay transparency</label>
+            <p class="setting-header">Pomodoro</p>
+            <label><b>Pomodoro Duration (Minutes):  </b><input id="PomoDuration" type="text"></label><br>
+            <hr>
+
+            <label><b>Break Duration (Minutes):  </b><input id="BreakDuration" type="text"></label>
+            <label><input type="checkbox" id="ManualBreak">Start breaks manually</label><br>
+            <label class="habitica-setting"><input type="checkbox" id="BreakFreePass">During break all sites are free</label><br>
+            <label><b>Break Extention (Minutes):  </b><input id="BreakExtention" type="text"></label><br>
+            <hr>
+
+            <label class="habitica-setting"><b>Pomodoro Habit Task</b></label><br>
+            <label class="habitica-setting"><input type="checkbox" id="PomoHabitPlus"> <span class="plus_minus_icon">+</span> habit when pomodoro is done</label><br>
+            <label class="habitica-setting"><input type="checkbox" id="PomoHabitMinus"> <span class="plus_minus_icon">-</span> habit if stopped before timer ends</label><br>
+            <label class="habitica-setting"><input type="checkbox" id="BreakExtentionFails"> <span class="plus_minus_icon">-</span> habit if Break Extention is over</label><br>
+            
+            <label class="habitica-setting"><input type="checkbox" id="customPomodoroTaskEnabled">Custom Habit:</label>     
+            <select class="habitica-setting" id="customPomodoroTask"></select>
+            <hr>
+
+            <label><b>Pomodoros in Set  </b><input id="PomoSetNum" type="number" step="1"></label><br>
+            <hr>
+
+            <label class="habitica-setting"><b>Pomodoro Combo Set Habit Task</b></label><br>
+            <label class="habitica-setting"><input type="checkbox" id="PomoSetHabitPlus"> <span class="plus_minus_icon">+</span> habit for pomodoro set complete</label><br>
+            
+            <label class="habitica-setting"><input type="checkbox" id="customSetTaskEnabled">Custom Habit:</label>     
+            <select class="habitica-setting" id="customSetTask"></select>
+            <hr>
+
+            <label><b>Long Break Duration (Minutes):  </b><input id="LongBreakDuration" type="text"></label><br>
+            <hr>
+            <b>Notifications & Sound</b>
+            <label style="display: inline-flex;" class="habitica-setting"><input type="checkbox" id="BreakExtentionNotify"> Habitca Notification - Break Extension</label><br>
+            <label style="display: inline-flex;" class="habitica-setting"><input type="checkbox" id="LongBreakNotify">Habitca Notification - Long break over</label><br>
+            <label style="display: inline-flex;"><input type="checkbox" id="SoundNotify">Sound Notifications</label><br>
+            <label style="display: inline-flex;"><input type="checkbox" id="TickSound">Clock Ticking Sound</label><br>
         </div>
-        <hr>
-        <a href="https://habitica.com" target="_blank"><div class="footer_icons"><span class="habitica_icon"></span></div></a>
-        <div class="footer_icons" style="color: goldenrod;" id="Dosh"><span class="gold_icon"></span></div>
-        <div class="footer_icons" style="color: red;" id="MyHp"><span class="hp_icon"></span></div>
-        
+
+        <br><br><br>
+
+        <div id="Footer2">
+            <a href="https://habitica.com" target="_blank"><div class="footer_icons"><span class="habitica_icon"></span></div></a>
+            <div class="footer_icons habitica-setting" style="color: goldenrod;" id="Dosh"><span class="gold_icon"></span></div>
+            <div class="footer_icons habitica-setting" style="color: red;" id="MyHp"><span class="hp_icon"></span></div>
+            <div class="footer_icons habitica-setting" id="RefreshStats"><span class="refresh_icon"></span></div>
+        </div>
     </div>
 </body>
 </html>

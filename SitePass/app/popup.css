@@ -1,3 +1,7 @@
+:root {
+    --main-color: #2995CD;
+    --secondery-color: #36205D;
+  }
 
 @font-face {
     font-family: 'pixeled';
@@ -5,14 +9,48 @@
          url('fonts/pixeled/pixeled-webfont.woff') format('woff');
     font-weight: normal;
     font-style: normal;
-
 }
 
+td.gp a {
+    text-decoration: none !important;
+}
+input[type="number"]{
+    width: 40px;
+}
+
+:not(#AdvSettings) > input[type=checkbox]:before {
+    content: "";
+    display: block;
+    width: 10px;
+    height: 10px;
+    border: 1px solid #878190;
+    background-color: #f9f9f9;
+    border-radius: 15px;
+    visibility:visible;
+    cursor: pointer;
+}
+:not(#AdvSettings) > input[type=checkbox]:hover:before {
+    background-color: powderblue;
+}
+:not(#AdvSettings) > input:checked:before {
+    content: "\2713";
+    color: #878190;
+    line-height: 6px;
+    font-size: 16px;
+    font-weight: bold;
+}
+
+input[type=checkbox]{
+    visibility: hidden;
+}
+
+label {
+    display: inline-block;
+    margin-top: 3px;
+}
 input[type="checkbox"] {
     vertical-align: middle;
-}
-input {
-    margin-bottom: 5px;
+    margin-bottom: 4px;
 }
 td {
     padding: 5px;
@@ -24,7 +62,7 @@ table {
 }
 
 body {
-    width: 250px;
+    width: 260px;
     height: 450px;
     border-collapse:collapse;
     display : table;
@@ -37,10 +75,12 @@ body {
 }
 .footer_icons {
     margin: 0;
-    font-size: 22px;
-    width: auto;
-    display: inline;
+    font-family: 'pixeled';
+    font-size: 12px;
+    display: inline-block;
     margin-right: 10px;
+    vertical-align: middle;
+    line-height: 17pt;
 }
 .reward-item {
     background-color: #36205D;
@@ -52,6 +92,7 @@ body {
 .hostname {
     overflow: hidden;
     width: 130px;
+    padding-left:4px;
 }
 .cost-input {
     background-color: #00BCD4;
@@ -60,12 +101,24 @@ body {
 a{
     color:#36205D;
 }
+.warning_icon{
+    background-image: url(img/warning.png);
+    background-repeat: no-repeat;
+    width: 24px;
+    height: 24px;
+    margin-right: 4px;
+    margin-left: 2px;
+    vertical-align: bottom;
+    display: inline-block;
+    margin-bottom: 0px;
+    background-position: 0;
+}
 .gold_icon {
     background-image: url(img/coin.png);
     background-repeat: no-repeat;
     width: 25px;
     height: 25px;
-    margin-right: 2px;
+    margin-right: 4px;
     margin-left: 2px;
     vertical-align: top;
     display: inline-block;
@@ -76,11 +129,58 @@ a{
     background-repeat: no-repeat;
     width: 25px;
     height: 25px;
+    margin-right: 4px;
+    margin-left: 2px;
+    vertical-align: top;
+    display: inline-block;
+    background-position: 0;
+}
+.refresh_icon {
+    background-image: url(img/refresh.png);
+    background-repeat: no-repeat;
+    width: 25px;
+    height: 25px;
+    margin-right: 15px;
+    margin-left: 2px;
+    vertical-align: top;
+    display: inline-block;
+    background-position: 0;
+    float: right;
+    cursor: pointer;
+}
+.links{
+    color:#878190;
+    font-size: 12px;
+}
+.bug_icon,.help_icon,.rate_icon,.donate_icon,.block_Icon,.unblock_Icon {
+    background-repeat: no-repeat;
+    width: 16px;
+    height: 16px;
     margin-right: 2px;
     margin-left: 2px;
     vertical-align: top;
     display: inline-block;
     background-position: 0;
+}
+.block_Icon{
+    background-image: url(img/stop.png);
+    margin-right: 6px;
+}
+.unblock_Icon{
+    background-image: url(img/tick.png);
+    margin-right: 6px;
+}
+.bug_icon {
+    background-image: url(img/bug.png);
+}
+.help_icon{
+    background-image: url(img/question.png);
+}
+.rate_icon{
+    background-image: url(img/star.png);
+}
+.donate_icon{
+    background-image: url(img/like.png);
 }
 .habitica_icon {
     background-image: url(img/habitica.png);
@@ -97,9 +197,10 @@ a{
 .gp {
     width: auto;
     height: 100%;
+    min-height: 46px;
     text-align: center;
     vertical-align: top;
-    background-color: #2995CD;
+    background-color: var(--main-color);
     color: #555;
     display: inline-block;
     line-height: 1.5em;
@@ -110,8 +211,9 @@ a{
     color: #36205D;
     font-weight: bold;
     text-align: center;
-    background-color: #2995CD;
+    background-color: var(--main-color);
     padding: 9px;
+    border-radius: 7px;
 }
 .tomato {
     
@@ -128,15 +230,90 @@ a{
 .tomatoProgress{
     background-image: url(img/pomodoroProgress.png);
 }
+
 .tomatoProgress:hover{
     background-image: url(img/pomodoroQuit.png);
 }
 .tomatoWait{
     background-image: url(img/pomodoroWait.png);
 }
+.tomatoWait:not(:hover):after {
+    content: attr(data-pomodoros);
+    display: inline-block;
+    position: relative;
+    font-family: pixeled;
+    top: -30px;
+    left: 20px;
+    font-size: 11px;
+}
+
 .tomatoWait:hover{
     background-image: url(img/pomodoroStart.png);
 }
+.tomatoBreak{
+    background-image: url(img/pomodoroBreak.png);
+}
+.tomatoBreak:hover{
+    background-image: url(img/pomodoroStart.png);
+}
+.tomatoWin{
+    background-image: url(img/pomodoroWin.png);
+}
+.tomatoWin:hover{
+    background-image: url(img/pomodoroBreak.png);
+}
+.tomatoWin:not(:hover):after {
+    content: attr(data-pomodoros);
+    display: inline-block;
+    position: relative;
+    font-family: pixeled;
+    top: -30px;
+    left: 20px;
+    font-size: 11px;
+    color:black;
+}
+.tomatoWarning{
+    background-image: url(img/pomodoroWarning.png);
+}
+.tomatoWarning:hover{
+    background-image: url(img/pomodoroStart.png);
+}
+#PomoStop:hover + .tomatoBreak, #PomoStop:hover + .tomatoWin{
+    background-image: url(img/pomodoroProtectStop.png);
+}
+#PomoStop:hover + .tomatoWin:after{
+    content: "";
+}
+
+
+#PomoStop{
+    display: block;
+    width: 10px;
+    cursor: pointer;
+    position: absolute;
+}
+#PomoStop:hover{
+color:white;
+}
+#QuickSettings{
+    /* background-image: url(img/settings.png); */
+    background-image: url(img/settings_hover.png);
+    background-size: 18px;
+    background-repeat: no-repeat;
+    background-position: center;
+    display: block;
+    cursor: pointer;
+    position: absolute;
+    width: 24px;
+    height: 24px;
+    margin-left: -5px;
+    margin-top: -5px;
+}
+#QuickSettings:hover{
+    background-image: url(img/settings_hover.png);
+    background-size: 24px;
+}
+
 .blocked:before{
     content: "";
     text-align: center;
@@ -146,23 +323,40 @@ a{
     line-height: 59px;
     background-color: #54000057;
     display: block;
-    width: 95%;
-    height: 57px;
+    width: 94.5%;
+    height: 62px;
     position: absolute;
     background-image: url(img/chainLock.png);
+    background-repeat: no-repeat;
 }
 .setting-note{
-    color:gray;
-    font-size:11px;
+    color: gray;
+    font-size: 12px;
+    display: inline-block;
+    margin: 7px;
+}
+.setting-note a{
+    color: gray;
 }
 #pomodoro {
-    background-color: #2995CD;
+    background-color: var(--main-color);
     padding: 10px;
     text-align: center;
     margin: auto;
     margin-top: 10px;
     width: 100%;
     margin-left: -7px;
+    webkit-box-shadow: 0 2px 2px 0 rgba(26, 24, 29, 0.16), 0 1px 4px 0 rgba(26, 24, 29, 0.12);
+     box-shadow: 0 2px 2px 0 rgba(26, 24, 29, 0.16), 0 1px 4px 0 rgba(26, 24, 29, 0.12);
+}
+#pomodoroSettings {
+    background-color: var(--main-color);
+    padding: 10px !important;
+    text-align: center;
+    margin: auto;
+    margin-top: 10px;
+    width: 100%;
+    margin-left: -10px;
     webkit-box-shadow: 0 2px 2px 0 rgba(26, 24, 29, 0.16), 0 1px 4px 0 rgba(26, 24, 29, 0.12);
      box-shadow: 0 2px 2px 0 rgba(26, 24, 29, 0.16), 0 1px 4px 0 rgba(26, 24, 29, 0.12);
 }
@@ -175,6 +369,15 @@ a{
     width: 100px;
     display: inline-block;
 }
+#Time:after {
+    content: attr(data-pomodoros-set);
+    font-size: 9px;
+    display: inline-block;
+    position: absolute;
+    right: 0;
+    margin-left: 4px;
+    top: -8px;
+}
 #Footer {
     display : table-row;
     vertical-align : bottom;
@@ -185,7 +388,17 @@ a{
 }
 #CredError {
     display: none;
-    color: rgb(255, 0, 0);
+    color: gold;
+    line-height: 21px;
+    font-weight: 100;
+    font-size: 14px;
+    padding-right: 5px;
+    padding-left: 4px;
+    margin: 3px;
+    padding: 6px;
+    background-color: red;
+    border-radius: 7px;
+
 }
 #AdvSettings {
     display: none;
@@ -195,20 +408,74 @@ a{
 #Credentials {
     display: none;
 }
-.commingSoon{
-    background-color: teal;
-    color:white;
+.comingSoon {
+    background-color: lemonchiffon;
+    border: 2px solid gray;
+    padding: 2px;
+    opacity: 0.7;
 }
-#SaveButton{
+.comingSoon:before {
+    content: "- Coming Soon -";
+    display: inline-block;
+    width: calc(100% - 10px);
+    padding: 5px;
+    vertical-align: middle;
+    color: antiquewhite;
+    font-weight: bold;
+    background-color: gray;
+    text-align: center;
+    margin-top: 5px;
+    margin-bottom: 5px;
+}
+#SaveButton,#quickSave{
     background-color: gold;
     width: 100%;
     cursor: pointer;
+    border: 1px solid gray;
+    border-radius: 5px;
 }
-#AdvSettings:hover input:checked:before {
+#SaveButton:hover,#quickSave:hover{
+    background-color:#ffe764;
+}
+
+#quickSave{
+    margin-top:10px;
+}
+#pomodoroSettings{
+    display:none;
+    text-align: left; 
+    color: rgb(54, 32, 93);
+    line-height: 22px;
+}
+#AdvSettings input{
+    visibility: hidden;
+}
+#AdvSettings input:before{
+    visibility:visible;
+    content: "";
+    display: block;
+    position: absolute;
+    border: solid var(--secondery-color);
+    border-width: 0 3px 3px 0;
+    display: inline-block;
+    padding: 3px;
+    transform: rotate(45deg);
+    -webkit-transform: rotate(45deg);
+    margin-left: -3px;
+    margin-top: 0px;
+
+}
+#AdvSettings input:checked:before{
+    transform: rotate(-135deg);
+    -webkit-transform: rotate(-135deg);
+    margin-top: 3px;
+
+}
+/* #AdvSettings:hover input:checked:before {
     content: "Don't Forget to Save!";
     display: inline-block;
     width: 208px;
-    top: -27px;
+    top: -31px;
     position: relative;
     font-size: 10px;
     background-color: gold;
@@ -216,7 +483,8 @@ a{
     padding: 2px;
     left: -17px;
     border-radius: 10px;
-}
+} */
+
 #BlockLink{
     color:#36205D;
 }
@@ -226,5 +494,187 @@ a{
     display: inline-block;
     width: 12px;
     text-align: center;
+}
+.xbtn {
+    border: 1px solid #878190;
+    border-radius: 2px;
+    display: inline-block;
+    width: 12px;
+    text-align: center;
+    font-size: 11px;
+    background-color: #878190;
+    color: white;
+    cursor: pointer;
+}
+.addbtn {
+    background-color: var(--main-color);
+    width: 99%;
+    display: inline-block;
+    margin-top: 4px;
+    color: white;
+    text-align: center;
+    font-weight: bold;
+    font-size: 14px;
+    opacity: 0.5;
+    border-radius: 5px;
+    border: 1px solid gray;
     vertical-align: middle;
+    cursor: pointer;
+}
+#Footer2 {
+    display: inline-block;
+    width: 100%;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    background-color: #EDECEE;
+    height: 26px;
+    padding: 7px;
+    box-shadow: 0px 10px 5px #888, 0px 0px 5px #888;
+}
+
+input[type="time"] {
+    width: 33%;
+    font-size: 11px;
+}
+.vacationBanner{
+    background-color: gold;
+    width: calc(100% + 20px);
+    padding: 3px;
+    margin-left: -10px;
+    text-align: center;
+    color: black;
+    display: none;
+}
+span.passExp {
+    color: gold;
+    font-size: 12px;
+}
+span.passExp:before {
+    content: "\231B"; /*HourGlass Icon*/
+    margin-right: 3px;
+    font-size: 15px;
+}
+
+#customPomodoroTask , #customSetTask{
+   width: 128px;
+}
+input#UID, #APIToken {
+    width: 255px;
+}
+
+/* scroll bar */
+::-webkit-scrollbar {
+    width: 8px;    
+}
+ 
+::-webkit-scrollbar-track {
+    -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3); 
+    border-radius: 10px; 
+}
+ 
+::-webkit-scrollbar-thumb {
+    border-radius: 10px;
+    -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.5);
+    background-color: var(--main-color); 
+}
+
+input[type="text"], input[type="number"], input[type="password"], select {
+    text-align: center;
+    width: 25px;
+    border-radius: 5px;
+    text-align: center;
+    /* background-color: powderblue;
+    color: rgb(54, 32, 93); */
+    background-color: #f9f9f9;
+    color: #45424a;
+    border: 1px solid #878190;
+}
+.lightTextInput{
+    width: 25px;
+    text-align: center;
+    border: none !important;
+    background-color: powderblue !important;
+    color: rgb(54, 32, 93) !important;
+}
+#PomoSetNum{
+    width: 40px;
+    text-align: middle;
+}
+input.switch:before {
+    width: 23px !important;
+    height: 12px !important;
+    margin-top: -2px;
+    font-size: 24px !important;
+    line-height: 7px !important;
+    border-radius: 9px !important;
+    content: "" !important;
+    padding:1px;
+}
+input.switch:checked:before {
+    background-color: #878190 !important;
+}
+input.switch:after {
+    content: "" !important;
+    display: block !important;
+    border: 1px solid #878190 !important;
+    visibility: initial;
+    width: 8px !important;
+    height: 8px;
+    border-radius: 20px;
+    position: absolute;
+    background-color: #f9f9f9;
+    margin-top: -13px;
+    margin-left: 3px;
+    transition: all 0.3s ease-in-out;
+}
+input.switch:checked:after {
+    margin-left: 13px !important;
+}
+/* tooltip */
+.tooltip:hover:before {
+    content: "";
+    display: block;
+    position: absolute;
+    border-left: 5px solid transparent;
+    border-right: 5px solid transparent;
+    border-bottom: 5px solid #878190;
+    margin-top: 20px;
+    margin-left: 3px;
+}
+
+.tooltip:hover:after {
+    content: "";
+    font-size: 11px;
+    display: block;
+    position: absolute;
+    margin-top: 24px;
+    background-color: #878190;
+    color: #f1f1f1;;
+    font-weight: bold;
+    padding: 5px;
+    border-radius: 5px;
+    width: 95px;
+    margin-left: -41px;
+    text-align: center;
+}
+.bug_icon, .help_icon, .rate_icon, .donate_icon{
+    margin-left: 34px;
+    margin-bottom: 5px;
+}
+.bug_icon:hover:after {
+    content: "Report Bug / Suggest Feature";
+}
+.help_icon:hover:after {
+    content: "User Guide";
+}
+.rate_icon:hover:after {
+    content: "Rate :)";
+}
+.donate_icon:hover:after {
+    content: "Buy me a coffee (Thank you!)";
+}
+.buy .gold_icon {
+    margin-bottom: 3px;
+    margin-top: 3px;
 }

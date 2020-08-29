@@ -297,6 +297,7 @@ chrome.storage.sync.get(Consts.PomodorosTodayDataKey, function (result) {
 
 //Mute all tabs with blocked sites, unmute other tabs.
 function muteBlockedtabs() {
+    var pomodoro = Vars.TimerRunnig && !Vars.onBreak;
     if (Vars.UserData.MuteBlockedSites) {
         chrome.tabs.getAllInWindow(null, function (tabs) {
             for (var i = 0; i < tabs.length; i++) {
@@ -306,7 +307,7 @@ function muteBlockedtabs() {
                     chrome.tabs.update(tabs[i].id, {
                         "muted": false
                     });
-                } else if (checkBlockedUrl(site).block) {
+                } else if (checkBlockedUrl(site).block || pomodoro) {
                     chrome.tabs.update(tabs[i].id, {
                         "muted": true
                     });
@@ -559,11 +560,11 @@ function secondsToTimeString(seconds) {
 
 //start pomodoro session - duration in seconds
 function startPomodoro() {
-    muteBlockedtabs();
     var duration = 60 * Vars.UserData.PomoDurationMins;
     Vars.TimerRunnig = true;
     Vars.onBreak = false;
     startTimer(duration, duringPomodoro, pomodoroEnds);
+    muteBlockedtabs();
 }
 
 //runs during pomodoro session

@@ -155,7 +155,7 @@ function checkBlockedUrl(siteUrl) {
         }; //do not block
     };
 
-    FetchHabiticaData();
+    FetchHabiticaData(true);
     if (site.cost > Vars.Monies) {
         return {
             block: true,
@@ -198,8 +198,6 @@ function mainSiteBlockFunction(tab) {
         var site = new URL(tab.url);
         var checkSite = checkBlockedUrl(site);
 
-        muteBlockedtabs();
-
         //block - Pay to pass or can't afford page
         if (checkSite.block == true) {
 
@@ -220,7 +218,8 @@ function mainSiteBlockFunction(tab) {
         setTimeout(function (arg) {
             mainSiteBlockFunction(arg);
         }, passDurationMiliSec, tab);
-
+       
+        muteBlockedtabs();
     }
 }
 
@@ -429,7 +428,7 @@ function FetchHabiticaData(skipTasks) {
         tasksObj = getData(true, credentials, Consts.serverPathTask);
         if (tasksObj && tasksObj.data["alias"] == "sitepass") {
             Vars.RewardTask = tasksObj.data;
-            UpdateRewardTask(0, false);
+            //UpdateRewardTask(0, false);
             return;
         }
         UpdateRewardTask(0, true);
@@ -443,7 +442,6 @@ function UpdateRewardTask(cost, create) {
         xhr.open("POST", Consts.serverUrl + Consts.serverPathUserTasks, false);
     } else {
         xhr.open("PUT", Consts.serverUrl + Consts.serverPathTask, false);
-
     }
     xhr.setRequestHeader('x-client', Consts.xClientHeader);
     xhr.setRequestHeader("Content-Type", "application/json");
@@ -485,16 +483,21 @@ function CreatePomodoroSetHabit() {
 chrome.runtime.onMessage.addListener(function (message) {
     if (message.msg == "Confirm_Purchase" && message.sender == "HabiticaPomodoro") {
         var site = Vars.UserData.GetBlockedSite(message.hostname);
+        console.log('confirming Purchase for '+ site.hostname);
         ConfirmPurchase(site);
     }
 });
 
 function ConfirmPurchase(site) {
-    UpdateRewardTask(site.cost);
-    callAPI("POST", Consts.serverPathTask + "/score/down");
-    Vars.Monies -= site.cost;
-    var passDurationMiliSec = Vars.UserData.PassDurationMins * 60 * 1000;
-    site.passExpiry = Date.now() + passDurationMiliSec;
+    UpdateRewardTask(site.cost,false);
+    var p = JSON.parse(callAPI("POST", Consts.serverPathTask + "/score/down"));
+    if (p.success != true) {
+        notify("ERROR",'Failed to pay '+site.cost + 'coins for '+site.hostname+' in Habitica'); 
+    }else{
+        Vars.Monies -= site.cost;
+        var passDurationMiliSec = Vars.UserData.PassDurationMins * 60 * 1000;
+        site.passExpiry = Date.now() + passDurationMiliSec;
+    }
 }
 
 //direction 'up' or 'down'
@@ -724,13 +727,13 @@ function pomodoroInterupted() {
         return;
     }
     if (Vars.UserData.PomoHabitMinus || failedBreakExtension) {
-        FetchHabiticaData();
+        FetchHabiticaData(true);
         var result = ScoreHabit(Vars.PomodoroTaskId, 'down');
         var msg = "";
         if (!result.error) {
             var deltaHp = (result.hp - Vars.Hp).toFixed(2);
             msg = "You Lost Health: " + deltaHp;
-            FetchHabiticaData();
+            FetchHabiticaData(true);
         } else {
             msg = "ERROR: " + result.error;
         }

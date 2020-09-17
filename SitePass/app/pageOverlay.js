@@ -12,7 +12,7 @@ document.getElementById("SitekeeperOverlay").append(btn);
 btn.onclick = function(){
     chrome.runtime.sendMessage({sender:"HabiticaPomodoro",msg:"Confirm_Purchase",hostname:currentHostname});
     btn.innerHTML =  "&#10004 Loading...";
-    setTimeout(function(){ location.reload(); }, 500);
+    setTimeout(function(){ location.reload(); }, 1500);
 };
 createReloadBtn();
 

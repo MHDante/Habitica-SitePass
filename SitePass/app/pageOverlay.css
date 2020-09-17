@@ -42,6 +42,7 @@
     font-size: 16px;
     cursor: pointer;
     display:none;
+    text-align: center;
 }
 .payToPass,.noPass{
   top:0px;

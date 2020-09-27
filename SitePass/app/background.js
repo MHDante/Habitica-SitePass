@@ -157,7 +157,7 @@ function checkBlockedUrl(siteUrl) {
         }; //do not block
     };
 
-    FetchHabiticaData(true);
+    //FetchHabiticaData(true); //causes too many requests
     if (site.cost > Vars.Monies) {
         return {
             block: true,
@@ -593,12 +593,22 @@ function duringPomodoro() {
 
 //runs When Pomodoro Timer Ends
 function pomodoroEnds() {
+    
     stopTimer();
+
+    //update Pomodoros today
+    Vars.PomodorosToday.value++;
+    var Pomodoros = {};
+    Pomodoros[Consts.PomodorosTodayDataKey] = Vars.PomodorosToday;
+    chrome.storage.sync.set(Pomodoros, function () {
+        console.log('PomodorosToday is set to ' + JSON.stringify(Pomodoros));
+    });
+
     var title = "Time's Up"
     var msg = "Pomodoro ended." + "\n" + "You have done " + Vars.PomodorosToday.value + " today!"; //default msg if habit not enabled
     var setComplete = Vars.PomoSetCounter >= Vars.UserData.PomoSetNum - 1;
     //If Pomodoro / Pomodoro Set Habit + is enabled
-    if ((Vars.UserData.PomoHabitPlus || (setComplete && Vars.UserData.PomoSetHabitPlus)) && !noReward) {
+    if (Vars.UserData.PomoHabitPlus || (setComplete && Vars.UserData.PomoSetHabitPlus)) {
         FetchHabiticaData(true);
         var result = (setComplete && Vars.UserData.PomoSetHabitPlus) ? ScoreHabit(Vars.PomodoroSetTaskId, 'up') : ScoreHabit(Vars.PomodoroTaskId, 'up');
         if (!result.error) {
@@ -610,15 +620,8 @@ function pomodoroEnds() {
             msg = "ERROR: " + result.error;
         }
     }
-    //update Pomodoros today
-    Vars.PomodorosToday.value++;
-    var Pomodoros = {};
-    Pomodoros[Consts.PomodorosTodayDataKey] = Vars.PomodorosToday;
-    chrome.storage.sync.set(Pomodoros, function () {
-        console.log('PomodorosToday is set to ' + JSON.stringify(Pomodoros));
-    });
 
-    Vars.PomoSetCounter++; //Updae set counter
+    Vars.PomoSetCounter++; //Update set counter
 
     if (setComplete) {
         title = "Pomodoro Set Complete!";
@@ -689,10 +692,11 @@ function duringBreak() {
 
 //runs when Break session ends
 function breakEnds() {
+    var onManualTakeBreak = Vars.onManualTakeBreak
     stopTimer();
     var msg;
     if (Vars.PomoSetCounter == Vars.UserData.PomoSetNum) {
-        msg = Vars.onManualTakeBreak ? "Break is 0ver" : "Long Break is over";
+        msg = onManualTakeBreak ? "Break is 0ver" : "Long Break is over";
         pomoReset();
         if (Vars.UserData.LongBreakNotify) {
             notifyHabitica(msg);
@@ -768,14 +772,14 @@ function stopTimer() {
     Vars.TimerRunnig = false;
     Vars.onBreak = false;
     Vars.onBreakExtension = false;
+    Vars.onManualTakeBreak = false;
 
 }
 
 //Stop timer - reset to start position
 function pomoReset() {
-    stopTimer()
+    stopTimer();
     Vars.PomoSetCounter = 0; //Reset Pomo set Count
-    Vars.onManualTakeBreak = false;
 }
 
 //End pomodoro and start a break

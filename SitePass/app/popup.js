@@ -9,6 +9,8 @@ var CurrentTabHostname;
 
 //----- on popup load -----//
 document.addEventListener("DOMContentLoaded", function () {
+   
+    background.FetchHabiticaData(true); //Fetch Habitica basic data when opening the popup
 
     getCurrentTabUrl(function (url) {
         CurrentTabHostname = new URL(url).hostname;
@@ -448,6 +450,9 @@ function updateTimerDisplay(){
     }else{
         $("#Time").attr("data-pomodoros-set",Vars.PomoSetCounter+"/"+Vars.UserData.PomoSetNum);
     }
+
+    $("#PomoButton").attr("data-pomodoros",Vars.PomodorosToday.value);
+
     var time = Vars.Timer.split(':');
     //var seconds = parseInt(time[0])*60+parseInt(time[1]);
     //var duration = Vars.UserData.PomoDurationMins*60;
@@ -497,7 +502,6 @@ function updateTimerDisplay(){
         $('#pomodoro').css("color", "#36205D");
         tomatoSetClass("tomatoWait"); 
         $("#SiteTable tbody").toggleClass('blocked',false);
-        $("#PomoButton").attr("data-pomodoros",Vars.PomodorosToday.value);
         $("#PomoStop").hide();
         $("#SkipToBreak").hide();
         

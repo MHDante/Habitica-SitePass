@@ -76,11 +76,26 @@ document.addEventListener("DOMContentLoaded", function () {
         updateCredentials();
         Vars.EditingSettings = false;
     });
+    
+    //Take manual break in quick settings
+    $("#quickSet-takeBreak").click(function () {
+        background.takeBreak($("#quickSet-takeBreakDuration").val());
+        $("#pomodoroSettings").hide();
+        $("#pomodoro").show();
+        Vars.EditingSettings = false;
+    });
 
     //Pomodoro X button (stop pomodoro during break)
     $("#PomoStop").click(function () {
         background.pomoReset();
     });
+
+    //Pomodoro >> skip to break button
+    $("#SkipToBreak").click(function () {
+        background.skipToBreak();
+    });
+
+
     
     //Refresh stats button
     $("#RefreshStats").click(function () {
@@ -105,6 +120,7 @@ document.addEventListener("DOMContentLoaded", function () {
         $(".edit").hide();
         $(".delete").hide();
     }
+
     if(!Vars.UserData.ConnectHabitica){
         $(".habitica-setting").fadeTo( "slow" , 0.3);
         $(".buy").hide();
@@ -278,6 +294,7 @@ function CredentialFields() {
     $("#MuteBlockedSites").prop('checked',Vars.UserData.MuteBlockedSites);
     $("#TranspartOverlay").prop('checked',Vars.UserData.TranspartOverlay);
     $("#TickSound").prop('checked',Vars.UserData.TickSound);
+    $("#showSkipToBreak").prop('checked',Vars.UserData.showSkipToBreak);
 
     //Update Pomodoros Today, reset on new day
     today = new Date().setHours(0,0,0,0);
@@ -316,6 +333,7 @@ function CredentialFields() {
     $("#MuteBlockedSites").click(function () { updateCredentials(); });
     $("#TranspartOverlay").click(function () { updateCredentials(); });
     $("#TickSound").click(function () { updateCredentials(); });
+    $("#showSkipToBreak").click(function () { updateCredentials(); });
     
     //ugh.
 
@@ -420,11 +438,16 @@ function updateCredentials() {
     Vars.UserData.MuteBlockedSites = $("#MuteBlockedSites").prop('checked');
     Vars.UserData.TranspartOverlay = $("#TranspartOverlay").prop('checked');
     Vars.UserData.TickSound = $("#TickSound").prop('checked');
+    Vars.UserData.showSkipToBreak = $("#showSkipToBreak").prop('checked');
 }
 
 function updateTimerDisplay(){
     $('#Time').html(Vars.Timer);
-    $("#Time").attr("data-pomodoros-set",Vars.PomoSetCounter+"/"+Vars.UserData.PomoSetNum);
+    if(Vars.onManualTakeBreak){
+        $("#Time").attr("data-pomodoros-set","");
+    }else{
+        $("#Time").attr("data-pomodoros-set",Vars.PomoSetCounter+"/"+Vars.UserData.PomoSetNum);
+    }
     var time = Vars.Timer.split(':');
     //var seconds = parseInt(time[0])*60+parseInt(time[1]);
     //var duration = Vars.UserData.PomoDurationMins*60;
@@ -434,7 +457,10 @@ function updateTimerDisplay(){
         $('#pomodoro').css("background-color", "red");
         $('#pomodoro').css("color", "coral");
         tomatoSetClass("tomatoWarning");
-        $("#PomoStop").show();
+        if(!Vars.onManualTakeBreak){
+            $("#PomoStop").show();
+        }
+        $("#SkipToBreak").hide();
     }
     else if(Vars.onBreak){
         $("#QuickSettings").hide();
@@ -448,7 +474,10 @@ function updateTimerDisplay(){
             $('#pomodoro').css("color", "lightgreen");
             tomatoSetClass("tomatoWin");
         }
-        $("#PomoStop").show();
+        if(!Vars.onManualTakeBreak){
+            $("#PomoStop").show();
+        }
+        $("#SkipToBreak").hide();
         $("#SiteTable tbody").toggleClass('blocked',false);
     }
     else if(Vars.TimerRunnig){ //---Pomodoro running---
@@ -459,6 +488,9 @@ function updateTimerDisplay(){
         $("#SiteTable tbody").toggleClass('blocked',true);
         $("#PomoStop").hide();
         $("#QuickSettings").hide();
+        if(Vars.UserData.showSkipToBreak){
+            $("#SkipToBreak").show();
+        } 
     }else{ //---pomodoro not running---
         $("#QuickSettings").show();
         $('#pomodoro').css("background-color", "#2995CD")
@@ -467,6 +499,7 @@ function updateTimerDisplay(){
         $("#SiteTable tbody").toggleClass('blocked',false);
         $("#PomoButton").attr("data-pomodoros",Vars.PomodorosToday.value);
         $("#PomoStop").hide();
+        $("#SkipToBreak").hide();
         
     }
 }

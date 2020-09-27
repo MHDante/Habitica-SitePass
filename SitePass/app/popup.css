@@ -295,6 +295,25 @@ a{
 #PomoStop:hover{
 color:white;
 }
+
+#SkipToBreak:hover + .tomatoProgress {
+    background-image: url(img/pomodoroBreak.png);
+}
+#SkipToBreak:hover + .tomatoWin:after{
+    content: "";
+}
+
+
+#SkipToBreak{
+    display: block;
+    width: 10px;
+    cursor: pointer;
+    position: absolute;
+}
+#SkipToBreak:hover{
+color:white;
+}
+
 #QuickSettings{
     /* background-image: url(img/settings.png); */
     background-image: url(img/settings_hover.png);
@@ -371,7 +390,7 @@ color:white;
 }
 #Time:after {
     content: attr(data-pomodoros-set);
-    font-size: 9px;
+    font-size: 11px !important;
     display: inline-block;
     position: absolute;
     right: 0;
@@ -445,7 +464,15 @@ color:white;
     display:none;
     text-align: left; 
     color: rgb(54, 32, 93);
-    line-height: 22px;
+    line-height: 25px;
+}
+label.takeBreakText {
+    color: #edecee;
+    line-height: 36px;
+}
+#quickSet-takeBreak:hover{
+    cursor: pointer;
+    color: gold;
 }
 #AdvSettings input{
     visibility: hidden;

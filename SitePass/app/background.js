@@ -58,7 +58,8 @@ var Vars = {
     TimerRunnig: false,
     onBreak: false,
     onBreakExtension: false,
-    PomoSetCounter: 0
+    PomoSetCounter: 0,
+    onManualTakeBreak: false
 };
 
 
@@ -94,6 +95,7 @@ function UserSettings(copyFrom) {
     this.MuteBlockedSites = copyFrom ? copyFrom.MuteBlockedSites : true;
     this.TranspartOverlay = copyFrom ? copyFrom.TranspartOverlay : true;
     this.TickSound = copyFrom ? copyFrom.TickSound : false;
+    this.showSkipToBreak = copyFrom ? copyFrom.showSkipToBreak : false;
 
     //returns site object or false
     this.GetBlockedSite = function (hostname) {
@@ -596,7 +598,7 @@ function pomodoroEnds() {
     var msg = "Pomodoro ended." + "\n" + "You have done " + Vars.PomodorosToday.value + " today!"; //default msg if habit not enabled
     var setComplete = Vars.PomoSetCounter >= Vars.UserData.PomoSetNum - 1;
     //If Pomodoro / Pomodoro Set Habit + is enabled
-    if (Vars.UserData.PomoHabitPlus || (setComplete && Vars.UserData.PomoSetHabitPlus)) {
+    if ((Vars.UserData.PomoHabitPlus || (setComplete && Vars.UserData.PomoSetHabitPlus)) && !noReward) {
         FetchHabiticaData(true);
         var result = (setComplete && Vars.UserData.PomoSetHabitPlus) ? ScoreHabit(Vars.PomodoroSetTaskId, 'up') : ScoreHabit(Vars.PomodoroTaskId, 'up');
         if (!result.error) {
@@ -656,6 +658,16 @@ function startBreak() {
     startTimer(duration, duringBreak, breakEnds);
 }
 
+//take manual break (in popup quick setting) - duration in seconds
+function takeBreak(duration) {
+    stopTimer();
+    Vars.PomoSetCounter = Vars.UserData.PomoSetNum;
+    Vars.onManualTakeBreak = true;
+    Vars.TimerRunnig = true;
+    Vars.onBreak = true;
+    startTimer(60 * duration, duringBreak, breakEnds);
+}
+
 //start break session - duration in seconds
 function manualBreak() {
     stopTimer();
@@ -680,10 +692,10 @@ function breakEnds() {
     stopTimer();
     var msg;
     if (Vars.PomoSetCounter == Vars.UserData.PomoSetNum) {
-        msg = "Long Break is over";
+        msg = Vars.onManualTakeBreak ? "Break is 0ver" : "Long Break is over";
         pomoReset();
         if (Vars.UserData.LongBreakNotify) {
-            notifyHabitica("Long Break is over");
+            notifyHabitica(msg);
         }
     } else {
         msg = "Back to work";
@@ -763,6 +775,19 @@ function stopTimer() {
 function pomoReset() {
     stopTimer()
     Vars.PomoSetCounter = 0; //Reset Pomo set Count
+    Vars.onManualTakeBreak = false;
+}
+
+//End pomodoro and start a break
+function skipToBreak() {
+    stopTimer();
+    var title = "Time's Up";
+    var msg = "Take a break";
+    Vars.PomoSetCounter++; //Updae set counter
+    startBreak(); 
+    
+    //notify
+    notify(title, msg);
 }
 
 //Create Chrome Notification

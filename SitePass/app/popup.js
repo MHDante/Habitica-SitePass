@@ -453,9 +453,9 @@ function updateTimerDisplay(){
 
     $("#PomoButton").attr("data-pomodoros",Vars.PomodorosToday.value);
 
-    var time = Vars.Timer.split(':');
-    //var seconds = parseInt(time[0])*60+parseInt(time[1]);
-    //var duration = Vars.UserData.PomoDurationMins*60;
+    // var time = Vars.Timer.split(':');
+    // var seconds = parseInt(time[0])*60+parseInt(time[1]);
+    // var duration = Vars.UserData.PomoDurationMins*60;
 
     if(Vars.onBreakExtension){
         $("#QuickSettings").hide();
@@ -481,6 +481,8 @@ function updateTimerDisplay(){
         }
         if(!Vars.onManualTakeBreak){
             $("#PomoStop").show();
+        }else{
+            $("#PomoStop").hide();
         }
         $("#SkipToBreak").hide();
         $("#SiteTable tbody").toggleClass('blocked',false);
@@ -495,6 +497,8 @@ function updateTimerDisplay(){
         $("#QuickSettings").hide();
         if(Vars.UserData.showSkipToBreak){
             $("#SkipToBreak").show();
+        }else{
+            $("#SkipToBreak").hide(); 
         } 
     }else{ //---pomodoro not running---
         $("#QuickSettings").show();

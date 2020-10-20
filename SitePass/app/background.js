@@ -39,7 +39,6 @@ var Consts = {
 };
 
 var Vars = {
-    EditingSettings: false,
     RewardTask: Consts.RewardTemplate,
     PomodoroTaskId: null,
     PomodoroSetTaskId: null,
@@ -340,7 +339,7 @@ function getData(silent, credentials, serverPath) {
         chrome.notifications.create(Consts.NotificationId, {
                 type: "basic",
                 iconUrl: "img/icon.png",
-                title: "Habitica SitePass Credentials Error",
+                title: "Habitica Credentials Error",
                 message: "Click on the extension icon at the top right of your browser to set your credentials."
             },
             function () {});
@@ -350,7 +349,7 @@ function getData(silent, credentials, serverPath) {
             chrome.notifications.create(Consts.NotificationId, {
                     type: "basic",
                     iconUrl: "img/icon.png",
-                    title: "Habitica SitePass Connection Error",
+                    title: "Habitica Connection Error",
                     message: "The service might be temporarily unavailable. Contact the developer if it persists. Error =" +
                         xhr.status
                 },

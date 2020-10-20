@@ -5,11 +5,11 @@ var background = chrome.extension.getBackgroundPage();
 console.log(background);
 var Vars = background.Vars;
 var Consts = background.Consts;
-var CurrentTabHostname; 
+var CurrentTabHostname;
 
 //----- on popup load -----//
 document.addEventListener("DOMContentLoaded", function () {
-   
+
     background.FetchHabiticaData(true); //Fetch Habitica basic data when opening the popup
 
     getCurrentTabUrl(function (url) {
@@ -17,7 +17,7 @@ document.addEventListener("DOMContentLoaded", function () {
         UpdateBlockCommand();
     });
 
-    $("#BlockLink").click(function () {    
+    $("#BlockLink").click(function () {
         var currentSite = Vars.UserData.GetBlockedSite(CurrentTabHostname);
         if (currentSite) removeSite(currentSite);
         else {
@@ -39,25 +39,54 @@ document.addEventListener("DOMContentLoaded", function () {
     $("#Dosh").append(Vars.Monies.toFixed(1));
     $("#MyHp").append(Vars.Hp.toFixed(0));
 
+    //Update Timer display
+    updateTimerDisplay();
+    setInterval(function () {
+        updateTimerDisplay();
+    }, 1000);
+
+    //Credentials Error tip
+    $(".credErrorTip").click(function () { credErrorTipAnimation() });
+
     //Pomodoro Button actions
     $("#PomoButton").click(function () {
-        if(Vars.onBreak && !Vars.TimerRunnig){
+        if (Vars.onBreak && !Vars.TimerRunnig) {
             background.stopTimer();
             background.startBreak();
         }
-        else if(!Vars.TimerRunnig || Vars.onBreak || Vars.onBreakExtension){    
-            if(Vars.PomoSetCounter == Vars.UserData.PomoSetNum){ //Set complete
+        else if (!Vars.TimerRunnig || Vars.onBreak || Vars.onBreakExtension) {
+            if (Vars.PomoSetCounter == Vars.UserData.PomoSetNum) { //Set complete
                 background.pomoReset();
-            }else{//next pomodoro
+            } else {//next pomodoro
                 background.stopTimer();
                 background.startPomodoro();
-            } 
-        }else{
+            }
+        } else {
             background.stopTimer();
-            background.pomodoroInterupted();   
+            background.pomodoroInterupted();
         }
     });
-    
+
+    //Menu
+    $(".menu-item").change(function () {
+        var selected = $(this).find("input");
+        var menu_container = $(this).attr("menu-container-id");
+        $(".menu-item label input").not(selected).attr("checked", false);
+        $(".menu-container").hide();
+        $(".menu-item").removeClass("selected");
+        $("#SaveButton").hide();
+        if ($(selected).is(':checked')) {
+            $("#" + menu_container).fadeIn();
+            $("#SaveButton").slideDown();
+            $(this).addClass("selected");
+        }
+        if (menu_container == "Settings") {
+            $("#SaveButton").html("<span>&#9998;&nbsp;</span>SAVE &nbsp;&nbsp;");
+        } else {
+            $("#SaveButton").html("CLOSE");
+        }
+    });
+
     //Pomodoro Quick Settings
     $("#QuickSettings").click(function () {
         $("#pomodoroSettings").show();
@@ -76,15 +105,13 @@ document.addEventListener("DOMContentLoaded", function () {
         $("#LongBreakDuration").val($("#quickSet-LongBreakDuration").val());
         $("#PomoSetNum").val($("#quickSet-PomoSetNum").val());
         updateCredentials();
-        Vars.EditingSettings = false;
     });
-    
+
     //Take manual break in quick settings
     $("#quickSet-takeBreak").click(function () {
         background.takeBreak($("#quickSet-takeBreakDuration").val());
         $("#pomodoroSettings").hide();
         $("#pomodoro").show();
-        Vars.EditingSettings = false;
     });
 
     //Pomodoro X button (stop pomodoro during break)
@@ -98,52 +125,57 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 
 
-    
     //Refresh stats button
     $("#RefreshStats").click(function () {
         background.FetchHabiticaData();
         location.reload();
     });
 
-    //Update Timer display
-    updateTimerDisplay();
-    setInterval(function () {
-        updateTimerDisplay();
-    }, 1000);
-
     //Vacation Mode Banner
-    if(Vars.UserData.VacationMode){
+    if (Vars.UserData.VacationMode) {
         $(".vacationBanner").show();
     }
+    $("#VacationMode").click(function () {
+        if (Vars.UserData.VacationMode) {
+            $(".vacationBanner").show();
+        } else {
+            $(".vacationBanner").hide();
+        }
+    });
 
     //Hide Edit Options
-    if(Vars.UserData.HideEdit){
+    if (Vars.UserData.HideEdit) {
         $("#BlockLink").hide();
         $(".edit").hide();
         $(".delete").hide();
     }
 
-    if(!Vars.UserData.ConnectHabitica){
-        $(".habitica-setting").fadeTo( "slow" , 0.3);
+    if (!Vars.UserData.ConnectHabitica) {
+        $(".habitica-setting").fadeTo("slow", 0.3);
         $(".buy").hide();
         $(".edit").hide();
+        $("#Footer").hide();
+        $("#CredError").hide();
     }
-    $("#ConnectHabitica").click(function() {
-        if($("#ConnectHabitica").is(':checked')){
-            $(".habitica-setting").fadeTo( "slow" , 1); 
+
+    $("#ConnectHabitica").click(function () {
+        if ($("#ConnectHabitica").is(':checked')) {
+            $(".habitica-setting").fadeTo("slow", 1);
             $(".buy").show();
             $(".edit").show();
-        }else{
-            $(".habitica-setting").fadeTo( "slow" , 0.3);
+            $("#Footer").slideDown();
+        } else {
+            $(".habitica-setting").fadeTo("slow", 0.3);
             $(".buy").hide();
             $(".edit").hide();
+            $("#Footer").slideUp();
         }
     });
 
     //Custome pomodoro habits
     $("#customPomodoroTask").empty();
     $("#customSetTask").empty();
-    for(var i in Vars.PomodoroTaskCustomList){
+    for (var i in Vars.PomodoroTaskCustomList) {
         var title = Vars.PomodoroTaskCustomList[i].title;
         var taskId = Vars.PomodoroTaskCustomList[i].id;
         var option = document.createElement("option");
@@ -165,40 +197,40 @@ function AddSiteToTable(site, fadein) {
     if (cost % 1 != 0) cost = cost.toFixed(2);
 
     var passExpiryElement = "";
-    if(site.passExpiry){
-        var passExpiry =  new Date(site.passExpiry);
-        if(site.passExpiry>Date.now()){
-            var hrs =  passExpiry.getHours();
+    if (site.passExpiry) {
+        var passExpiry = new Date(site.passExpiry);
+        if (site.passExpiry > Date.now()) {
+            var hrs = passExpiry.getHours();
             hrs = hrs < 10 ? "0" + hrs : hrs;
             var min = passExpiry.getMinutes();
             min = min < 10 ? "0" + min : min;
-            passExpiryElement = '<br><span class="passExp">'+ hrs + ":" + min +'</span>'
-        }      
+            passExpiryElement = '<br><span class="passExp">' + hrs + ":" + min + '</span>'
+        }
     }
 
     var tbody = $(document.createElement("tbody"));
     tbody.attr("id", site.hostname);
-    
+
     //Single Blocked wensite UI
     var html =
         '<tr class="reward-item">' +
-            '<td class="gp">' +
-                '<a class="buy" href="#">' +
-                    '<span class="gold_icon"></span><br>' + cost +
-            '</a></td>' +
-            '<td style="width:100%"><div class="hostname">' + site.hostname + passExpiryElement +'</div></td>' +
-            '<td><a class="edit" href="#"><img src="img/pencil.png"></a></td>' +
-            '<td><a class="delete" href="#"><img src="img/trash.png"></a></td>' +
+        '<td class="gp">' +
+        '<a class="buy" href="#">' +
+        '<span class="gold_icon"></span><br>' + cost +
+        '</a></td>' +
+        '<td style="width:100%"><div class="hostname">' + site.hostname + passExpiryElement + '</div></td>' +
+        '<td><a class="edit" href="#"><img src="img/pencil.png"></a></td>' +
+        '<td><a class="delete" href="#"><img src="img/trash.png"></a></td>' +
         '</tr>' +
         '<tr class="cost-input" style="display:none;">' +
-            '<td style="white-space:nowrap;text-align:center;" colspan="4">' +
-                '<label>Cost ' +
-                    '<input class="cost" type="text"maxlength="8" size="8" value="' + site.cost + '">' +
-        '</label></td></tr>'+
+        '<td style="white-space:nowrap;text-align:center;" colspan="4">' +
+        '<label>Cost ' +
+        '<input class="cost" type="text"maxlength="8" size="8" value="' + site.cost + '">' +
+        '</label></td></tr>' +
         '<tr><td></td><tr>';
 
     tbody.html(html);
-    
+
 
     tbody.data("site", site);
     var costRow = tbody.find('.cost-input');
@@ -214,21 +246,23 @@ function AddSiteToTable(site, fadein) {
         tbody.hide();
         tbody.fadeIn();
     }
-    if(!Vars.UserData.ConnectHabitica){
+    if (!Vars.UserData.ConnectHabitica) {
         $(".buy").hide();
-        $(".edit").hide(); 
-        $(".cost-input").hide(); 
+        $(".edit").hide();
+        $(".cost-input").hide();
     }
 }
 
 function Toggle(obj) {
     if ($(obj).is(":visible")) {
-        obj.fadeOut({ complete: function() {
-            $("tbody").each(function () {
-                $(this).find(".buy")
-                    .html('<span class="gold_icon"></span><br>' + $(this).data("site").cost);
-            });
-        } });
+        obj.fadeOut({
+            complete: function () {
+                $("tbody").each(function () {
+                    $(this).find(".buy")
+                        .html('<span class="gold_icon"></span><br>' + $(this).data("site").cost);
+                });
+            }
+        });
     } else {
         obj.fadeIn();
         obj.find("input").select();
@@ -239,33 +273,18 @@ function CostSubmit(r) {
         if (e.which == 13) {
             SaveUserSettings();
             Toggle(r);
-            return false;   
+            return false;
         }
         return true;
     }
 }
 
 function CredentialFields() {
-    var div = $("#Credentials");
-    if (Vars.ServerResponse == 401 && Vars.UserData.ConnectHabitica) {
-        $("#CredError").slideDown(); 
-        div.show();
-    } else {
-        var label = $("#AdvSettings");
-        var checkbox = label.find("input");
-        label.show();
-        checkbox.prop("checked", Vars.EditingSettings);
-        if (checkbox.prop("checked")) div.slideDown();
 
-        checkbox.click(function () {
-            if (checkbox.prop("checked")) div.slideDown();
-            else {
-                div.slideUp();
-                Vars.EditingSettings = false;
-            }
-        });
+    if (Vars.ServerResponse == 401 && Vars.UserData.ConnectHabitica) {
+        $("#CredError").slideDown();
     }
-    
+
     //Come on, Google!
 
     //Set Options according to UserData in background.js
@@ -288,24 +307,23 @@ function CredentialFields() {
     $("#PomoSetHabitPlus").prop('checked', Vars.UserData.PomoSetHabitPlus);
     $("#LongBreakNotify").prop('checked', Vars.UserData.LongBreakNotify);
     $("#VacationMode").prop('checked', Vars.UserData.VacationMode);
-    $("#customPomodoroTaskEnabled").prop('checked',Vars.UserData.CustomPomodoroTask);
-    $("#customSetTaskEnabled").prop('checked',Vars.UserData.CustomSetTask);
+    $("#customPomodoroTaskEnabled").prop('checked', Vars.UserData.CustomPomodoroTask);
+    $("#customSetTaskEnabled").prop('checked', Vars.UserData.CustomSetTask);
     $("#customPomodoroTask").val(Vars.UserData.PomodoroTaskId);
     $("#customSetTask").val(Vars.UserData.PomodoroSetTaskId);
-    $("#ConnectHabitica").prop('checked',Vars.UserData.ConnectHabitica);
-    $("#MuteBlockedSites").prop('checked',Vars.UserData.MuteBlockedSites);
-    $("#TranspartOverlay").prop('checked',Vars.UserData.TranspartOverlay);
-    $("#TickSound").prop('checked',Vars.UserData.TickSound);
-    $("#showSkipToBreak").prop('checked',Vars.UserData.showSkipToBreak);
+    $("#ConnectHabitica").prop('checked', Vars.UserData.ConnectHabitica);
+    $("#MuteBlockedSites").prop('checked', Vars.UserData.MuteBlockedSites);
+    $("#TranspartOverlay").prop('checked', Vars.UserData.TranspartOverlay);
+    $("#TickSound").prop('checked', Vars.UserData.TickSound);
+    $("#showSkipToBreak").prop('checked', Vars.UserData.showSkipToBreak);
 
     //Update Pomodoros Today, reset on new day
-    today = new Date().setHours(0,0,0,0);
-    if(Vars.PomodorosToday.date!= today){
-        Vars.PomodorosToday.value=0;
+    today = new Date().setHours(0, 0, 0, 0);
+    if (Vars.PomodorosToday.date != today) {
+        Vars.PomodorosToday.value = 0;
         Vars.PomodorosToday.date = today;
-    } 
-    $("#PomoButton").attr("data-pomodoros",Vars.PomodorosToday.value);
-     
+    }
+    $("#PomoButton").attr("data-pomodoros", Vars.PomodorosToday.value);
 
     //Update Options on change
     $("#UID").on("keyup", function () { updateCredentials(); });
@@ -323,7 +341,7 @@ function CredentialFields() {
     $("#BreakExtentionNotify").click(function () { updateCredentials(); });
     $("#SoundNotify").click(function () { updateCredentials(); });
     $("#HideEdit").click(function () { updateCredentials(); });
-    $("#PomoSetNum").bind('keyup input change', function(){updateCredentials();});
+    $("#PomoSetNum").bind('keyup input change', function () { updateCredentials(); });
     $("#PomoSetHabitPlus").click(function () { updateCredentials(); });
     $("#LongBreakNotify").click(function () { updateCredentials(); });
     $("#VacationMode").click(function () { updateCredentials(); });
@@ -336,17 +354,18 @@ function CredentialFields() {
     $("#TranspartOverlay").click(function () { updateCredentials(); });
     $("#TickSound").click(function () { updateCredentials(); });
     $("#showSkipToBreak").click(function () { updateCredentials(); });
-    
+
     //ugh.
 
     $("#SaveButton").click(function () {
         updateCredentials();
-        Vars.EditingSettings = false;
+
         //Got over it.
         SaveUserSettings();
         background.FetchHabiticaData();
         location.reload();
     });
+
 }
 
 function CreateDelegate(onclick, param1) {
@@ -361,10 +380,11 @@ function UpdateBlockCommand() {
     var currentSite = Vars.UserData.GetBlockedSite(CurrentTabHostname);
 
     if (currentSite) {
-        $("#BlockLink").html("<span class='unblock_Icon'></span>Un-Block Site!");
+        $("#BlockLink").html("<div class='unBlockSite'><span class='unblock_Icon small_icon'></span>Un-Block Site</div>");
     } else {
-        $("#BlockLink").html("<span class='block_Icon'></span>Block Site!");
+        $("#BlockLink").html("<div class='blockSite'><span class='block_Icon small_icon'></span>Block Site!</div>");
     }
+    updateTimerDisplay();
 }
 
 function SaveUserSettings() {
@@ -383,7 +403,7 @@ function updateSiteCost(siteAndCost) {
 }
 function removeSite(site) {
     var siterow = $(document.getElementById(site.hostname));
-    siterow.fadeOut({ complete: function() {siterow.remove()} });
+    siterow.fadeOut({ complete: function () { siterow.remove() } });
     Vars.UserData.RemoveBlockedSite(site.hostname);
     SaveUserSettings();
     getCurrentTabUrl(function (url) {
@@ -403,7 +423,7 @@ function getCurrentTabUrl(callback) {
     });
 }
 function updateCredentials() {
-    Vars.EditingSettings = true;
+
     Vars.UserData.Credentials.uid = $("#UID").val();
     Vars.UserData.Credentials.apiToken = $("#APIToken").val();
 
@@ -416,9 +436,9 @@ function updateCredentials() {
     if (!isNaN(brDuration)) Vars.UserData.BreakDuration = brDuration;
     var exDuration = parseFloat($("#BreakExtention").val());
     if (!isNaN(exDuration)) Vars.UserData.BreakExtention = exDuration;
-    var pomoNum = parseFloat($("#PomoSetNum").val()); 
+    var pomoNum = parseFloat($("#PomoSetNum").val());
     if (!isNaN(pomoNum)) Vars.UserData.PomoSetNum = pomoNum;
-    var longBr = parseFloat($("#LongBreakDuration").val()); 
+    var longBr = parseFloat($("#LongBreakDuration").val());
     if (!isNaN(longBr)) Vars.UserData.LongBreakDuration = longBr;
 
     Vars.UserData.PomoHabitPlus = $("#PomoHabitPlus").prop('checked');
@@ -443,80 +463,93 @@ function updateCredentials() {
     Vars.UserData.showSkipToBreak = $("#showSkipToBreak").prop('checked');
 }
 
-function updateTimerDisplay(){
+function updateTimerDisplay() {
     $('#Time').html(Vars.Timer);
-    if(Vars.onManualTakeBreak){
-        $("#Time").attr("data-pomodoros-set","");
-    }else{
-        $("#Time").attr("data-pomodoros-set",Vars.PomoSetCounter+"/"+Vars.UserData.PomoSetNum);
+    if (Vars.onManualTakeBreak) {
+        $("#Time").attr("data-pomodoros-set", "");
+    } else {
+        $("#Time").attr("data-pomodoros-set", Vars.PomoSetCounter + "/" + Vars.UserData.PomoSetNum);
     }
 
-    $("#PomoButton").attr("data-pomodoros",Vars.PomodorosToday.value);
+    $("#PomoButton").attr("data-pomodoros", Vars.PomodorosToday.value);
 
-    // var time = Vars.Timer.split(':');
-    // var seconds = parseInt(time[0])*60+parseInt(time[1]);
-    // var duration = Vars.UserData.PomoDurationMins*60;
-
-    if(Vars.onBreakExtension){
+    if (Vars.onBreakExtension) { //---On Break Extension---
         $("#QuickSettings").hide();
+        $(".unBlockSite").show();
         $('#pomodoro').css("background-color", "red");
         $('#pomodoro').css("color", "coral");
         tomatoSetClass("tomatoWarning");
-        if(!Vars.onManualTakeBreak){
+        if (!Vars.onManualTakeBreak) {
             $("#PomoStop").show();
         }
         $("#SkipToBreak").hide();
     }
-    else if(Vars.onBreak){
+    else if (Vars.onBreak) {
+        $(".unBlockSite").show();
         $("#QuickSettings").hide();
-        if(Vars.TimerRunnig){ //---On Break---
+        if (Vars.TimerRunnig) { //---On Break---
             $('#pomodoro').css("background-color", "cornflowerblue");
             $('#pomodoro').css("color", "aqua");
             tomatoSetClass("tomatoBreak");
         }
-        else{//---Manual Break---
+        else {//---Manual Break---
             $('#pomodoro').css("background-color", "green");
             $('#pomodoro').css("color", "lightgreen");
             tomatoSetClass("tomatoWin");
         }
-        if(!Vars.onManualTakeBreak){
-            $("#PomoStop").show();
-        }else{
+        if (!Vars.onManualTakeBreak) {
+            $("#PomoStop").fadeIn();
+        } else {
             $("#PomoStop").hide();
         }
         $("#SkipToBreak").hide();
-        $("#SiteTable tbody").toggleClass('blocked',false);
+        $("#SiteTable tbody").toggleClass('blocked', false);
     }
-    else if(Vars.TimerRunnig){ //---Pomodoro running---
-        $("#QuickSettings").show();
-        $('#pomodoro').css("background-color", "green"); 
+    else if (Vars.TimerRunnig) { //---Pomodoro running---
+        $(".unBlockSite").hide();
+        $('#pomodoro').css("background-color", "green");
         $('#pomodoro').css("color", "lightgreen");
         tomatoSetClass("tomatoProgress");
-        $("#SiteTable tbody").toggleClass('blocked',true);
+        $("#SiteTable tbody").toggleClass('blocked', true);
         $("#PomoStop").hide();
         $("#QuickSettings").hide();
-        if(Vars.UserData.showSkipToBreak){
+
+        if (Vars.UserData.showSkipToBreak) {
             $("#SkipToBreak").show();
-        }else{
-            $("#SkipToBreak").hide(); 
-        } 
-    }else{ //---pomodoro not running---
+        } else {
+            $("#SkipToBreak").hide();
+        }
+    } else { //---pomodoro not running---
+        $(".unBlockSite").show();
         $("#QuickSettings").show();
         $('#pomodoro').css("background-color", "#2995CD")
         $('#pomodoro').css("color", "#36205D");
-        tomatoSetClass("tomatoWait"); 
-        $("#SiteTable tbody").toggleClass('blocked',false);
+        tomatoSetClass("tomatoWait");
+        $("#SiteTable tbody").toggleClass('blocked', false);
         $("#PomoStop").hide();
         $("#SkipToBreak").hide();
-        
     }
 }
 
-var TOMATO_CLASSES = ["tomatoProgress","tomatoWait","tomatoBreak","tomatoWin","tomatoWarning"];
-function tomatoSetClass(className){
-    TOMATO_CLASSES.forEach(function(entry) {
+var TOMATO_CLASSES = ["tomatoProgress", "tomatoWait", "tomatoBreak", "tomatoWin", "tomatoWarning"];
+function tomatoSetClass(className) {
+    TOMATO_CLASSES.forEach(function (entry) {
         $('.tomato').toggleClass(entry, false);
     });
     $('.tomato').toggleClass(className, true);
+}
+
+function credErrorTipAnimation() {
+    $("#MenuSettings label input").prop("checked", true).change();
+    $("#MenuHabiticaSettings").prop("checked", true).change();
+    $('.connect-habitica-animate').animate(
+        {
+            fontSize: "130%"
+        }, 700);
+    $('.connect-habitica-animate').animate(
+        {
+            fontSize: "100%"
+        }, 700);
+
 }
 

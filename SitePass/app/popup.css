@@ -1,12 +1,11 @@
 :root {
     --main-color: #2995CD;
     --secondery-color: #36205D;
-  }
+}
 
 @font-face {
     font-family: 'pixeled';
-    src: url('fonts/pixeled/pixeled-webfont.woff2') format('woff2'),
-         url('fonts/pixeled/pixeled-webfont.woff') format('woff');
+    src: url('fonts/pixeled/pixeled-webfont.woff2') format('woff2'), url('fonts/pixeled/pixeled-webfont.woff') format('woff');
     font-weight: normal;
     font-style: normal;
 }
@@ -14,11 +13,31 @@
 td.gp a {
     text-decoration: none !important;
 }
-input[type="number"]{
+hr {
+    border-color: #ccc!important;
+    border-style: solid;
+    border: none;
+    border-top: 1px solid;
+}
+
+input[type="number"] {
     width: 40px;
 }
 
-:not(#AdvSettings) > input[type=checkbox]:before {
+#CotentContainer {
+    padding-top: 28px;
+}
+
+.menu-label {
+    margin-top: 5px;
+    display: block;
+    margin-right: 10px;
+    font-size: 7px;
+    line-height: 16px;
+    font-family: 'pixeled';
+}
+
+:not(.menu-label)>input[type=checkbox]:before {
     content: "";
     display: block;
     width: 10px;
@@ -26,13 +45,15 @@ input[type="number"]{
     border: 1px solid #878190;
     background-color: #f9f9f9;
     border-radius: 15px;
-    visibility:visible;
+    visibility: visible;
     cursor: pointer;
 }
-:not(#AdvSettings) > input[type=checkbox]:hover:before {
+
+:not(.menu-label)>input[type=checkbox]:hover:before {
     background-color: powderblue;
 }
-:not(#AdvSettings) > input:checked:before {
+
+:not(.menu-label)>input:checked:before {
     content: "\2713";
     color: #878190;
     line-height: 6px;
@@ -40,7 +61,7 @@ input[type="number"]{
     font-weight: bold;
 }
 
-input[type=checkbox]{
+input[type=checkbox] {
     visibility: hidden;
 }
 
@@ -48,10 +69,12 @@ label {
     display: inline-block;
     margin-top: 3px;
 }
+
 input[type="checkbox"] {
     vertical-align: middle;
     margin-bottom: 4px;
 }
+
 td {
     padding: 5px;
 }
@@ -62,17 +85,24 @@ table {
 }
 
 body {
-    width: 260px;
+    width: 364px;
     height: 450px;
-    border-collapse:collapse;
-    display : table;
+    border-collapse: collapse;
     font-family: Helvetica, Arial, sans-serif;
     font-size: 14px;
-    /* background: #f2f5f6; */
-    background:#EDECEE;
-    color:#878190;
+    background: #EDECEE;
+    color: #878190;
     -webkit-backface-visibility: hidden;
 }
+
+/* @media only screen and (min-width: 400px) {
+    body {
+        width: 95%;
+        margin-left:auto;
+        margin-right:auto;
+    }
+  } */
+
 .footer_icons {
     margin: 0;
     font-family: 'pixeled';
@@ -82,6 +112,7 @@ body {
     vertical-align: middle;
     line-height: 17pt;
 }
+
 .reward-item {
     background-color: #36205D;
     color: #00BCD4;
@@ -92,16 +123,19 @@ body {
 .hostname {
     overflow: hidden;
     width: 130px;
-    padding-left:4px;
+    padding-left: 4px;
 }
+
 .cost-input {
     background-color: #00BCD4;
     color: #36205D;
 }
-a{
-    color:#36205D;
+
+a {
+    color: #36205D;
 }
-.warning_icon{
+
+.warning_icon {
     background-image: url(img/warning.png);
     background-repeat: no-repeat;
     width: 24px;
@@ -113,6 +147,7 @@ a{
     margin-bottom: 0px;
     background-position: 0;
 }
+
 .gold_icon {
     background-image: url(img/coin.png);
     background-repeat: no-repeat;
@@ -124,6 +159,7 @@ a{
     display: inline-block;
     background-position: 0;
 }
+
 .hp_icon {
     background-image: url(img/heart.png);
     background-repeat: no-repeat;
@@ -135,12 +171,13 @@ a{
     display: inline-block;
     background-position: 0;
 }
+
 .refresh_icon {
     background-image: url(img/refresh.png);
     background-repeat: no-repeat;
     width: 25px;
     height: 25px;
-    margin-right: 15px;
+    margin-right: 5px;
     margin-left: 2px;
     vertical-align: top;
     display: inline-block;
@@ -148,40 +185,96 @@ a{
     float: right;
     cursor: pointer;
 }
-.links{
-    color:#878190;
-    font-size: 12px;
+
+div#RefreshStats {
+    float: right;
 }
-.bug_icon,.help_icon,.rate_icon,.donate_icon,.block_Icon,.unblock_Icon {
+
+.links, .links a {
+    color: #878190;
+}
+
+.small_icon {
     background-repeat: no-repeat;
     width: 16px;
     height: 16px;
+    background-size: 16px;
     margin-right: 2px;
     margin-left: 2px;
     vertical-align: top;
     display: inline-block;
     background-position: 0;
 }
-.block_Icon{
+
+.donate_icon {
+    width: 19px;
+    height: 19px;
+    background-size: 19px;
+    margin-top: -2px;
+}
+
+.menu-item .small_icon {
+    margin-left: -10px;
+    padding-right: 5px;
+}
+
+.block_Icon {
     background-image: url(img/stop.png);
     margin-right: 6px;
 }
-.unblock_Icon{
+
+.unblock_Icon {
     background-image: url(img/tick.png);
     margin-right: 6px;
 }
+
 .bug_icon {
     background-image: url(img/bug.png);
 }
-.help_icon{
+
+.settings_icon {
+    background-image: url(img/settings.png);
+}
+
+.history_icon {
+    background-image: url(img/history.png);
+}
+
+.help_icon {
     background-image: url(img/question.png);
 }
-.rate_icon{
+
+.help_icon.tooltip {
+    background-size: 12px;
+}
+
+.rate_icon {
     background-image: url(img/star.png);
 }
-.donate_icon{
-    background-image: url(img/like.png);
+
+.donate_icon {
+    background-image: url(img/coffee.png);
 }
+
+.habitica_small_icon {
+    background-image: url(img/habitica_small.png);
+}
+
+.habitica_small_icon.small_icon, .help_icon.tooltip {
+    margin-top: 3px;
+    margin-right: 5px;
+}
+
+.habitica_small_icon.small_icon:hover:after {
+    content: "Requires Habitica connection"
+}
+
+.donate_btn_icon {
+    background-image: url(img/Coffee_btn.png);
+    margin-left: -5px;
+    margin-top: 2px;
+}
+
 .habitica_icon {
     background-image: url(img/habitica.png);
     background-repeat: no-repeat;
@@ -194,10 +287,15 @@ a{
     background-position: 0;
     margin-top: -1px;
 }
+
+#Footer a {
+    text-decoration: none;
+}
+
 .gp {
     width: auto;
     height: 100%;
-    min-height: 46px;
+    min-height: 50px;
     text-align: center;
     vertical-align: top;
     background-color: var(--main-color);
@@ -206,7 +304,8 @@ a{
     line-height: 1.5em;
     border: none;
 }
-.setting-header{
+
+.setting-header {
     line-height: 5px;
     color: #36205D;
     font-weight: bold;
@@ -215,8 +314,8 @@ a{
     padding: 9px;
     border-radius: 7px;
 }
+
 .tomato {
-    
     width: 100px;
     height: 70px;
     vertical-align: top;
@@ -227,16 +326,19 @@ a{
     margin-left: -20px;
     cursor: pointer;
 }
-.tomatoProgress{
+
+.tomatoProgress {
     background-image: url(img/pomodoroProgress.png);
 }
 
-.tomatoProgress:hover{
+.tomatoProgress:hover {
     background-image: url(img/pomodoroQuit.png);
 }
-.tomatoWait{
+
+.tomatoWait {
     background-image: url(img/pomodoroWait.png);
 }
+
 .tomatoWait:not(:hover):after {
     content: attr(data-pomodoros);
     display: inline-block;
@@ -247,21 +349,26 @@ a{
     font-size: 11px;
 }
 
-.tomatoWait:hover{
+.tomatoWait:hover {
     background-image: url(img/pomodoroStart.png);
 }
-.tomatoBreak{
+
+.tomatoBreak {
     background-image: url(img/pomodoroBreak.png);
 }
-.tomatoBreak:hover{
+
+.tomatoBreak:hover {
     background-image: url(img/pomodoroStart.png);
 }
-.tomatoWin{
+
+.tomatoWin {
     background-image: url(img/pomodoroWin.png);
 }
-.tomatoWin:hover{
+
+.tomatoWin:hover {
     background-image: url(img/pomodoroBreak.png);
 }
+
 .tomatoWin:not(:hover):after {
     content: attr(data-pomodoros);
     display: inline-block;
@@ -270,53 +377,58 @@ a{
     top: -30px;
     left: 20px;
     font-size: 11px;
-    color:black;
+    color: black;
 }
-.tomatoWarning{
+
+.tomatoWarning {
     background-image: url(img/pomodoroWarning.png);
 }
-.tomatoWarning:hover{
+
+.tomatoWarning:hover {
     background-image: url(img/pomodoroStart.png);
 }
-#PomoStop:hover + .tomatoBreak, #PomoStop:hover + .tomatoWin{
+
+#PomoStop:hover+.tomatoBreak, #PomoStop:hover+.tomatoWin {
     background-image: url(img/pomodoroProtectStop.png);
 }
-#PomoStop:hover + .tomatoWin:after{
+
+#PomoStop:hover+.tomatoWin:after {
     content: "";
 }
 
-
-#PomoStop{
+#PomoStop {
     display: block;
     width: 10px;
     cursor: pointer;
     position: absolute;
 }
-#PomoStop:hover{
-color:white;
+
+#PomoStop:hover {
+    color: white;
 }
 
-#SkipToBreak:hover + .tomatoProgress {
+#SkipToBreak:hover+.tomatoProgress {
     background-image: url(img/pomodoroBreak.png);
 }
-#SkipToBreak:hover + .tomatoWin:after{
+
+#SkipToBreak:hover+.tomatoWin:after {
     content: "";
 }
 
-
-#SkipToBreak{
+#SkipToBreak {
     display: block;
     width: 10px;
     cursor: pointer;
     position: absolute;
-}
-#SkipToBreak:hover{
-color:white;
+    letter-spacing: -7px;
 }
 
-#QuickSettings{
-    /* background-image: url(img/settings.png); */
-    background-image: url(img/settings_hover.png);
+#SkipToBreak:hover {
+    color: white;
+}
+
+#QuickSettings {
+    background-image: url(img/quickSettings.png);
     background-size: 18px;
     background-repeat: no-repeat;
     background-position: center;
@@ -326,14 +438,23 @@ color:white;
     width: 24px;
     height: 24px;
     margin-left: -5px;
-    margin-top: -5px;
-}
-#QuickSettings:hover{
-    background-image: url(img/settings_hover.png);
-    background-size: 24px;
+    margin-top: -3px;
 }
 
-.blocked:before{
+#QuickSettings:hover {
+    background-size: 21px;
+}
+
+#QuickSettings:hover:after {
+    content: "Quick Setup";
+    margin-left: 13px;
+    top: 1px;
+    font-weight: bold;
+    position: absolute;
+    font-size: 11px;
+}
+
+.blocked:before {
     content: "";
     text-align: center;
     font-size: 24px;
@@ -347,47 +468,57 @@ color:white;
     position: absolute;
     background-image: url(img/chainLock.png);
     background-repeat: no-repeat;
+    background-position-x: center;
 }
-.setting-note{
+
+.blocked {
+    height: 62px;
+}
+
+.setting-note {
     color: gray;
     font-size: 12px;
     display: inline-block;
     margin: 7px;
 }
-.setting-note a{
+
+.setting-note a {
     color: gray;
 }
+
 #pomodoro {
     background-color: var(--main-color);
     padding: 10px;
     text-align: center;
     margin: auto;
-    margin-top: 10px;
     width: 100%;
     margin-left: -7px;
     webkit-box-shadow: 0 2px 2px 0 rgba(26, 24, 29, 0.16), 0 1px 4px 0 rgba(26, 24, 29, 0.12);
-     box-shadow: 0 2px 2px 0 rgba(26, 24, 29, 0.16), 0 1px 4px 0 rgba(26, 24, 29, 0.12);
+    box-shadow: 0 2px 2px 0 rgba(26, 24, 29, 0.16), 0 1px 4px 0 rgba(26, 24, 29, 0.12);
 }
+
 #pomodoroSettings {
     background-color: var(--main-color);
     padding: 10px !important;
     text-align: center;
     margin: auto;
-    margin-top: 10px;
     width: 100%;
     margin-left: -10px;
     webkit-box-shadow: 0 2px 2px 0 rgba(26, 24, 29, 0.16), 0 1px 4px 0 rgba(26, 24, 29, 0.12);
-     box-shadow: 0 2px 2px 0 rgba(26, 24, 29, 0.16), 0 1px 4px 0 rgba(26, 24, 29, 0.12);
+    box-shadow: 0 2px 2px 0 rgba(26, 24, 29, 0.16), 0 1px 4px 0 rgba(26, 24, 29, 0.12);
 }
-#Time{
+
+#Time {
     font-size: 24px;
     /* top: 17px; */
     font-weight: bold;
     position: relative;
-    font-family: 'pixeled',Arial, sans-serif;
+    font-family: 'pixeled', Arial, sans-serif;
     width: 100px;
     display: inline-block;
+    margin-left: 20px;
 }
+
 #Time:after {
     content: attr(data-pomodoros-set);
     font-size: 11px !important;
@@ -397,17 +528,64 @@ color:white;
     margin-left: 4px;
     top: -8px;
 }
-#Footer {
-    display : table-row;
-    vertical-align : bottom;
-    height : 1px;
+
+#MenuContainer {
+    width: 100%;
+    position: fixed;
+    background-color: #edecee;
+    left: 0;
+    top: 0;
+    z-index: 999;
+    border-bottom: 1px solid #ccc;
 }
+
+label.menu-label {
+    padding: 5px 0;
+}
+
+div#Menu {
+    display: table;
+    width: 100%;
+}
+
+.menu-item {
+    display: table-cell;
+    text-align: center;
+    -webkit-transition: background-color 200ms linear;
+    -ms-transition: background-color 200ms linear;
+    transition: background-color 200ms linear;
+}
+
+.menu-item.selected {
+    background-color: #fafafa;
+}
+
+.menu-item * {
+    cursor: pointer;
+}
+
+.menu-item:not(#MenuDonate) {
+    border-right: 1px solid #ccc;
+}
+
+.menu-item:hover {
+    border-bottom: 3px solid #878190;
+}
+
+.menu-container {
+    margin-top: 10px;
+    padding-top: 25px;
+    padding-bottom: 10px;
+    margin-bottom: 10px;
+}
+
 #SiteTable {
     width: 100%
 }
+
 #CredError {
     display: none;
-    color: gold;
+    color: beige;
     line-height: 21px;
     font-weight: 100;
     font-size: 14px;
@@ -415,24 +593,30 @@ color:white;
     padding-left: 4px;
     margin: 3px;
     padding: 6px;
-    background-color: red;
+    background-color: indianred;
     border-radius: 7px;
-
+    text-align: center;
+    margin-top: 10px;
+    margin-bottom: 10px;
 }
-#AdvSettings {
-    display: none;
+
+#CredError a {
+    text-decoration: underline;
+    color: beige;
     cursor: pointer;
 }
 
-#Credentials {
+#Settings {
     display: none;
 }
+
 .comingSoon {
     background-color: lemonchiffon;
     border: 2px solid gray;
     padding: 2px;
     opacity: 0.7;
 }
+
 .comingSoon:before {
     content: "- Coming Soon -";
     display: inline-block;
@@ -446,75 +630,89 @@ color:white;
     margin-top: 5px;
     margin-bottom: 5px;
 }
-#SaveButton,#quickSave{
+
+button#SaveButton {
+    font-family: "pixeled";
+    font-size: 8px;
+    display: none;
+    position: fixed;
+    background-color: #878190;
+    width: 100%;
+    height: 30px;
+    cursor: pointer;
+    color: white;
+    border: none;
+    border-radius: 0px;
+    left: 0;
+    z-index: 999;
+    top: 37px;
+}
+
+button#SaveButton span {
+    font-size: 16px;
+    height: 8px;
+    line-height: 8px;
+}
+
+#quickSave {
     background-color: gold;
     width: 100%;
     cursor: pointer;
     border: 1px solid gray;
     border-radius: 5px;
 }
-#SaveButton:hover,#quickSave:hover{
-    background-color:#ffe764;
+
+#quickSave:hover {
+    background-color: #ffe764;
 }
 
-#quickSave{
-    margin-top:10px;
+#quickSave {
+    margin-top: 10px;
 }
-#pomodoroSettings{
-    display:none;
-    text-align: left; 
+
+#pomodoroSettings {
+    display: none;
+    text-align: left;
     color: rgb(54, 32, 93);
     line-height: 25px;
 }
+
 label.takeBreakText {
     color: #edecee;
     line-height: 36px;
 }
-#quickSet-takeBreak:hover{
+
+#quickSet-takeBreak:hover {
     cursor: pointer;
     color: gold;
 }
-#AdvSettings input{
+
+.menu-item label input {
     visibility: hidden;
 }
-#AdvSettings input:before{
-    visibility:visible;
-    content: "";
+
+#BlockLink {
+    width: 100%;
     display: block;
-    position: absolute;
-    border: solid var(--secondery-color);
-    border-width: 0 3px 3px 0;
-    display: inline-block;
-    padding: 3px;
-    transform: rotate(45deg);
-    -webkit-transform: rotate(45deg);
-    margin-left: -3px;
-    margin-top: 0px;
-
+    text-decoration: none !important;
 }
-#AdvSettings input:checked:before{
-    transform: rotate(-135deg);
-    -webkit-transform: rotate(-135deg);
-    margin-top: 3px;
 
-}
-/* #AdvSettings:hover input:checked:before {
-    content: "Don't Forget to Save!";
-    display: inline-block;
-    width: 208px;
-    top: -31px;
-    position: relative;
-    font-size: 10px;
-    background-color: gold;
+#BlockLink .blockSite, #BlockLink .unBlockSite {
+    padding: 8px 0px;
+    width: 100%;
     text-align: center;
-    padding: 2px;
-    left: -17px;
-    border-radius: 10px;
-} */
-
-#BlockLink{
-    color:#36205D;
 }
+
+#BlockLink .blockSite {
+    background: indianred;
+    color: white;
+}
+
+#BlockLink .unBlockSite {
+    background: #5fb371;
+    color: white;
+}
+
 .plus_minus_icon {
     border: 1px solid #878190;
     border-radius: 4px;
@@ -522,6 +720,7 @@ label.takeBreakText {
     width: 12px;
     text-align: center;
 }
+
 .xbtn {
     border: 1px solid #878190;
     border-radius: 2px;
@@ -533,6 +732,7 @@ label.takeBreakText {
     color: white;
     cursor: pointer;
 }
+
 .addbtn {
     background-color: var(--main-color);
     width: 99%;
@@ -548,7 +748,8 @@ label.takeBreakText {
     vertical-align: middle;
     cursor: pointer;
 }
-#Footer2 {
+
+#Footer {
     display: inline-block;
     width: 100%;
     position: fixed;
@@ -564,7 +765,8 @@ input[type="time"] {
     width: 33%;
     font-size: 11px;
 }
-.vacationBanner{
+
+.vacationBanner {
     background-color: gold;
     width: calc(100% + 20px);
     padding: 3px;
@@ -573,37 +775,42 @@ input[type="time"] {
     color: black;
     display: none;
 }
+
 span.passExp {
     color: gold;
     font-size: 12px;
 }
+
 span.passExp:before {
-    content: "\231B"; /*HourGlass Icon*/
+    content: "\231B";
+    /*HourGlass Icon*/
     margin-right: 3px;
     font-size: 15px;
 }
 
-#customPomodoroTask , #customSetTask{
-   width: 128px;
+#customPomodoroTask, #customSetTask {
+    width: 128px;
 }
+
 input#UID, #APIToken {
-    width: 255px;
+    width: 358px;
 }
 
 /* scroll bar */
+
 ::-webkit-scrollbar {
-    width: 8px;    
+    width: 8px;
 }
- 
+
 ::-webkit-scrollbar-track {
-    -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3); 
-    border-radius: 10px; 
+    -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
+    border-radius: 10px;
 }
- 
+
 ::-webkit-scrollbar-thumb {
     border-radius: 10px;
-    -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.5);
-    background-color: var(--main-color); 
+    -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.5);
+    background-color: var(--main-color);
 }
 
 input[type="text"], input[type="number"], input[type="password"], select {
@@ -617,17 +824,20 @@ input[type="text"], input[type="number"], input[type="password"], select {
     color: #45424a;
     border: 1px solid #878190;
 }
-.lightTextInput{
+
+.lightTextInput {
     width: 25px;
     text-align: center;
     border: none !important;
     background-color: powderblue !important;
     color: rgb(54, 32, 93) !important;
 }
-#PomoSetNum{
+
+#PomoSetNum {
     width: 40px;
     text-align: middle;
 }
+
 input.switch:before {
     width: 23px !important;
     height: 12px !important;
@@ -636,11 +846,17 @@ input.switch:before {
     line-height: 7px !important;
     border-radius: 9px !important;
     content: "" !important;
-    padding:1px;
+    padding: 1px;
 }
+
 input.switch:checked:before {
     background-color: #878190 !important;
 }
+
+.switch {
+    margin-right: 5px;
+}
+
 input.switch:after {
     content: "" !important;
     display: block !important;
@@ -655,10 +871,13 @@ input.switch:after {
     margin-left: 3px;
     transition: all 0.3s ease-in-out;
 }
+
 input.switch:checked:after {
     margin-left: 13px !important;
 }
+
 /* tooltip */
+
 .tooltip:hover:before {
     content: "";
     display: block;
@@ -671,37 +890,163 @@ input.switch:checked:after {
 }
 
 .tooltip:hover:after {
-    content: "";
-    font-size: 11px;
+    content: attr(data-tip);
+    font-size: 12px;
     display: block;
     position: absolute;
     margin-top: 24px;
     background-color: #878190;
-    color: #f1f1f1;;
-    font-weight: bold;
+    color: #f1f1f1;
     padding: 5px;
     border-radius: 5px;
-    width: 95px;
-    margin-left: -41px;
+    width: calc(100% - 20px);
+    left: 5px;
     text-align: center;
+    z-index: 9;
 }
-.bug_icon, .help_icon, .rate_icon, .donate_icon{
-    margin-left: 34px;
+
+.links.bug_icon, .links .rate_icon, .links .donate_icon {
+    margin-right: 13px;
     margin-bottom: 5px;
+    padding-top: 2px;
 }
-.bug_icon:hover:after {
-    content: "Report Bug / Suggest Feature";
+
+.links.bug_icon {
+    position: absolute;
+    margin-top: 6px;
 }
-.help_icon:hover:after {
-    content: "User Guide";
-}
-.rate_icon:hover:after {
-    content: "Rate :)";
-}
-.donate_icon:hover:after {
-    content: "Buy me a coffee (Thank you!)";
-}
+
 .buy .gold_icon {
     margin-bottom: 3px;
     margin-top: 3px;
+}
+
+a.donate_button {
+    color: #12306F;
+    background-color: gold;
+    text-decoration: none;
+    width: 200px;
+    padding: 5px;
+    display: block;
+    margin: auto;
+    border-radius: 30px;
+    border: 1px solid #24608f;
+    font-weight: bold;
+}
+
+a.donate_button:hover {
+    background-color: #ffea77;
+}
+
+div#Donate {
+    text-align: center;
+    font-size: 16px;
+    line-height: 24px;
+}
+
+div#Feedback {
+    padding-left: 44px;
+}
+
+span.powered_by_paypal img {
+    height: 14px;
+    margin-bottom: -3px;
+}
+
+span.powered_by_paypal {
+    font-size: 10px;
+    margin-top: 5px;
+    display: block;
+}
+
+/* inner menu */
+
+#MenuHabiticaSettings:not(:checked)~div#HabiticaSettingsContainer {
+    display: none;
+}
+
+#MenuBlockerSettings:not(:checked)~div#BlockerSettingsContainer {
+    display: none;
+}
+
+#MenuTimerSettings:not(:checked)~div#TimerSettingsContainer {
+    display: none;
+}
+
+a.wiki-page {
+    width: 95%;
+    text-align: center;
+    display: block;
+    border: 1px solid;
+    padding: 5px 0;
+    color: #8a8493;
+    border-radius: 5px;
+    margin: auto;
+    font-size: 14px;
+}
+
+a.wiki-page:hover {
+    background-color: #f7f7f7;
+}
+
+div#innerMenu {
+    text-align: center;
+}
+
+input[name="innerMenu"] {
+    display: none;
+}
+
+input[name="innerMenu"]+label {
+    font-size: 8px;
+    line-height: 25px;
+    margin-left: 7px;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    font-family: pixeled;
+    width: 93px;
+    border: 3px solid #878190;
+    padding: 5px;
+    text-align: center;
+    border-radius: 32px;
+    cursor: pointer;
+}
+
+.innerMenuIcon {
+    width: 25px;
+    height: 25px;
+    display: inline-block;
+    background-repeat: no-repeat;
+    background-size: 21px;
+    vertical-align: top;
+    background-position: center;
+}
+
+input[name="innerMenu"]:checked+label {
+    color: #EDECEE;
+    background-color: #878190;
+}
+
+label[for="MenuHabiticaSettings"] .innerMenuIcon {
+    background-image: url(img/habitica2.png);
+}
+
+label[for="MenuBlockerSettings"] .innerMenuIcon {
+    background-image: url(img/Shield.png);
+}
+
+label[for="MenuTimerSettings"] .innerMenuIcon {
+    background-image: url(img/Timer.png);
+}
+
+input:checked+label[for="MenuHabiticaSettings"] .innerMenuIcon {
+    background-image: url(img/habitica3.png);
+}
+
+input:checked+label[for="MenuBlockerSettings"] .innerMenuIcon {
+    background-image: url(img/Shield2.png);
+}
+
+input:checked+label[for="MenuTimerSettings"] .innerMenuIcon {
+    background-image: url(img/Timer2.png);
 }

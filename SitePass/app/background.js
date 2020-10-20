@@ -58,7 +58,8 @@ var Vars = {
     onBreak: false,
     onBreakExtension: false,
     PomoSetCounter: 0,
-    onManualTakeBreak: false
+    onManualTakeBreak: false,
+    versionUpdate: false
 };
 
 
@@ -129,6 +130,11 @@ function UserSettings(copyFrom) {
     }
 
 }
+
+// Runs on version update / Install
+chrome.runtime.onInstalled.addListener( function () {
+    Vars.versionUpdate = true;
+});
 
 function BlockedSite(hostname, cost, passExpiry) {
     this.hostname = hostname;
@@ -529,8 +535,7 @@ var timerInterval; //Used for timer interval in startTimer() function.
  * @param {function} endTimerFunction this function runs when timer reachs 00:00.
  */
 function startTimer(duration, duringTimerFunction, endTimerFunction) {
-    var timer = duration,
-        minutes, seconds;
+    var timer = duration;
     var duringTimer = function () {
         duringTimerFunction()
     };
@@ -595,8 +600,9 @@ function pomodoroEnds() {
     
     stopTimer();
 
-    //update Pomodoros today
+    //update Pomodoros Count
     Vars.PomodorosToday.value++;
+
     var Pomodoros = {};
     Pomodoros[Consts.PomodorosTodayDataKey] = Vars.PomodorosToday;
     chrome.storage.sync.set(Pomodoros, function () {
@@ -675,7 +681,7 @@ function manualBreak() {
     stopTimer();
     Vars.TimerRunnig = false;
     Vars.onBreak = true;
-    Vars.Timer = "Nice!";
+    Vars.Timer = "GOOD!";
 }
 
 //runs during Break session

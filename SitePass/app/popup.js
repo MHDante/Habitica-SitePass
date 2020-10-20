@@ -11,6 +11,17 @@ var CurrentTabHostname;
 document.addEventListener("DOMContentLoaded", function () {
 
     background.FetchHabiticaData(true); //Fetch Habitica basic data when opening the popup
+    CredentialFields(); // Update settings
+
+    //On version update or install
+    if (Vars.versionUpdate) {
+        $("#VersionUpdate").show();
+        $("#VersionUpdate .version").html("version " + chrome.runtime.getManifest().version);
+    }
+    $("#VersionUpdate .closeAlert").click(function () {
+        $("#VersionUpdate").hide();
+        Vars.versionUpdate = false;
+    });
 
     getCurrentTabUrl(function (url) {
         CurrentTabHostname = new URL(url).hostname;
@@ -35,14 +46,15 @@ document.addEventListener("DOMContentLoaded", function () {
             AddSiteToTable(blockedSites[site]);
         }
     }
-    CredentialFields();
+
     $("#Dosh").append(Vars.Monies.toFixed(1));
     $("#MyHp").append(Vars.Hp.toFixed(0));
 
-    //Update Timer display
+    //Update Timer display - Main Interval
     updateTimerDisplay();
     setInterval(function () {
         updateTimerDisplay();
+        updateSiteExpireDisplay();
     }, 1000);
 
     //Credentials Error tip
@@ -198,13 +210,19 @@ function AddSiteToTable(site, fadein) {
 
     var passExpiryElement = "";
     if (site.passExpiry) {
-        var passExpiry = new Date(site.passExpiry);
         if (site.passExpiry > Date.now()) {
-            var hrs = passExpiry.getHours();
-            hrs = hrs < 10 ? "0" + hrs : hrs;
-            var min = passExpiry.getMinutes();
-            min = min < 10 ? "0" + min : min;
-            passExpiryElement = '<br><span class="passExp">' + hrs + ":" + min + '</span>'
+
+            // //Clock hour of next block
+            // var hrs = passExpiry.getHours();
+            // hrs = hrs < 10 ? "0" + hrs : hrs;
+            // var min = passExpiry.getMinutes();
+            // min = min < 10 ? "0" + min : min;
+            // var endHour = hrs + ":" + min;
+            // passExpiryElement = '<br><span class="passExp">' + endHour + '</span>'
+
+            //Remaining time in minutes
+            var remainingTime = getSitePassRemainingTime(site)
+            passExpiryElement = '<br><span class="passExp" data-hostname=' + site.hostname + '>' + remainingTime + '</span>';
         }
     }
 
@@ -324,6 +342,7 @@ function CredentialFields() {
         Vars.PomodorosToday.date = today;
     }
     $("#PomoButton").attr("data-pomodoros", Vars.PomodorosToday.value);
+    $("#PomoToday").html(Vars.PomodorosToday.value);
 
     //Update Options on change
     $("#UID").on("keyup", function () { updateCredentials(); });
@@ -522,8 +541,8 @@ function updateTimerDisplay() {
     } else { //---pomodoro not running---
         $(".unBlockSite").show();
         $("#QuickSettings").show();
-        $('#pomodoro').css("background-color", "#2995CD")
-        $('#pomodoro').css("color", "#36205D");
+        $('#pomodoro').css("background-color", "#8ccff1")
+        $('#pomodoro').css("color", "#553889");
         tomatoSetClass("tomatoWait");
         $("#SiteTable tbody").toggleClass('blocked', false);
         $("#PomoStop").hide();
@@ -550,6 +569,30 @@ function credErrorTipAnimation() {
         {
             fontSize: "100%"
         }, 700);
+}
 
+function getSitePassRemainingTime(site) {
+    if (site.passExpiry - Date.now() <= 0) {
+        return false;
+    }
+    var remainingMinutesNumber = ((site.passExpiry - Date.now()) / (1000 * 60)).toFixed(2).split('.');
+    console.log(remainingMinutesNumber)
+    var remainingMinutes = remainingMinutesNumber[0].length < 2 ? "0" + remainingMinutesNumber[0] : remainingMinutesNumber[0];
+    var remainingSconds = remainingMinutesNumber[1].length < 2 ? "0" + remainingMinutesNumber[1] : remainingMinutesNumber[1];
+    return remainingMinutes + ":" + remainingSconds;
+}
+
+function updateSiteExpireDisplay() {
+    $(".passExp").each(function () {
+        var hostname = $(this).attr("data-hostname")
+        var site = Vars.UserData.GetBlockedSite(hostname);
+        var time = getSitePassRemainingTime(site);
+        if (time) {
+            $(this).html(getSitePassRemainingTime(site));
+        } else {
+            $(this).remove();
+        }
+        
+    });
 }
 

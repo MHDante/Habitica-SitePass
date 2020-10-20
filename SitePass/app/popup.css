@@ -1,6 +1,6 @@
 :root {
-    --main-color: #2995CD;
-    --secondery-color: #36205D;
+    --main-color: #8ccff1;
+    --secondery-color: #553889;
 }
 
 @font-face {
@@ -13,6 +13,7 @@
 td.gp a {
     text-decoration: none !important;
 }
+
 hr {
     border-color: #ccc!important;
     border-style: solid;
@@ -25,7 +26,7 @@ input[type="number"] {
 }
 
 #CotentContainer {
-    padding-top: 28px;
+    padding-top: 30px;
 }
 
 .menu-label {
@@ -50,7 +51,7 @@ input[type="number"] {
 }
 
 :not(.menu-label)>input[type=checkbox]:hover:before {
-    background-color: powderblue;
+    background-color: #EDECEE;
 }
 
 :not(.menu-label)>input:checked:before {
@@ -114,25 +115,28 @@ body {
 }
 
 .reward-item {
-    background-color: #36205D;
-    color: #00BCD4;
+    background-color:var(--main-color);
+    color: var(--secondery-color);
+    font-family: 'pixeled';
     webkit-box-shadow: 0 2px 2px 0 rgba(26, 24, 29, 0.16), 0 1px 4px 0 rgba(26, 24, 29, 0.12);
     box-shadow: 0 2px 2px 0 rgba(26, 24, 29, 0.16), 0 1px 4px 0 rgba(26, 24, 29, 0.12);
+    font-size: 9px;
+    text-transform: uppercase;
 }
 
 .hostname {
     overflow: hidden;
-    width: 130px;
+    width: 100%;
     padding-left: 4px;
 }
 
 .cost-input {
-    background-color: #00BCD4;
-    color: #36205D;
+    background-color: #553889b0;
+    color: white;
 }
 
 a {
-    color: #36205D;
+    color: var(--secondery-color);
 }
 
 .warning_icon {
@@ -213,6 +217,10 @@ div#RefreshStats {
     margin-top: -2px;
 }
 
+a.delete {
+    margin-right: 10px;
+}
+
 .menu-item .small_icon {
     margin-left: -10px;
     padding-right: 5px;
@@ -261,7 +269,7 @@ div#RefreshStats {
 }
 
 .habitica_small_icon.small_icon, .help_icon.tooltip {
-    margin-top: 3px;
+    margin-top: 5px;
     margin-right: 5px;
 }
 
@@ -292,17 +300,19 @@ div#RefreshStats {
     text-decoration: none;
 }
 
-.gp {
+.gp{
     width: auto;
     height: 100%;
     min-height: 50px;
     text-align: center;
     vertical-align: top;
-    background-color: var(--main-color);
-    color: #555;
+    background-color: var(--secondery-color);
     display: inline-block;
     line-height: 1.5em;
     border: none;
+}
+.gp a{
+    color: gold;
 }
 
 .setting-header {
@@ -456,14 +466,15 @@ div#RefreshStats {
 
 .blocked:before {
     content: "";
+    z-index:999;
     text-align: center;
     font-size: 24px;
     color: white;
     font-weight: bold;
     line-height: 59px;
-    background-color: #54000057;
+    background-color: #540000b0;
     display: block;
-    width: 94.5%;
+    width: 95.5%;
     height: 62px;
     position: absolute;
     background-image: url(img/chainLock.png);
@@ -498,9 +509,13 @@ div#RefreshStats {
 }
 
 #pomodoroSettings {
-    background-color: var(--main-color);
-    padding: 10px !important;
+    display: none;
+    color: var(--secondery-color);
+    line-height: 25px;
     text-align: center;
+    background-color: var(--main-color);
+    padding: 10px;
+    padding-top: 15px;
     margin: auto;
     width: 100%;
     margin-left: -10px;
@@ -583,9 +598,8 @@ div#Menu {
     width: 100%
 }
 
-#CredError {
+#CredError, #VersionUpdate {
     display: none;
-    color: beige;
     line-height: 21px;
     font-weight: 100;
     font-size: 14px;
@@ -593,7 +607,6 @@ div#Menu {
     padding-left: 4px;
     margin: 3px;
     padding: 6px;
-    background-color: indianred;
     border-radius: 7px;
     text-align: center;
     margin-top: 10px;
@@ -606,8 +619,30 @@ div#Menu {
     cursor: pointer;
 }
 
+#CredError {
+    color: beige;
+    background-color: indianred;
+}
+
+#VersionUpdate {
+    color: black;
+    background-color: gold;
+    position: relative;
+}
+
+span.closeAlert {
+    position: absolute;
+    right: 10px;
+    top: 5px;
+    cursor: pointer;
+}
+
 #Settings {
     display: none;
+}
+
+div#TimerSettingsContainer label, #BlockerSettingsContainer label, #HabiticaSettingsContainer label {
+    line-height: 25px;
 }
 
 .comingSoon {
@@ -655,36 +690,68 @@ button#SaveButton span {
 }
 
 #quickSave {
-    background-color: gold;
-    width: 100%;
+    background-color: transparent;
+    border:3px solid var(--secondery-color);
+    color: var(--secondery-color);
+    width: 100px;
+    margin: 23px 0 13px 0;
     cursor: pointer;
-    border: 1px solid gray;
-    border-radius: 5px;
+    padding: 0px;
+    font-family: 'pixeled';
+    font-size: 10px;
+    text-transform: uppercase;
 }
 
 #quickSave:hover {
-    background-color: #ffe764;
+    background-color: var(--secondery-color);
+    color: var(--main-color);
+
 }
 
 #quickSave {
     margin-top: 10px;
 }
 
-#pomodoroSettings {
-    display: none;
-    text-align: left;
-    color: rgb(54, 32, 93);
+label.takeBreakText {
+    color: var(--secondery-color);;
+    text-transform: uppercase;
+    font-family: 'pixeled';
+    font-size: 10px;
     line-height: 25px;
+    border: 3px solid var(--secondery-color);
+    padding: 5px 10px;
+    border-radius: 10px;
+    margin: 10px 0;
+    width: 260px;
 }
 
-label.takeBreakText {
-    color: #edecee;
-    line-height: 36px;
+#quickSet-takeBreak {
+    font-size: 22px;
+    line-height: 15px;
+    margin-left: 3px;
+    position: absolute;
+}
+
+label.longBreakQuickSet {
+    font-size: 8px;
+    font-family: 'pixeled';
+    text-transform: uppercase;
+}
+
+input#quickSet-takeBreakDuration , #quickSet-PomoSetNum {
+    line-height: 20px;
+    font-size: 8px;
+    font-family: 'pixeled';
+    text-align: center;
+    padding: 3px;
+    margin: 5px;
 }
 
 #quickSet-takeBreak:hover {
     cursor: pointer;
-    color: gold;
+    zoom: 125%;
+    margin-top: -2px;
+    margin-left: 1px;
 }
 
 .menu-item label input {
@@ -718,6 +785,7 @@ label.takeBreakText {
     border-radius: 4px;
     display: inline-block;
     width: 12px;
+    line-height: 20px;
     text-align: center;
 }
 
@@ -777,8 +845,9 @@ input[type="time"] {
 }
 
 span.passExp {
-    color: gold;
-    font-size: 12px;
+    color: black;
+    font-size: 8px;
+    line-height: 0;
 }
 
 span.passExp:before {
@@ -818,8 +887,6 @@ input[type="text"], input[type="number"], input[type="password"], select {
     width: 25px;
     border-radius: 5px;
     text-align: center;
-    /* background-color: powderblue;
-    color: rgb(54, 32, 93); */
     background-color: #f9f9f9;
     color: #45424a;
     border: 1px solid #878190;
@@ -829,8 +896,55 @@ input[type="text"], input[type="number"], input[type="password"], select {
     width: 25px;
     text-align: center;
     border: none !important;
-    background-color: powderblue !important;
-    color: rgb(54, 32, 93) !important;
+    background-color: var(--secondery-color) !important;
+    color: var(--main-color) !important;
+}
+
+input#quickSet-PomoDuration, input#quickSet-BreakDuration, input#quickSet-LongBreakDuration {
+    width: 85px;
+    font-size: 12px;
+    margin: 10px;
+     font-family: 'pixeled';
+    line-height: 34px;
+    vertical-align: middle;
+    padding: 5px;
+    display: inline-block;
+    margin-bottom: 35px;
+}
+
+label[for="quickSet-PomoDuration"], label[for="quickSet-BreakDuration"], label[for="quickSet-LongBreakDuration"] {
+    position: relative;
+}
+
+label[for="quickSet-PomoDuration"]:before, label[for="quickSet-BreakDuration"]:before, label[for="quickSet-LongBreakDuration"]:before {
+    position: absolute;
+    width: 95px;
+    font-family: 'pixeled';
+    font-size: 8px;
+    text-align: center;
+    margin-left: 14px;
+    top: 54px;
+}
+label[for="quickSet-PomoDuration"]:after,label[for="quickSet-BreakDuration"]:after,label[for="quickSet-LongBreakDuration"]:after {
+    display: none;
+    content: "Minutes";
+    position: absolute;
+    top: -10px;
+    font-size: 10px;
+    color: var(--secondery-color);
+    left: 10px;
+}
+
+label[for="quickSet-PomoDuration"]:before {
+    content: "POMODORO";
+}
+
+label[for="quickSet-BreakDuration"]:before {
+    content: "SHORT BREAK";
+}
+
+label[for="quickSet-LongBreakDuration"]:before {
+    content: "LONG BREAK";
 }
 
 #PomoSetNum {
@@ -976,7 +1090,7 @@ span.powered_by_paypal {
 a.wiki-page {
     width: 95%;
     text-align: center;
-    display: block;
+    display: none !important;
     border: 1px solid;
     padding: 5px 0;
     color: #8a8493;
@@ -1049,4 +1163,45 @@ input:checked+label[for="MenuBlockerSettings"] .innerMenuIcon {
 
 input:checked+label[for="MenuTimerSettings"] .innerMenuIcon {
     background-image: url(img/Timer2.png);
+}
+
+div#PomoToday {
+    position: relative;
+    width: 50px;
+    height: 50px;
+    border: 3px solid #878190;
+    border-radius: 100px;
+    align-items: center;
+    justify-content: center;
+    margin: 10px auto;
+    margin-bottom: 50px;
+    display: flex;
+    font-size: 21px;
+    font-weight: bold;
+}
+div#PomoToday:after {
+    content: "POMODOROS TODAY";
+    position: absolute;
+    text-align: center;
+    font-size: 8px;
+    line-height: 15px;
+    font-family: 'pixeled';
+    top: 57px;
+}
+
+.delete, .edit {
+    position: absolute;
+    margin-left: -25px;
+    margin-top: -10px;
+}
+.edit{
+    margin-left: -45px;
+}
+.edit:hover {
+    zoom: 120%;
+    margin-left: -40px;
+}
+.delete:hover{
+    zoom: 120%;
+    margin-left: -23px;
 }

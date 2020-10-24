@@ -5,7 +5,8 @@
 
 @font-face {
     font-family: 'pixeled';
-    src: url('fonts/pixeled/pixeled-webfont.woff2') format('woff2'), url('fonts/pixeled/pixeled-webfont.woff') format('woff');
+    /* src: url('fonts/pixeled/pixeled-webfont.woff2') format('woff2'), url('fonts/pixeled/pixeled-webfont.woff') format('woff'); */
+    src: url('fonts/pixeled/Simpletown.ttf') format('truetype');
     font-weight: normal;
     font-style: normal;
 }
@@ -33,7 +34,7 @@ input[type="number"] {
     margin-top: 5px;
     display: block;
     margin-right: 10px;
-    font-size: 7px;
+    font-size: 14px;
     line-height: 16px;
     font-family: 'pixeled';
 }
@@ -107,11 +108,12 @@ body {
 .footer_icons {
     margin: 0;
     font-family: 'pixeled';
-    font-size: 12px;
+    font-size: 22px;
     display: inline-block;
     margin-right: 10px;
     vertical-align: middle;
-    line-height: 17pt;
+    line-height: 30px;
+    word-spacing: -10px;
 }
 
 .reward-item {
@@ -120,14 +122,18 @@ body {
     font-family: 'pixeled';
     webkit-box-shadow: 0 2px 2px 0 rgba(26, 24, 29, 0.16), 0 1px 4px 0 rgba(26, 24, 29, 0.12);
     box-shadow: 0 2px 2px 0 rgba(26, 24, 29, 0.16), 0 1px 4px 0 rgba(26, 24, 29, 0.12);
-    font-size: 9px;
+    font-size: 16px;
     text-transform: uppercase;
 }
 
 .hostname {
+    width: 236px;
     overflow: hidden;
-    width: 100%;
-    padding-left: 4px;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    text-align: left;
+    float: left;
+    margin-left: -3px;
 }
 
 .cost-input {
@@ -308,7 +314,6 @@ a.delete {
     vertical-align: top;
     background-color: var(--secondery-color);
     display: inline-block;
-    line-height: 1.5em;
     border: none;
 }
 .gp a{
@@ -349,14 +354,15 @@ a.delete {
     background-image: url(img/pomodoroWait.png);
 }
 
-.tomatoWait:not(:hover):after {
+.tomatoWait:not(:hover):after , .tomatoWin:not(:hover):after {
     content: attr(data-pomodoros);
     display: inline-block;
     position: relative;
+    color:black;
     font-family: pixeled;
-    top: -30px;
+    top: -28px;
     left: 20px;
-    font-size: 11px;
+    font-size: 20px;
 }
 
 .tomatoWait:hover {
@@ -377,17 +383,6 @@ a.delete {
 
 .tomatoWin:hover {
     background-image: url(img/pomodoroBreak.png);
-}
-
-.tomatoWin:not(:hover):after {
-    content: attr(data-pomodoros);
-    display: inline-block;
-    position: relative;
-    font-family: pixeled;
-    top: -30px;
-    left: 20px;
-    font-size: 11px;
-    color: black;
 }
 
 .tomatoWarning {
@@ -415,6 +410,11 @@ a.delete {
 
 #PomoStop:hover {
     color: white;
+}
+
+#PomoStop,#SkipToBreak{
+    margin-left: -5px;
+    margin-top: -5px
 }
 
 #SkipToBreak:hover+.tomatoProgress {
@@ -447,8 +447,8 @@ a.delete {
     position: absolute;
     width: 24px;
     height: 24px;
-    margin-left: -5px;
-    margin-top: -3px;
+    margin-left: -10px;
+    margin-top: -8px;
 }
 
 #QuickSettings:hover {
@@ -499,7 +499,7 @@ a.delete {
 
 #pomodoro {
     background-color: var(--main-color);
-    padding: 10px;
+    padding: 15px;
     text-align: center;
     margin: auto;
     width: 100%;
@@ -524,24 +524,25 @@ a.delete {
 }
 
 #Time {
-    font-size: 24px;
-    /* top: 17px; */
-    font-weight: bold;
+    font-size: 52px;
+    top: 20px;
     position: relative;
     font-family: 'pixeled', Arial, sans-serif;
     width: 100px;
     display: inline-block;
-    margin-left: 20px;
+    margin-left: 15px;
 }
 
 #Time:after {
     content: attr(data-pomodoros-set);
-    font-size: 11px !important;
+    font-size: 21px !important;
+    letter-spacing: 2px;
     display: inline-block;
     position: absolute;
-    right: 0;
-    margin-left: 4px;
-    top: -8px;
+    right: 0px;
+    text-align: center;
+    top: -24px;
+    width: 100%;
 }
 
 #MenuContainer {
@@ -668,7 +669,7 @@ div#TimerSettingsContainer label, #BlockerSettingsContainer label, #HabiticaSett
 
 button#SaveButton {
     font-family: "pixeled";
-    font-size: 8px;
+    font-size: 16px;
     display: none;
     position: fixed;
     background-color: #878190;
@@ -691,14 +692,14 @@ button#SaveButton span {
 
 #quickSave {
     background-color: transparent;
-    border:3px solid var(--secondery-color);
+    border: 3px solid var(--secondery-color);
     color: var(--secondery-color);
     width: 100px;
     margin: 23px 0 13px 0;
     cursor: pointer;
-    padding: 0px;
+    padding: 3px;
     font-family: 'pixeled';
-    font-size: 10px;
+    font-size: 27px;
     text-transform: uppercase;
 }
 
@@ -716,10 +717,10 @@ label.takeBreakText {
     color: var(--secondery-color);;
     text-transform: uppercase;
     font-family: 'pixeled';
-    font-size: 10px;
-    line-height: 25px;
+    font-size: 20px;
+    line-height: 20px;
     border: 3px solid var(--secondery-color);
-    padding: 5px 10px;
+    padding: 5px 15px;
     border-radius: 10px;
     margin: 10px 0;
     width: 260px;
@@ -727,20 +728,20 @@ label.takeBreakText {
 
 #quickSet-takeBreak {
     font-size: 22px;
-    line-height: 15px;
+    line-height: 36px;
     margin-left: 3px;
     position: absolute;
 }
 
 label.longBreakQuickSet {
-    font-size: 8px;
+    font-size: 20px;
     font-family: 'pixeled';
     text-transform: uppercase;
 }
 
 input#quickSet-takeBreakDuration , #quickSet-PomoSetNum {
     line-height: 20px;
-    font-size: 8px;
+    font-size: 20px;
     font-family: 'pixeled';
     text-align: center;
     padding: 3px;
@@ -846,8 +847,7 @@ input[type="time"] {
 
 span.passExp {
     color: black;
-    font-size: 8px;
-    line-height: 0;
+    font-size: 16px;
 }
 
 span.passExp:before {
@@ -872,16 +872,20 @@ input#UID, #APIToken {
 }
 
 ::-webkit-scrollbar-track {
-    -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
+    /* -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3); */
     border-radius: 10px;
 }
 
 ::-webkit-scrollbar-thumb {
     border-radius: 10px;
-    -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.5);
-    background-color: var(--main-color);
+    /* -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.5); */
+    /* background-color: var(--main-color); */
+    background-color: #878190;
 }
-
+input[type="range"] {
+    height: 10px;
+    margin-left: 5px;
+}
 input[type="text"], input[type="number"], input[type="password"], select {
     text-align: center;
     width: 25px;
@@ -890,6 +894,10 @@ input[type="text"], input[type="number"], input[type="password"], select {
     background-color: #f9f9f9;
     color: #45424a;
     border: 1px solid #878190;
+}
+#pomodoroEndSound, #breakEndSound {
+    width: 200px;
+    margin: 5px 0;
 }
 
 .lightTextInput {
@@ -902,10 +910,10 @@ input[type="text"], input[type="number"], input[type="password"], select {
 
 input#quickSet-PomoDuration, input#quickSet-BreakDuration, input#quickSet-LongBreakDuration {
     width: 85px;
-    font-size: 12px;
+    font-size: 25px;
     margin: 10px;
-     font-family: 'pixeled';
-    line-height: 34px;
+    font-family: 'pixeled';
+    line-height: 32px;
     vertical-align: middle;
     padding: 5px;
     display: inline-block;
@@ -918,19 +926,19 @@ label[for="quickSet-PomoDuration"], label[for="quickSet-BreakDuration"], label[f
 
 label[for="quickSet-PomoDuration"]:before, label[for="quickSet-BreakDuration"]:before, label[for="quickSet-LongBreakDuration"]:before {
     position: absolute;
-    width: 95px;
+    width: 118px;
     font-family: 'pixeled';
-    font-size: 8px;
+    font-size: 18px;
     text-align: center;
-    margin-left: 14px;
     top: 54px;
 }
+
 label[for="quickSet-PomoDuration"]:after,label[for="quickSet-BreakDuration"]:after,label[for="quickSet-LongBreakDuration"]:after {
     display: none;
     content: "Minutes";
     position: absolute;
     top: -10px;
-    font-size: 10px;
+    font-size: 14px;
     color: var(--secondery-color);
     left: 10px;
 }
@@ -1112,8 +1120,9 @@ input[name="innerMenu"] {
 }
 
 input[name="innerMenu"]+label {
-    font-size: 8px;
-    line-height: 25px;
+    font-size: 16px;
+    line-height: 29px;
+    word-spacing: -6px;
     margin-left: 7px;
     margin-top: 10px;
     margin-bottom: 10px;
@@ -1183,7 +1192,7 @@ div#PomoToday:after {
     content: "POMODOROS TODAY";
     position: absolute;
     text-align: center;
-    font-size: 8px;
+    font-size: 15px;
     line-height: 15px;
     font-family: 'pixeled';
     top: 57px;

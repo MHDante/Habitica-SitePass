@@ -35,7 +35,8 @@ var Consts = {
     },
     userDataKey: "USER_DATA",
     PomodorosTodayDataKey: "PomodorosToday",
-    NotificationId: "sitepass_notification"
+    NotificationId: "sitepass_notification",
+    Sounds: ["Sound1.mp3","Sound2.mp3","Sound3.wav","Sound4.wav","Sound5.mp3","Sound6.wav","Sound7.wav","Sound8.wav","Sound9.mp3"],
 };
 
 var Vars = {
@@ -59,7 +60,7 @@ var Vars = {
     onBreakExtension: false,
     PomoSetCounter: 0,
     onManualTakeBreak: false,
-    versionUpdate: false
+    versionUpdate: false,
 };
 
 
@@ -80,7 +81,6 @@ function UserSettings(copyFrom) {
     this.BreakExtention = copyFrom ? copyFrom.BreakExtention : 2;
     this.BreakExtentionFails = copyFrom ? copyFrom.BreakExtentionFails : false;
     this.BreakExtentionNotify = copyFrom ? copyFrom.BreakExtentionNotify : false;
-    this.SoundNotify = copyFrom ? copyFrom.SoundNotify : true;
     this.PomoSetNum = copyFrom ? copyFrom.PomoSetNum : 4;
     this.PomoSetHabitPlus = copyFrom ? copyFrom.PomoSetHabitPlus : false;
     this.LongBreakDuration = copyFrom ? copyFrom.LongBreakDuration : 30;
@@ -96,6 +96,10 @@ function UserSettings(copyFrom) {
     this.TranspartOverlay = copyFrom ? copyFrom.TranspartOverlay : true;
     this.TickSound = copyFrom ? copyFrom.TickSound : false;
     this.showSkipToBreak = copyFrom ? copyFrom.showSkipToBreak : false;
+    this.pomodoroEndSound = copyFrom ? copyFrom.pomodoroEndSound : "None";
+    this.breakEndSound = copyFrom ? copyFrom.breakEndSound : "None";
+    this.pomodoroEndSoundVolume = copyFrom ? copyFrom.pomodoroEndSoundVolume : 0.5;
+    this.breakEndSoundVolume = copyFrom ? copyFrom.breakEndSoundVolume : 0.5;
 
     //returns site object or false
     this.GetBlockedSite = function (hostname) {
@@ -132,7 +136,7 @@ function UserSettings(copyFrom) {
 }
 
 // Runs on version update / Install
-chrome.runtime.onInstalled.addListener( function () {
+chrome.runtime.onInstalled.addListener(function () {
     Vars.versionUpdate = true;
 });
 
@@ -162,7 +166,6 @@ function checkBlockedUrl(siteUrl) {
         }; //do not block
     };
 
-    //FetchHabiticaData(true); //causes too many requests
     if (site.cost > Vars.Monies) {
         return {
             block: true,
@@ -184,6 +187,13 @@ var callbackTabActive = function (details) {
             file: "pageOverlay.css"
         });
         mainSiteBlockFunction(tab);
+
+        //Pass Expiry time badge
+        if (!Vars.TimerRunnig) {
+            var siteUrl = new URL(tab.url);
+            var site = Vars.UserData.GetBlockedSite(siteUrl.hostname);
+            showPayToPassTimerBadge(site);
+        }
     });
 };
 
@@ -194,6 +204,12 @@ function callbackTabUpdate(tabId) {
             file: "pageOverlay.css"
         });
         mainSiteBlockFunction(tab);
+        //Pass Expiry time badge
+        if (!Vars.TimerRunnig) {
+            var siteUrl = new URL(tab.url);
+            var site = Vars.UserData.GetBlockedSite(siteUrl.hostname);
+            showPayToPassTimerBadge(site);
+        }
     });
 
 }
@@ -202,13 +218,13 @@ function callbackTabUpdate(tabId) {
 function mainSiteBlockFunction(tab) {
     if (!Vars.TimerRunnig || Vars.onBreak) {
         unblockSiteOverlay(tab);
-        var site = new URL(tab.url);
-        var checkSite = checkBlockedUrl(site);
+        var siteUrl = new URL(tab.url);
+        var checkSite = checkBlockedUrl(siteUrl);
 
         //block - Pay to pass or can't afford page
         if (checkSite.block == true) {
 
-            //pay to pass  
+            //pay to pass 
             if (checkSite.payToPass == true) {
                 payToPassOverlay(tab, checkSite);
             }
@@ -225,19 +241,57 @@ function mainSiteBlockFunction(tab) {
         setTimeout(function (arg) {
             mainSiteBlockFunction(arg);
         }, passDurationMiliSec, tab);
-       
+
         muteBlockedtabs();
     }
 }
 
+
+var passInterval; 
+//Shows the time until the paid site is blocked again
+function showPayToPassTimerBadge(site) {
+
+    clearInterval(passInterval);
+
+    passInterval = setInterval(function () {
+        passIntervalFuction();
+    }, 1000);
+
+    var passIntervalFuction = function () {
+        if (site && !Vars.TimerRunnig) {
+            var remainingTime = getSitePassRemainingTime(site);
+            if (remainingTime) {
+                chrome.browserAction.setBadgeBackgroundColor({
+                    color: "#F18E02"
+                });
+                chrome.browserAction.setBadgeText({
+                    text: remainingTime
+                });
+            } else {
+                chrome.browserAction.setBadgeText({
+                    text: ''
+                });
+                clearInterval(passInterval);
+            }
+        } else {
+            chrome.browserAction.setBadgeText({
+                text: ''
+            });
+            clearInterval(passInterval);
+        }
+    }
+
+
+}
+
 //Create "Pay X coins To Visit" site overlay
 function payToPassOverlay(tab, site) {
-    var opacity = Vars.UserData.TranspartOverlay ? "0.85" : "1"; 
+    var opacity = Vars.UserData.TranspartOverlay ? "0.85" : "1";
     var imageURLPayToPass = chrome.extension.getURL("/img/siteKeeper2.png");
     chrome.tabs.insertCSS({
         code: `
         .payToPass:after { background-image:url("` + imageURLPayToPass + `"); }
-        .payToPass::before {background-color:rgba(0,0,0,`+opacity+`)}`
+        .payToPass::before {background-color:rgba(0,0,0,`+ opacity + `)}`
     });
 
     chrome.tabs.executeScript(tab.id, {
@@ -255,12 +309,12 @@ function payToPassOverlay(tab, site) {
 
 //Create "Cant Afford To Visit" site overlay
 function cantAffordOverlay(tab, site) {
-    var opacity = Vars.UserData.TranspartOverlay ? "0.85" : "1"; 
+    var opacity = Vars.UserData.TranspartOverlay ? "0.85" : "1";
     var imageURLNoPass = chrome.extension.getURL("/img/siteKeeper3.png");
     chrome.tabs.insertCSS({
         code: `
         .noPass:after { background-image:url("` + imageURLNoPass + `"); }
-        .noPass::before {background-color:rgba(0,0,0,`+opacity+`)}`
+        .noPass::before {background-color:rgba(0,0,0,`+ opacity + `)}`
     });
 
     chrome.tabs.executeScript(tab.id, {
@@ -343,23 +397,23 @@ function getData(silent, credentials, serverPath) {
     Vars.ServerResponse = xhr.status;
     if (xhr.status == 401) {
         chrome.notifications.create(Consts.NotificationId, {
-                type: "basic",
-                iconUrl: "img/icon.png",
-                title: "Habitica Credentials Error",
-                message: "Click on the extension icon at the top right of your browser to set your credentials."
-            },
-            function () {});
+            type: "basic",
+            iconUrl: "img/icon.png",
+            title: "Habitica Credentials Error",
+            message: "Click on the extension icon at the top right of your browser to set your credentials."
+        },
+            function () { });
         return null;
     } else if (xhr.status != 200) {
         if (!silent) {
             chrome.notifications.create(Consts.NotificationId, {
-                    type: "basic",
-                    iconUrl: "img/icon.png",
-                    title: "Habitica Connection Error",
-                    message: "The service might be temporarily unavailable. Contact the developer if it persists. Error =" +
-                        xhr.status
-                },
-                function () {});
+                type: "basic",
+                iconUrl: "img/icon.png",
+                title: "Habitica Connection Error",
+                message: "The service might be temporarily unavailable. Contact the developer if it persists. Error =" +
+                    xhr.status
+            },
+                function () { });
         }
         return null;
     }
@@ -490,17 +544,17 @@ function CreatePomodoroSetHabit() {
 chrome.runtime.onMessage.addListener(function (message) {
     if (message.msg == "Confirm_Purchase" && message.sender == "HabiticaPomodoro") {
         var site = Vars.UserData.GetBlockedSite(message.hostname);
-        console.log('confirming Purchase for '+ site.hostname);
+        console.log('confirming Purchase for ' + site.hostname);
         ConfirmPurchase(site);
     }
 });
 
 function ConfirmPurchase(site) {
-    UpdateRewardTask(site.cost,false);
+    UpdateRewardTask(site.cost, false);
     var p = JSON.parse(callAPI("POST", Consts.serverPathTask + "/score/down"));
     if (p.success != true) {
-        notify("ERROR",'Failed to pay '+site.cost + 'coins for '+site.hostname+' in Habitica'); 
-    }else{
+        notify("ERROR", 'Failed to pay ' + site.cost + 'coins for ' + site.hostname + ' in Habitica');
+    } else {
         Vars.Monies -= site.cost;
         var passDurationMiliSec = Vars.UserData.PassDurationMins * 60 * 1000;
         site.passExpiry = Date.now() + passDurationMiliSec;
@@ -567,6 +621,16 @@ function secondsToTimeString(seconds) {
     return minutes + ":" + seconds;
 }
 
+
+function getSitePassRemainingTime(site) {
+    if (site.passExpiry - Date.now() <= 0) {
+        return false;
+    }
+    var seconds = (site.passExpiry - Date.now()) / 1000;
+    return secondsToTimeString(seconds);
+}
+
+
 //start pomodoro session - duration in seconds
 function startPomodoro() {
     var duration = 60 * Vars.UserData.PomoDurationMins;
@@ -587,17 +651,17 @@ function duringPomodoro() {
     });
     //Block current tab if necessary
     CurrentTab(blockSiteOverlay);
-    
+
     //Tick Sound
-    if(Vars.UserData.TickSound){
-        playSound("clockTicking");
+    if (Vars.UserData.TickSound) {
+        playSound("clockTicking.mp3",1);
     }
 }
 
 
 //runs When Pomodoro Timer Ends
 function pomodoroEnds() {
-    
+
     stopTimer();
 
     //update Pomodoros Count
@@ -649,7 +713,7 @@ function pomodoroEnds() {
     notify(title, msg);
 
     //play sound
-    playSound("pomodoroEnd");
+    playSound(Vars.UserData.pomodoroEndSound,Vars.UserData.pomodoroEndSoundVolume);
 }
 
 //start break session - duration in seconds
@@ -713,7 +777,7 @@ function breakEnds() {
     //notify
     notify("Time's Up", msg);
     //play sound
-    playSound("breakEnd");
+    playSound(Vars.UserData.breakEndSound,Vars,UserData.breakEndSoundVolume);
 }
 
 //start break session - duration in seconds
@@ -793,8 +857,8 @@ function skipToBreak() {
     var title = "Time's Up";
     var msg = "Take a break";
     Vars.PomoSetCounter++; //Updae set counter
-    startBreak(); 
-    
+    startBreak();
+
     //notify
     notify(title, msg);
 }
@@ -815,9 +879,9 @@ function notify(title, message, callback) {
 //Run function(tab) on currentTab
 function CurrentTab(func) {
     chrome.tabs.query({
-            'active': true,
-            'windowId': chrome.windows.WINDOW_ID_CURRENT
-        },
+        'active': true,
+        'windowId': chrome.windows.WINDOW_ID_CURRENT
+    },
         function (tabs) {
             if (tabs[0]) {
                 func(tabs[0]);
@@ -827,7 +891,7 @@ function CurrentTab(func) {
 
 //Block Site With Timer Overlay
 function blockSiteOverlay(tab) {
-    var opacity = Vars.UserData.TranspartOverlay ? "0.85" : "1"; 
+    var opacity = Vars.UserData.TranspartOverlay ? "0.85" : "1";
     var site = new URL(tab.url).hostname;
     var message = "Stay Focused! Time Left: " + Vars.Timer;
     if (Vars.UserData.GetBlockedSite(site)) {
@@ -841,7 +905,7 @@ function blockSiteOverlay(tab) {
         chrome.tabs.insertCSS({
             code: `
             .blockedSite:after {background-image:url("` + imageURL + `");}
-            .blockedSite:before{background-color:rgba(0,0,0,`+opacity+`)}
+            .blockedSite:before{background-color:rgba(0,0,0,`+ opacity + `)}
             `
         });
     };
@@ -868,21 +932,12 @@ function notifyHabitica(msg) {
     callAPI("POST", 'members/send-private-message', JSON.stringify(data));
 }
 
-function playSound(sound) {
-    if (Vars.UserData.SoundNotify) {
-        var myAudio;
-        switch (sound) {
-            case "pomodoroEnd":
-                myAudio = new Audio(chrome.runtime.getURL("audio/pomodoroEnd.mp3"));
-                break;
-            case "breakEnd":
-                myAudio = new Audio(chrome.runtime.getURL("audio/breakEnd.mp3"));
-                break;
-            case "clockTicking":
-                myAudio = new Audio(chrome.runtime.getURL("audio/clockTicking.mp3"));
-                break;
-                
+function playSound(soundFileName,volume) {
+    if (soundFileName != "None") {
+        var myAudio = new Audio(chrome.runtime.getURL("audio/" + soundFileName)) || false;
+        if(myAudio){
+            myAudio.volume = volume;
+            myAudio.play();
         }
-        myAudio.play();
     }
 }

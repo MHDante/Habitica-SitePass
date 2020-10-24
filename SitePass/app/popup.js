@@ -6,6 +6,7 @@ console.log(background);
 var Vars = background.Vars;
 var Consts = background.Consts;
 var CurrentTabHostname;
+var updatedHabitica = false;
 
 //----- on popup load -----//
 document.addEventListener("DOMContentLoaded", function () {
@@ -13,7 +14,7 @@ document.addEventListener("DOMContentLoaded", function () {
     background.FetchHabiticaData(true); //Fetch Habitica basic data when opening the popup
     CredentialFields(); // Update settings
 
-    //On version update or install
+    //On version update or install show info
     if (Vars.versionUpdate) {
         $("#VersionUpdate").show();
         $("#VersionUpdate .version").html("version " + chrome.runtime.getManifest().version);
@@ -196,9 +197,50 @@ document.addEventListener("DOMContentLoaded", function () {
         $("#customPomodoroTask").append(option);
         $("#customSetTask").append(option.cloneNode(true));
     }
-    $("#customPomodoroTask").val(Vars.PomodoroTaskId);
-    $("#customSetTask").val(Vars.PomodoroSetTaskId);
+    $("#customPomodoroTask").val(Vars.UserData.PomodoroTaskId);
+    $("#customSetTask").val(Vars.UserData.PomodoroSetTaskId);
+
+    //Sounds list
+    for (var i in Consts.Sounds) {
+        var FileName = Consts.Sounds[i];
+        var option = document.createElement("option");
+        option.value = FileName;
+        option.innerHTML = FileName.split(".")[0];
+        $("#pomodoroEndSound").append(option);
+        $("#breakEndSound").append(option.cloneNode(true));
+    }
+
+    $("#pomodoroEndSound").val(Vars.UserData.pomodoroEndSound);
+    $("#breakEndSound").val(Vars.UserData.breakEndSound);
+
+    $('#breakEndSound').on('change', function () {
+        background.playSound(this.value,Vars.UserData.breakEndSoundVolume);
+    });  
+    $('#pomodoroEndSound').on('change', function () {
+        background.playSound(this.value,Vars.UserData.pomodoroEndSoundVolume);
+    });
+    $('#pomodoroEndSoundVolume').mouseup(function() {
+        background.playSound(Vars.UserData.pomodoroEndSound,Vars.UserData.pomodoroEndSoundVolume);
+    });
+    $('#breakEndSoundVolume').mouseup(function() {
+        background.playSound(Vars.UserData.breakEndSound,Vars.UserData.breakEndSoundVolume);
+    });
+
+    // Save Button
+    $("#SaveButton").click(function () {
+        updateCredentials();
+        //Got over it.
+        SaveUserSettings();
+        if (updatedHabitica){
+            background.FetchHabiticaData();
+        }
+        location.reload();
+    });
+    $(".habitica-setting, .habitica-setting input,.habitica-setting select ").click(function() {updatedHabitica = true;});
+
 });
+
+
 
 
 //----- Functions -----//
@@ -212,16 +254,8 @@ function AddSiteToTable(site, fadein) {
     if (site.passExpiry) {
         if (site.passExpiry > Date.now()) {
 
-            // //Clock hour of next block
-            // var hrs = passExpiry.getHours();
-            // hrs = hrs < 10 ? "0" + hrs : hrs;
-            // var min = passExpiry.getMinutes();
-            // min = min < 10 ? "0" + min : min;
-            // var endHour = hrs + ":" + min;
-            // passExpiryElement = '<br><span class="passExp">' + endHour + '</span>'
-
             //Remaining time in minutes
-            var remainingTime = getSitePassRemainingTime(site)
+            var remainingTime = background.getSitePassRemainingTime(site)
             passExpiryElement = '<br><span class="passExp" data-hostname=' + site.hostname + '>' + remainingTime + '</span>';
         }
     }
@@ -236,7 +270,7 @@ function AddSiteToTable(site, fadein) {
         '<a class="buy" href="#">' +
         '<span class="gold_icon"></span><br>' + cost +
         '</a></td>' +
-        '<td style="width:100%"><div class="hostname">' + site.hostname + passExpiryElement + '</div></td>' +
+        '<td><div class="hostname">' + site.hostname + passExpiryElement + '</div></td>' +
         '<td><a class="edit" href="#"><img src="img/pencil.png"></a></td>' +
         '<td><a class="delete" href="#"><img src="img/trash.png"></a></td>' +
         '</tr>' +
@@ -319,7 +353,6 @@ function CredentialFields() {
     $("#BreakFreePass").prop('checked', Vars.UserData.BreakFreePass);
     $("#BreakExtentionFails").prop('checked', Vars.UserData.BreakExtentionFails);
     $("#BreakExtentionNotify").prop('checked', Vars.UserData.BreakExtentionNotify);
-    $("#SoundNotify").prop('checked', Vars.UserData.SoundNotify);
     $("#HideEdit").prop('checked', Vars.UserData.HideEdit);
     $("#PomoSetNum").val(Vars.UserData.PomoSetNum);
     $("#PomoSetHabitPlus").prop('checked', Vars.UserData.PomoSetHabitPlus);
@@ -334,6 +367,10 @@ function CredentialFields() {
     $("#TranspartOverlay").prop('checked', Vars.UserData.TranspartOverlay);
     $("#TickSound").prop('checked', Vars.UserData.TickSound);
     $("#showSkipToBreak").prop('checked', Vars.UserData.showSkipToBreak);
+    $("#pomodoroEndSound").val(Vars.UserData.pomodoroEndSound);
+    $("#breakEndSound").val(Vars.UserData.breakEndSound);
+    $("#pomodoroEndSoundVolume").val(Vars.UserData.pomodoroEndSoundVolume);
+    $("#breakEndSoundVolume").val(Vars.UserData.breakEndSoundVolume);
 
     //Update Pomodoros Today, reset on new day
     today = new Date().setHours(0, 0, 0, 0);
@@ -358,7 +395,6 @@ function CredentialFields() {
     $("#BreakFreePass").click(function () { updateCredentials(); });
     $("#BreakExtentionFails").click(function () { updateCredentials(); });
     $("#BreakExtentionNotify").click(function () { updateCredentials(); });
-    $("#SoundNotify").click(function () { updateCredentials(); });
     $("#HideEdit").click(function () { updateCredentials(); });
     $("#PomoSetNum").bind('keyup input change', function () { updateCredentials(); });
     $("#PomoSetHabitPlus").click(function () { updateCredentials(); });
@@ -373,17 +409,12 @@ function CredentialFields() {
     $("#TranspartOverlay").click(function () { updateCredentials(); });
     $("#TickSound").click(function () { updateCredentials(); });
     $("#showSkipToBreak").click(function () { updateCredentials(); });
+    $("#pomodoroEndSound").click(function () { updateCredentials(); });
+    $("#breakEndSound").click(function () { updateCredentials(); });
+    $("#pomodoroEndSoundVolume").mouseup(function () { updateCredentials(); });
+    $("#breakEndSoundVolume").mouseup(function () { updateCredentials(); });
 
     //ugh.
-
-    $("#SaveButton").click(function () {
-        updateCredentials();
-
-        //Got over it.
-        SaveUserSettings();
-        background.FetchHabiticaData();
-        location.reload();
-    });
 
 }
 
@@ -466,7 +497,6 @@ function updateCredentials() {
     Vars.UserData.BreakFreePass = $("#BreakFreePass").prop('checked');
     Vars.UserData.BreakExtentionFails = $("#BreakExtentionFails").prop('checked');
     Vars.UserData.BreakExtentionNotify = $("#BreakExtentionNotify").prop('checked');
-    Vars.UserData.SoundNotify = $("#SoundNotify").prop('checked');
     Vars.UserData.PomoSetHabitPlus = $("#PomoSetHabitPlus").prop('checked');
     Vars.UserData.LongBreakNotify = $("#LongBreakNotify").prop('checked');
     Vars.UserData.VacationMode = $("#VacationMode").prop('checked');
@@ -480,6 +510,10 @@ function updateCredentials() {
     Vars.UserData.TranspartOverlay = $("#TranspartOverlay").prop('checked');
     Vars.UserData.TickSound = $("#TickSound").prop('checked');
     Vars.UserData.showSkipToBreak = $("#showSkipToBreak").prop('checked');
+    Vars.UserData.pomodoroEndSound = $("#pomodoroEndSound").val();
+    Vars.UserData.breakEndSound = $("#breakEndSound").val();
+    Vars.UserData.pomodoroEndSoundVolume = $("#pomodoroEndSoundVolume").val();
+    Vars.UserData.breakEndSoundVolume = $("#breakEndSoundVolume").val();
 }
 
 function updateTimerDisplay() {
@@ -571,28 +605,17 @@ function credErrorTipAnimation() {
         }, 700);
 }
 
-function getSitePassRemainingTime(site) {
-    if (site.passExpiry - Date.now() <= 0) {
-        return false;
-    }
-    var remainingMinutesNumber = ((site.passExpiry - Date.now()) / (1000 * 60)).toFixed(2).split('.');
-    console.log(remainingMinutesNumber)
-    var remainingMinutes = remainingMinutesNumber[0].length < 2 ? "0" + remainingMinutesNumber[0] : remainingMinutesNumber[0];
-    var remainingSconds = remainingMinutesNumber[1].length < 2 ? "0" + remainingMinutesNumber[1] : remainingMinutesNumber[1];
-    return remainingMinutes + ":" + remainingSconds;
-}
-
 function updateSiteExpireDisplay() {
     $(".passExp").each(function () {
         var hostname = $(this).attr("data-hostname")
         var site = Vars.UserData.GetBlockedSite(hostname);
-        var time = getSitePassRemainingTime(site);
+        var time = background.getSitePassRemainingTime(site);
         if (time) {
-            $(this).html(getSitePassRemainingTime(site));
+            $(this).html(time);
         } else {
             $(this).remove();
         }
-        
+
     });
 }
 

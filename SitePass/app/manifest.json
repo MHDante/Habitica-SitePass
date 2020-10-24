@@ -2,8 +2,8 @@
     "manifest_version": 2,
 
     "name": "Habitica Pomodoro SiteKeeper",
-    "description": "Pomodoro Timer and SiteBlocker that Plugs into Habitica and turns your time-wasting navigation tendencies into rewards.",
-    "version": "5.62",
+    "description": "Pomodoro Timer and Site Blocker that Plugs into Habitica and turns your time-wasting navigation tendencies into rewards.",
+    "version": "5.75",
 
     "permissions": [
         "storage",
@@ -32,8 +32,6 @@
     "web_accessible_resources": [
           "img/siteKeeper.png",
           "img/siteKeeper2.png",
-          "img/siteKeeper3.png",
-          "audio/pomodoroEnd.mp3",
-          "audio/breakEnd.mp3"
+          "img/siteKeeper3.png"
       ]
 }

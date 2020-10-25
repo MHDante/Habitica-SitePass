@@ -36,7 +36,7 @@ var Consts = {
     userDataKey: "USER_DATA",
     PomodorosTodayDataKey: "PomodorosToday",
     NotificationId: "sitepass_notification",
-    Sounds: ["Sound1.mp3","Sound2.mp3","Sound3.wav","Sound4.wav","Sound5.mp3","Sound6.wav","Sound7.wav","Sound8.wav","Sound9.mp3"],
+    Sounds: ["Sound1.mp3", "Sound2.mp3", "Sound3.wav", "Sound4.wav", "Sound5.mp3", "Sound6.wav", "Sound7.wav", "Sound8.wav", "Sound9.mp3"],
 };
 
 var Vars = {
@@ -100,6 +100,7 @@ function UserSettings(copyFrom) {
     this.breakEndSound = copyFrom ? copyFrom.breakEndSound : "None";
     this.pomodoroEndSoundVolume = copyFrom ? copyFrom.pomodoroEndSoundVolume : 0.5;
     this.breakEndSoundVolume = copyFrom ? copyFrom.breakEndSoundVolume : 0.5;
+    this.ManualNextPomodoro = copyFrom ? copyFrom.ManualNextPomodoro : false;
 
     //returns site object or false
     this.GetBlockedSite = function (hostname) {
@@ -247,7 +248,7 @@ function mainSiteBlockFunction(tab) {
 }
 
 
-var passInterval; 
+var passInterval;
 //Shows the time until the paid site is blocked again
 function showPayToPassTimerBadge(site) {
 
@@ -633,6 +634,7 @@ function getSitePassRemainingTime(site) {
 
 //start pomodoro session - duration in seconds
 function startPomodoro() {
+    stopTimer();
     var duration = 60 * Vars.UserData.PomoDurationMins;
     Vars.TimerRunnig = true;
     Vars.onBreak = false;
@@ -654,7 +656,7 @@ function duringPomodoro() {
 
     //Tick Sound
     if (Vars.UserData.TickSound) {
-        playSound("clockTicking.mp3",1);
+        playSound("clockTicking.mp3", 1);
     }
 }
 
@@ -713,11 +715,12 @@ function pomodoroEnds() {
     notify(title, msg);
 
     //play sound
-    playSound(Vars.UserData.pomodoroEndSound,Vars.UserData.pomodoroEndSoundVolume);
+    playSound(Vars.UserData.pomodoroEndSound, Vars.UserData.pomodoroEndSoundVolume);
 }
 
 //start break session - duration in seconds
 function startBreak() {
+    stopTimer();
     var duration;
     if (Vars.PomoSetCounter == Vars.UserData.PomoSetNum) {
         duration = 60 * Vars.UserData.LongBreakDuration
@@ -764,20 +767,26 @@ function breakEnds() {
     var onManualTakeBreak = Vars.onManualTakeBreak
     stopTimer();
     var msg;
+
+    //Long break
     if (Vars.PomoSetCounter == Vars.UserData.PomoSetNum) {
         msg = onManualTakeBreak ? "Break is 0ver" : "Long Break is over";
         pomoReset();
         if (Vars.UserData.LongBreakNotify) {
             notifyHabitica(msg);
         }
-    } else {
+    }
+
+    //Break Extension on end
+    else {
         msg = "Back to work";
         startBreakExtension(Vars.UserData.BreakExtention * 60);
     }
+
     //notify
     notify("Time's Up", msg);
     //play sound
-    playSound(Vars.UserData.breakEndSound,Vars,UserData.breakEndSoundVolume);
+    playSound(Vars.UserData.breakEndSound, Vars.UserData.breakEndSoundVolume);
 }
 
 //start break session - duration in seconds
@@ -786,7 +795,8 @@ function startBreakExtension(duration) {
     Vars.TimerRunnig = true;
     Vars.onBreakExtension = true;
     Vars.onBreak = true;
-    startTimer(duration, duringBreakExtension, pomodoroInterupted);
+    var endFunc = Vars.UserData.ManualNextPomodoro ?  pomodoroInterupted : (() => {pomodoroInterupted(true)});
+    startTimer(duration, duringBreakExtension, endFunc);
     if (Vars.UserData.BreakExtentionNotify) {
         notifyHabitica("Back to work! " + secondsToTimeString(Vars.UserData.BreakExtention * 60) + " minutes left for Break Extension.");
     }
@@ -804,13 +814,21 @@ function duringBreakExtension() {
 }
 
 //runs when pomodoro is interupted (stoped before timer ends/break extension over)
-function pomodoroInterupted() {
+function pomodoroInterupted(breakPomoStreak) {
+
     var failedBreakExtension = Vars.UserData.BreakExtentionFails && Vars.onBreakExtension;
     var breakExtensionZero = !Vars.UserData.BreakExtentionFails && (Vars.UserData.BreakExtention == 0);
-    pomoReset();
+    if(breakPomoStreak){
+        pomoReset();
+    }else{
+        pauseTimer();  
+        Vars.Timer = "DO IT";
+    }
+    
     if (breakExtensionZero) {
         return;
     }
+
     if (Vars.UserData.PomoHabitMinus || failedBreakExtension) {
         FetchHabiticaData(true);
         var result = ScoreHabit(Vars.PomodoroTaskId, 'down');
@@ -822,7 +840,6 @@ function pomodoroInterupted() {
         } else {
             msg = "ERROR: " + result.error;
         }
-        console.log(msg);
         notify("Pomodoro Failed!", msg);
     }
 }
@@ -843,6 +860,11 @@ function stopTimer() {
     Vars.onBreakExtension = false;
     Vars.onManualTakeBreak = false;
 
+}
+
+//Pause timer
+function pauseTimer() {
+    clearInterval(timerInterval);
 }
 
 //Stop timer - reset to start position
@@ -932,10 +954,10 @@ function notifyHabitica(msg) {
     callAPI("POST", 'members/send-private-message', JSON.stringify(data));
 }
 
-function playSound(soundFileName,volume) {
+function playSound(soundFileName, volume) {
     if (soundFileName != "None") {
         var myAudio = new Audio(chrome.runtime.getURL("audio/" + soundFileName)) || false;
-        if(myAudio){
+        if (myAudio) {
             myAudio.volume = volume;
             myAudio.play();
         }

@@ -64,18 +64,15 @@ document.addEventListener("DOMContentLoaded", function () {
     //Pomodoro Button actions
     $("#PomoButton").click(function () {
         if (Vars.onBreak && !Vars.TimerRunnig) {
-            background.stopTimer();
             background.startBreak();
         }
         else if (!Vars.TimerRunnig || Vars.onBreak || Vars.onBreakExtension) {
             if (Vars.PomoSetCounter == Vars.UserData.PomoSetNum) { //Set complete
                 background.pomoReset();
             } else {//next pomodoro
-                background.stopTimer();
                 background.startPomodoro();
             }
         } else {
-            background.stopTimer();
             background.pomodoroInterupted();
         }
     });
@@ -371,6 +368,8 @@ function CredentialFields() {
     $("#breakEndSound").val(Vars.UserData.breakEndSound);
     $("#pomodoroEndSoundVolume").val(Vars.UserData.pomodoroEndSoundVolume);
     $("#breakEndSoundVolume").val(Vars.UserData.breakEndSoundVolume);
+    $("#ManualNextPomodoro").prop('checked', Vars.UserData.ManualNextPomodoro);
+    
 
     //Update Pomodoros Today, reset on new day
     today = new Date().setHours(0, 0, 0, 0);
@@ -413,7 +412,7 @@ function CredentialFields() {
     $("#breakEndSound").click(function () { updateCredentials(); });
     $("#pomodoroEndSoundVolume").mouseup(function () { updateCredentials(); });
     $("#breakEndSoundVolume").mouseup(function () { updateCredentials(); });
-
+    $("#ManualNextPomodoro").click(function () { updateCredentials(); });
     //ugh.
 
 }
@@ -514,6 +513,7 @@ function updateCredentials() {
     Vars.UserData.breakEndSound = $("#breakEndSound").val();
     Vars.UserData.pomodoroEndSoundVolume = $("#pomodoroEndSoundVolume").val();
     Vars.UserData.breakEndSoundVolume = $("#breakEndSoundVolume").val();
+    Vars.UserData.ManualNextPomodoro = $("#ManualNextPomodoro").prop('checked');
 }
 
 function updateTimerDisplay() {
@@ -597,11 +597,11 @@ function credErrorTipAnimation() {
     $("#MenuHabiticaSettings").prop("checked", true).change();
     $('.connect-habitica-animate').animate(
         {
-            fontSize: "130%"
+            fontSize : "20px"
         }, 700);
     $('.connect-habitica-animate').animate(
         {
-            fontSize: "100%"
+            fontSize : "14px"
         }, 700);
 }
 

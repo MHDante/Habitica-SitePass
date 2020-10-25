@@ -531,6 +531,7 @@ a.delete {
     width: 100px;
     display: inline-block;
     margin-left: 15px;
+    word-spacing:-12px;
 }
 
 #Time:after {

@@ -37,6 +37,7 @@ var Consts = {
     PomodorosTodayDataKey: "PomodorosToday",
     NotificationId: "sitepass_notification",
     Sounds: ["Sound1.mp3", "Sound2.mp3", "Sound3.wav", "Sound4.wav", "Sound5.mp3", "Sound6.wav", "Sound7.wav", "Sound8.wav", "Sound9.mp3"],
+    AmbientSounds: ["Ambient Clock.flac", "Ambient Rain.wav","Ambient Crickets.mp3","Ambient Birds.wav"]
 };
 
 var Vars = {
@@ -61,6 +62,7 @@ var Vars = {
     PomoSetCounter: 0,
     onManualTakeBreak: false,
     versionUpdate: false,
+    ambientSound: null
 };
 
 
@@ -98,8 +100,10 @@ function UserSettings(copyFrom) {
     this.showSkipToBreak = copyFrom ? copyFrom.showSkipToBreak : false;
     this.pomodoroEndSound = copyFrom ? copyFrom.pomodoroEndSound : "None";
     this.breakEndSound = copyFrom ? copyFrom.breakEndSound : "None";
+    this.ambientSound = copyFrom ? copyFrom.ambientSound : "None";
     this.pomodoroEndSoundVolume = copyFrom ? copyFrom.pomodoroEndSoundVolume : 0.5;
     this.breakEndSoundVolume = copyFrom ? copyFrom.breakEndSoundVolume : 0.5;
+    this.ambientSoundVolume = copyFrom ? copyFrom.ambientSoundVolume : 0.5;
     this.ManualNextPomodoro = copyFrom ? copyFrom.ManualNextPomodoro : false;
 
     //returns site object or false
@@ -397,13 +401,14 @@ function getData(silent, credentials, serverPath) {
     var xhr = getHabiticaData(Consts.serverUrl + serverPath, Consts.xClientHeader, credentials);
     Vars.ServerResponse = xhr.status;
     if (xhr.status == 401) {
-        chrome.notifications.create(Consts.NotificationId, {
-            type: "basic",
-            iconUrl: "img/icon.png",
-            title: "Habitica Credentials Error",
-            message: "Click on the extension icon at the top right of your browser to set your credentials."
-        },
-            function () { });
+        // chrome.notifications.create(Consts.NotificationId, {
+        //     type: "basic",
+        //     iconUrl: "img/icon.png",
+        //     title: "Habitica Credentials Error",
+        //     message: "Click on the extension icon at the top right of your browser to set your credentials."
+        // },
+        //     function () { });
+        console.log("Habitica Credentials Error 404");
         return null;
     } else if (xhr.status != 200) {
         if (!silent) {
@@ -423,7 +428,7 @@ function getData(silent, credentials, serverPath) {
 
 function FetchHabiticaData(skipTasks) {
     var credentials = Vars.UserData.Credentials;
-    var userObj = getData(false, credentials, Consts.serverPathUser);
+    var userObj = getData(true, credentials, Consts.serverPathUser);
     if (userObj == null) return;
     else {
         Vars.Monies = userObj.data["stats"]["gp"];
@@ -640,6 +645,7 @@ function startPomodoro() {
     Vars.onBreak = false;
     startTimer(duration, duringPomodoro, pomodoroEnds);
     muteBlockedtabs();
+    playSound(Vars.UserData.ambientSound, Vars.UserData.ambientSoundVolume, true);
 }
 
 //runs during pomodoro session
@@ -654,10 +660,13 @@ function duringPomodoro() {
     //Block current tab if necessary
     CurrentTab(blockSiteOverlay);
 
-    //Tick Sound
-    if (Vars.UserData.TickSound) {
-        playSound("clockTicking.mp3", 1);
+    if(Vars.ambientSound && Vars.ambientSound.paused){
+        playSound(Vars.UserData.ambientSound, Vars.UserData.ambientSoundVolume, true);
     }
+    //Tick Sound
+    // if (Vars.UserData.TickSound) {
+    //     playSound("clockTicking.mp3", 1,false);
+    // }
 }
 
 
@@ -665,7 +674,7 @@ function duringPomodoro() {
 function pomodoroEnds() {
 
     stopTimer();
-
+    stopAmbientSound();
     //update Pomodoros Count
     Vars.PomodorosToday.value++;
 
@@ -715,7 +724,7 @@ function pomodoroEnds() {
     notify(title, msg);
 
     //play sound
-    playSound(Vars.UserData.pomodoroEndSound, Vars.UserData.pomodoroEndSoundVolume);
+    playSound(Vars.UserData.pomodoroEndSound, Vars.UserData.pomodoroEndSoundVolume, false);
 }
 
 //start break session - duration in seconds
@@ -786,7 +795,7 @@ function breakEnds() {
     //notify
     notify("Time's Up", msg);
     //play sound
-    playSound(Vars.UserData.breakEndSound, Vars.UserData.breakEndSoundVolume);
+    playSound(Vars.UserData.breakEndSound, Vars.UserData.breakEndSoundVolume, false);
 }
 
 //start break session - duration in seconds
@@ -795,7 +804,7 @@ function startBreakExtension(duration) {
     Vars.TimerRunnig = true;
     Vars.onBreakExtension = true;
     Vars.onBreak = true;
-    var endFunc = Vars.UserData.ManualNextPomodoro ?  pomodoroInterupted : (() => {pomodoroInterupted(true)});
+    var endFunc = Vars.UserData.ManualNextPomodoro ? pomodoroInterupted : (() => { pomodoroInterupted(true) });
     startTimer(duration, duringBreakExtension, endFunc);
     if (Vars.UserData.BreakExtentionNotify) {
         notifyHabitica("Back to work! " + secondsToTimeString(Vars.UserData.BreakExtention * 60) + " minutes left for Break Extension.");
@@ -816,15 +825,17 @@ function duringBreakExtension() {
 //runs when pomodoro is interupted (stoped before timer ends/break extension over)
 function pomodoroInterupted(breakPomoStreak) {
 
+    stopAmbientSound();
+
     var failedBreakExtension = Vars.UserData.BreakExtentionFails && Vars.onBreakExtension;
     var breakExtensionZero = !Vars.UserData.BreakExtentionFails && (Vars.UserData.BreakExtention == 0);
-    if(breakPomoStreak){
+    if (breakPomoStreak) {
         pomoReset();
-    }else{
-        pauseTimer();  
+    } else {
+        pauseTimer();
         Vars.Timer = "DO IT";
     }
-    
+
     if (breakExtensionZero) {
         return;
     }
@@ -869,19 +880,19 @@ function pauseTimer() {
 
 //Stop timer - reset to start position
 function pomoReset() {
+    stopAmbientSound();
     stopTimer();
     Vars.PomoSetCounter = 0; //Reset Pomo set Count
 }
 
 //End pomodoro and start a break
 function skipToBreak() {
+    stopAmbientSound();
     stopTimer();
     var title = "Time's Up";
     var msg = "Take a break";
     Vars.PomoSetCounter++; //Updae set counter
     startBreak();
-
-    //notify
     notify(title, msg);
 }
 
@@ -954,12 +965,23 @@ function notifyHabitica(msg) {
     callAPI("POST", 'members/send-private-message', JSON.stringify(data));
 }
 
-function playSound(soundFileName, volume) {
+function playSound(soundFileName, volume, loop) {
     if (soundFileName != "None") {
         var myAudio = new Audio(chrome.runtime.getURL("audio/" + soundFileName)) || false;
         if (myAudio) {
             myAudio.volume = volume;
             myAudio.play();
         }
+        if (loop) {
+            Vars.ambientSound = myAudio;
+            myAudio.loop = true;
+        }
+    }
+}
+
+function stopAmbientSound() {
+    if (Vars.ambientSound) {
+        Vars.ambientSound.pause();
+        Vars.ambientSound.currentTime = 0;
     }
 }

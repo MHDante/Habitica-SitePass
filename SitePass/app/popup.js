@@ -206,22 +206,46 @@ document.addEventListener("DOMContentLoaded", function () {
         $("#pomodoroEndSound").append(option);
         $("#breakEndSound").append(option.cloneNode(true));
     }
+    for (var i in Consts.AmbientSounds) {
+        var FileName = Consts.AmbientSounds[i];
+        var option = document.createElement("option");
+        option.value = FileName;
+        option.innerHTML = FileName.split(".")[0];
+        $("#ambientSound").append(option);
+    }
 
     $("#pomodoroEndSound").val(Vars.UserData.pomodoroEndSound);
     $("#breakEndSound").val(Vars.UserData.breakEndSound);
+    $("#ambientSound").val(Vars.UserData.ambientSound);
 
     $('#breakEndSound').on('change', function () {
-        background.playSound(this.value,Vars.UserData.breakEndSoundVolume);
+        background.playSound(this.value,Vars.UserData.breakEndSoundVolume),false;
     });  
     $('#pomodoroEndSound').on('change', function () {
-        background.playSound(this.value,Vars.UserData.pomodoroEndSoundVolume);
+        background.playSound(this.value,Vars.UserData.pomodoroEndSoundVolume,false);
+    });
+    $('#ambientSound').on('change', function () {
+        playAmbientSample();
     });
     $('#pomodoroEndSoundVolume').mouseup(function() {
-        background.playSound(Vars.UserData.pomodoroEndSound,Vars.UserData.pomodoroEndSoundVolume);
+        background.playSound(Vars.UserData.pomodoroEndSound,Vars.UserData.pomodoroEndSoundVolume,false);
     });
     $('#breakEndSoundVolume').mouseup(function() {
-        background.playSound(Vars.UserData.breakEndSound,Vars.UserData.breakEndSoundVolume);
+        background.playSound(Vars.UserData.breakEndSound,Vars.UserData.breakEndSoundVolume,false);
     });
+    $('#ambientSoundVolume').mouseup(function() {
+        playAmbientSample();
+    });
+
+    var ambientSampleTimeout;
+    function playAmbientSample(){
+        clearTimeout(ambientSampleTimeout);
+        background.stopAmbientSound();
+        setTimeout(function() {
+            background.playSound(Vars.UserData.ambientSound,Vars.UserData.ambientSoundVolume,true);
+        }, 100);
+        ambientSampleTimeout = setTimeout(function() {background.stopAmbientSound();}, 3000);
+    }
 
     // Save Button
     $("#SaveButton").click(function () {
@@ -366,8 +390,10 @@ function CredentialFields() {
     $("#showSkipToBreak").prop('checked', Vars.UserData.showSkipToBreak);
     $("#pomodoroEndSound").val(Vars.UserData.pomodoroEndSound);
     $("#breakEndSound").val(Vars.UserData.breakEndSound);
+    $("#ambientSound").val(Vars.UserData.ambientSound);
     $("#pomodoroEndSoundVolume").val(Vars.UserData.pomodoroEndSoundVolume);
     $("#breakEndSoundVolume").val(Vars.UserData.breakEndSoundVolume);
+    $("#ambientSoundVolume").val(Vars.UserData.ambientSoundVolume);
     $("#ManualNextPomodoro").prop('checked', Vars.UserData.ManualNextPomodoro);
     
 
@@ -410,8 +436,10 @@ function CredentialFields() {
     $("#showSkipToBreak").click(function () { updateCredentials(); });
     $("#pomodoroEndSound").click(function () { updateCredentials(); });
     $("#breakEndSound").click(function () { updateCredentials(); });
+    $("#ambientSound").click(function () { updateCredentials(); });
     $("#pomodoroEndSoundVolume").mouseup(function () { updateCredentials(); });
     $("#breakEndSoundVolume").mouseup(function () { updateCredentials(); });
+    $("#ambientSoundVolume").mouseup(function () { updateCredentials(); });
     $("#ManualNextPomodoro").click(function () { updateCredentials(); });
     //ugh.
 
@@ -511,8 +539,10 @@ function updateCredentials() {
     Vars.UserData.showSkipToBreak = $("#showSkipToBreak").prop('checked');
     Vars.UserData.pomodoroEndSound = $("#pomodoroEndSound").val();
     Vars.UserData.breakEndSound = $("#breakEndSound").val();
+    Vars.UserData.ambientSound = $("#ambientSound").val();
     Vars.UserData.pomodoroEndSoundVolume = $("#pomodoroEndSoundVolume").val();
     Vars.UserData.breakEndSoundVolume = $("#breakEndSoundVolume").val();
+    Vars.UserData.ambientSoundVolume = $("#ambientSoundVolume").val();
     Vars.UserData.ManualNextPomodoro = $("#ManualNextPomodoro").prop('checked');
 }
 

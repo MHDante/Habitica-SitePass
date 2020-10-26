@@ -18,11 +18,12 @@
     background-repeat: no-repeat;
     width: 211px;
     height:200px;
-    top: calc(50% - 170px);
-    left: calc(50% - 110px);
+    top: calc(50% - 110px);
+    left: calc(50% - 100px);
     position: fixed;
     z-index: 99999;
     font-family: monospace !important;
+    font-size: 35px;
     opacity:  1 !important;
 }
 #payToPass_btn{

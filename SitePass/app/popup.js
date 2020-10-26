@@ -73,7 +73,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 background.startPomodoro();
             }
         } else {
-            background.pomodoroInterupted();
+            background.pomodoroInterupted(true);
         }
     });
 

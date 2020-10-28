@@ -163,21 +163,28 @@
                                         data-tip="All sites are blocked during pomodoro. Sites with cost 0 are blocked only during pomodoro."></span>
                                 <label class="habitica-setting"><input type="checkbox" id="BreakFreePass">During break
                                         all sites are free</label>
-                                <span class=" habitica_small_icon small_icon tooltip"></span><br>
-                                <label class="habitica-setting">Vacation Mode<input type="checkbox" id="VacationMode"
-                                                class="switch">&nbsp;&nbsp;</label>
                                 <span class=" habitica_small_icon small_icon tooltip"></span>
-                                <span class="small_icon help_icon tooltip"
-                                        data-tip="All websites are free when enabled."></span>
-                                <br>
+                                <hr>
                                 <label><input type="checkbox" id="HideEdit">Hide edit options</label>
                                 <span class="small_icon help_icon tooltip"
                                         data-tip="Hide the option to block/unblock websites to lower the temptation of removing a blocked website during a work session."></span><br>
                                 <label><input type="checkbox" id="MuteBlockedSites">Mute blocked websites</label><br>
                                 <label><input type="checkbox" id="TranspartOverlay">Blocked website background
-                                        transparency</label><br>
-                                <label class="connect-habitica-animate habitica-setting"><b>Whitelist:</b><br /><textarea id="Whitelist" rows="4" placeholder="(i.e. https://habitica.com/#/tasks)"></textarea></label><br>
-                                <span class="setting-note habitica-setting">One URL per line. Encase line in "/" for <a href="https://regexr.com/">Regex</a> support.</span>
+                                        transparency</label>
+                                <hr>
+                                <label><b>Whitelist: </b></label><span class="small_icon help_icon tooltip"
+                                        data-tip="One URL per line, whitelist sites are also unblocked during pomodoro."></span><br>
+                                <textarea id="Whitelist" rows="4"
+                                        placeholder="(i.e. https://habitica.com/#/tasks)"></textarea>
+
+                                <span class="setting-note">One URL per line.<br>Encase line in "/" for <a
+                                                href="https://regexr.com/">Regex</a> support (i.e. /RegExp/).</span>
+                                <hr>
+                                <label class="habitica-setting">Vacation Mode<input type="checkbox" id="VacationMode"
+                                                class="switch">&nbsp;&nbsp;</label>
+                                <span class=" habitica_small_icon small_icon tooltip"></span>
+                                <span class="small_icon help_icon tooltip"
+                                        data-tip="All websites are free when enabled."></span>
                         </div>
 
                         <!-- More info -->
@@ -193,7 +200,8 @@
                         <h3 style="margin-left: 70px;">
                                 <img style="width: 35px;position: absolute;margin-left: -50px;"
                                         src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZlcnNpb249IjEuMSIgeG1sbnM6eGxpbms9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGxpbmsiIHhtbG5zOnN2Z2pzPSJodHRwOi8vc3ZnanMuY29tL3N2Z2pzIiB3aWR0aD0iNTEyIiBoZWlnaHQ9IjUxMiIgeD0iMCIgeT0iMCIgdmlld0JveD0iMCAwIDUxMi4wMDEgNTEyIiBzdHlsZT0iZW5hYmxlLWJhY2tncm91bmQ6bmV3IDAgMCA1MTIgNTEyIiB4bWw6c3BhY2U9InByZXNlcnZlIiBjbGFzcz0iIj48Zz48cGF0aCB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIGQ9Im00OTYuNjgzNTk0IDBjLTkuMzY3MTg4IDAtNDY5LjY0NDUzMiAwLTQ4MS4zNjcxODggMC04LjQ1NzAzMSAwLTE1LjMxNjQwNiA2Ljg3ODkwNi0xNS4zMTY0MDYgMTUuMzU5Mzc1djQ4MS4yODEyNWMwIDguNDg0Mzc1IDYuODU5Mzc1IDE1LjM1OTM3NSAxNS4zMTY0MDYgMTUuMzU5Mzc1aDQ4MS4zNjcxODhjOC40NTcwMzEgMCAxNS4zMTY0MDYtNi44NzUgMTUuMzE2NDA2LTE1LjM1OTM3NSAwLTEwLjAyNzM0NCAwLTQ2NC43MTQ4NDQgMC00ODEuMjgxMjUgMC04LjQ4MDQ2OS02Ljg1OTM3NS0xNS4zNTkzNzUtMTUuMzE2NDA2LTE1LjM1OTM3NXptLTE1LjMxNjQwNiA3NC4wMTk1MzFoLTI4OGwtMTMuODMyMDMyLTQzLjMwMDc4MWgzMDEuODMyMDMyem0wIDQwNy4yNjE3MTloLTQ1MC43MzQzNzZ2LTQ1MC41NjI1aDExNi43MzQzNzZsMjAuMjM0Mzc0IDYzLjM0Mzc1YzIuMDMxMjUgNi4zNTkzNzUgNy45Mjk2ODggMTAuNjc1NzgxIDE0LjU4OTg0NCAxMC42NzU3ODFoMjk5LjE3NTc4MnptMCAwIiBmaWxsPSIjODc4MTkwIiBkYXRhLW9yaWdpbmFsPSIjMDAwMDAwIiBzdHlsZT0iIiBjbGFzcz0iIj48L3BhdGg+PHBhdGggeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiBkPSJtMTEwLjY4NzUgNTIuMjY5NTMxaC0zOS43ODkwNjJjLTguNDU3MDMyIDAtMTUuMzE2NDA3IDYuODc1LTE1LjMxNjQwNyAxNS4zNTkzNzVzNi44NTU0NjkgMTUuMzU5Mzc1IDE1LjMxNjQwNyAxNS4zNTkzNzVoMzkuNzg5MDYyYzguNDU3MDMxIDAgMTUuMzE2NDA2LTYuODc1IDE1LjMxNjQwNi0xNS4zNTkzNzVzLTYuODU5Mzc1LTE1LjM1OTM3NS0xNS4zMTY0MDYtMTUuMzU5Mzc1em0wIDAiIGZpbGw9IiM4NzgxOTAiIGRhdGEtb3JpZ2luYWw9IiMwMDAwMDAiIHN0eWxlPSIiIGNsYXNzPSIiPjwvcGF0aD48cGF0aCB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIGQ9Im0yMDQuOTYwOTM4IDMwMy4yMTA5Mzh2MTAyLjM5MDYyNGMwIDI4LjIyMjY1NyAyMi44OTQ1MzEgNTEuMTgzNTk0IDUxLjAzOTA2MiA1MS4xODM1OTRzNTEuMDM5MDYyLTIyLjk2MDkzNyA1MS4wMzkwNjItNTEuMTgzNTk0di0xMDIuMzkwNjI0YzI2LjgwMDc4Mi0xNy4yOTI5NjkgNDMuMDg5ODQ0LTQ2Ljg3NSA0My4wODk4NDQtNzkuMzAwNzgyIDAtNDAuOTI5Njg3LTI2LjAzOTA2Mi03Ni45NzY1NjItNjQuODA0Njg3LTg5LjcwMzEyNS05LjkwNjI1LTMuMjUzOTA2LTIwLjA4MjAzMSA0LjE2Nzk2OS0yMC4wODIwMzEgMTQuNTk3NjU3djcwLjM1MTU2MmMwIDUuMjUzOTA2LTMuOTg4MjgyIDkuNjc1NzgxLTguODg2NzE5IDkuODUxNTYyLTUuMjc3MzQ0LjE4MzU5NC05LjU5Mzc1LTQuMDE5NTMxLTkuNTkzNzUtOS4yNTc4MTJ2LTcwLjk0NTMxMmMwLTEwLjQ1MzEyNi0xMC4xOTkyMTktMTcuODQzNzUtMjAuMDg1OTM4LTE0LjU5NzY1Ny0zOC43NjE3MTkgMTIuNzI2NTYzLTY0LjgwNDY4NyA0OC43NzM0MzgtNjQuODA0Njg3IDg5LjcwMzEyNSAwIDMyLjQyNTc4MiAxNi4yODkwNjIgNjIuMDA3ODEzIDQzLjA4OTg0NCA3OS4zMDA3ODJ6bTExLjE2NDA2Mi0xMjguOTAyMzQ0djQ1LjQ0MTQwNmMwIDIyLjYyODkwNiAxOC42NzE4NzUgNDAuNzczNDM4IDQxLjMzMjAzMSAzOS45NjA5MzggMjEuNTQyOTY5LS43ODEyNSAzOC40MTc5NjktMTguNTkzNzUgMzguNDE3OTY5LTQwLjU1NDY4OHYtNDQuODQ3NjU2YzE0LjY1NjI1IDExLjgyODEyNSAyMy42MjEwOTQgMjkuODc1IDIzLjYyMTA5NCA0OS42MDE1NjIgMCAyNC4wNjI1LTEzLjMwNDY4OCA0NS44MDQ2ODgtMzQuNzI2NTYzIDU2Ljc0NjA5NC01LjEzMjgxMiAyLjYyMTA5NC04LjM2MzI4MSA3LjkxMDE1Ni04LjM2MzI4MSAxMy42ODM1OTR2MTExLjI2MTcxOGMwIDExLjI4NTE1Ny05LjE1NjI1IDIwLjQ2NDg0NC0yMC40MDYyNSAyMC40NjQ4NDRzLTIwLjQwNjI1LTkuMTc5Njg3LTIwLjQwNjI1LTIwLjQ2NDg0NHYtMTExLjI2MTcxOGMwLTUuNzczNDM4LTMuMjMwNDY5LTExLjA2MjUtOC4zNjMyODEtMTMuNjgzNTk0LTIxLjQyMTg3NS0xMC45NDE0MDYtMzQuNzI2NTYzLTMyLjY4MzU5NC0zNC43MjY1NjMtNTYuNzQ2MDk0IDAtMTkuNzI2NTYyIDguOTY0ODQ0LTM3Ljc3MzQzNyAyMy42MjEwOTQtNDkuNjAxNTYyem0wIDAiIGZpbGw9IiM4NzgxOTAiIGRhdGEtb3JpZ2luYWw9IiMwMDAwMDAiIHN0eWxlPSIiIGNsYXNzPSIiPjwvcGF0aD48L2c+PC9zdmc+" />
-                                <span style="font-weight:normal; line-height: 20px;">This feature is under development.<br> More data in future updates.</span>
+                                <span style="font-weight:normal; line-height: 20px;">This feature is under
+                                        development.<br> More data in future updates.</span>
                         </h3>
                 </div>
                 <!-- Feedback -->
@@ -214,8 +222,8 @@
                                 class="links">Wiki Page</a> - What's new? Info & Credits
                         <br><br>
                         <span class="help_icon small_icon"></span>&nbsp;
-                        <a href="https://habitica.fandom.com/wiki/Pomodoro" target="_blank"
-                                class="links">What is Pomodoro</a>?
+                        <a href="https://habitica.fandom.com/wiki/Pomodoro" target="_blank" class="links">What is
+                                Pomodoro</a>?
                         <br><br>
 
                 </div>

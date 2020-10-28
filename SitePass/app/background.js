@@ -165,7 +165,6 @@ function checkBlockedUrl(siteUrl) {
     var freePass = (Vars.UserData.BreakFreePass && Vars.onBreak && Vars.TimerRunnig) || (Vars.UserData.VacationMode && (!Vars.TimerRunnig || Vars.onBreak));
     var site = Vars.UserData.GetBlockedSite(hostname);
     var pomodoro = Vars.TimerRunnig && !Vars.onBreak;
-    var whitelist = Vars.UserData.Whitelist.split('\n');
 
     var unblocked = { block: false };
 
@@ -173,17 +172,8 @@ function checkBlockedUrl(siteUrl) {
         return unblocked;
     };
 
-    for (var i = 0; i < whitelist.length; i ++) {
-        var line = whitelist[i];
-        if (line[0] === '/' && line[line.length - 1] === '/'){
-            var re = new RegExp(line.substring(1, line.length - 1));
-            if (re.test(siteUrl.toString())){
-                return unblocked;
-            }
-        }
-        if (line === siteUrl.toString()) {
-            return unblocked;
-        }
+    if(isInWhiteList(siteUrl)){
+        return unblocked;
     }
 
     if (site.cost > Vars.Monies) {
@@ -199,6 +189,23 @@ function checkBlockedUrl(siteUrl) {
         hostname: hostname,
         passTime: Vars.UserData.PassDurationMins
     } //block website - pay to pass
+}
+
+function isInWhiteList(siteUrl){
+    var whitelist = Vars.UserData.Whitelist.split('\n');
+    for (var i = 0; i < whitelist.length; i ++) {
+        var line = whitelist[i];
+        if (line[0] === '/' && line[line.length - 1] === '/'){
+            var re = new RegExp(line.substring(1, line.length - 1));
+            if (re.test(siteUrl.toString())){
+                return true;
+            }
+        }
+        if (line === siteUrl.toString()) {
+            return true;
+        }
+    }
+    return false;
 }
 
 var callbackTabActive = function (details) {
@@ -381,13 +388,13 @@ function muteBlockedtabs() {
     if (Vars.UserData.MuteBlockedSites) {
         chrome.tabs.getAllInWindow(null, function (tabs) {
             for (var i = 0; i < tabs.length; i++) {
-                var hostname = new URL(tabs[i].url).hostname;
-                var site = Vars.UserData.GetBlockedSite(hostname);
+                var url = new URL(tabs[i].url)
+                var site = Vars.UserData.GetBlockedSite(url.hostname);
                 if (!site) {
                     chrome.tabs.update(tabs[i].id, {
                         "muted": false
                     });
-                } else if (checkBlockedUrl(site).block || pomodoro) {
+                } else if (checkBlockedUrl(url).block || pomodoro) {
                     chrome.tabs.update(tabs[i].id, {
                         "muted": true
                     });
@@ -416,13 +423,6 @@ function getData(silent, credentials, serverPath) {
     var xhr = getHabiticaData(Consts.serverUrl + serverPath, Consts.xClientHeader, credentials);
     Vars.ServerResponse = xhr.status;
     if (xhr.status == 401) {
-        // chrome.notifications.create(Consts.NotificationId, {
-        //     type: "basic",
-        //     iconUrl: "img/icon.png",
-        //     title: "Habitica Credentials Error",
-        //     message: "Click on the extension icon at the top right of your browser to set your credentials."
-        // },
-        //     function () { });
         console.log("Habitica Credentials Error 404");
         return null;
     } else if (xhr.status != 200) {
@@ -940,9 +940,9 @@ function CurrentTab(func) {
 //Block Site With Timer Overlay
 function blockSiteOverlay(tab) {
     var opacity = Vars.UserData.TranspartOverlay ? "0.85" : "1";
-    var site = new URL(tab.url).hostname;
+    var url = new URL(tab.url);
     var message = "Stay Focused! Time Left: " + Vars.Timer;
-    if (Vars.UserData.GetBlockedSite(site)) {
+    if (Vars.UserData.GetBlockedSite(url.hostname) && !isInWhiteList(url)) {
         chrome.tabs.executeScript({
             code: `
             document.body.classList.add('blockedSite');

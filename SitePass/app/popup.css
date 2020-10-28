@@ -1,6 +1,7 @@
 :root {
     --main-color: #8ccff1;
     --secondery-color: #553889;
+    --setting-text-color: #878190;
 }
 
 @font-face {
@@ -44,7 +45,7 @@ input[type="number"] {
     display: block;
     width: 10px;
     height: 10px;
-    border: 1px solid #878190;
+    border: 1px solid  var(--setting-text-color);
     background-color: #f9f9f9;
     border-radius: 15px;
     visibility: visible;
@@ -57,7 +58,7 @@ input[type="number"] {
 
 :not(.menu-label)>input:checked:before {
     content: "\2713";
-    color: #878190;
+    color:  var(--setting-text-color);
     line-height: 10px;
     font-size: 16px;
     font-weight: bold;
@@ -79,11 +80,11 @@ input[type="checkbox"] {
 
 textarea {
     padding: 4px;
-    width: 300px;
+    width: 350px;
     border-radius: 5px;
     background-color: #f9f9f9;
     color: #45424a;
-    border: 1px solid #878190;
+    border: 1px solid  var(--setting-text-color);
     white-space: nowrap;
 }
 
@@ -103,7 +104,7 @@ body {
     font-family: 'pixeled';
     font-size: 14px;
     background: #EDECEE;
-    color: #878190;
+    color:  var(--setting-text-color);
     -webkit-backface-visibility: hidden;
 }
 
@@ -220,7 +221,7 @@ div#RefreshStats {
 }
 
 .links, .links a {
-    color: #878190;
+    color:  var(--setting-text-color);
 }
 
 .small_icon {
@@ -506,16 +507,16 @@ a.delete {
 }
 
 .setting-note {
-    color: gray;
+    color:  var(--setting-text-color);
     font-size: 14px;
-    display: inline-block;
-    margin: 7px;
-    border: 1px solid gray;
+    display: block;
+    margin: 5px 0 12px 0;
+    border: 1px solid  var(--setting-text-color);
     padding: 5px;
     border-radius: 5px;
 }
 .setting-note a {
-    color: gray;
+    color:  var(--setting-text-color);
 }
 
 
@@ -608,7 +609,7 @@ div#Menu {
 }
 
 .menu-item:hover {
-    border-bottom: 3px solid #878190;
+    border-bottom: 3px solid  var(--setting-text-color);
 }
 
 .menu-container {
@@ -695,7 +696,7 @@ button#SaveButton {
     font-size: 16px;
     display: none;
     position: fixed;
-    background-color: #878190;
+    background-color:  var(--setting-text-color);
     width: 100%;
     height: 30px;
     cursor: pointer;
@@ -808,7 +809,7 @@ input#quickSet-takeBreakDuration , #quickSet-PomoSetNum {
 }
 
 .plus_minus_icon {
-    border: 1px solid #878190;
+    border: 1px solid  var(--setting-text-color);
     border-radius: 4px;
     display: inline-block;
     width: 12px;
@@ -818,13 +819,13 @@ input#quickSet-takeBreakDuration , #quickSet-PomoSetNum {
 }
 
 .xbtn {
-    border: 1px solid #878190;
+    border: 1px solid  var(--setting-text-color);
     border-radius: 2px;
     display: inline-block;
     width: 12px;
     text-align: center;
     font-size: 11px;
-    background-color: #878190;
+    background-color:  var(--setting-text-color);
     color: white;
     cursor: pointer;
 }
@@ -896,6 +897,7 @@ input#UID, #APIToken {
 
 ::-webkit-scrollbar {
     width: 8px;
+    height: 8px;
 }
 
 ::-webkit-scrollbar-track {
@@ -907,7 +909,7 @@ input#UID, #APIToken {
     border-radius: 10px;
     /* -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.5); */
     /* background-color: var(--main-color); */
-    background-color: #878190;
+    background-color:  var(--setting-text-color);
 }
 
 input,select{
@@ -925,7 +927,7 @@ input[type="text"], input[type="number"], input[type="password"], select {
     text-align: center;
     background-color: #f9f9f9;
     color: #45424a;
-    border: 1px solid #878190;
+    border: 1px solid  var(--setting-text-color);
 }
 #pomodoroEndSound, #breakEndSound,#ambientSound {
     width: 200px;
@@ -1004,7 +1006,7 @@ input.switch:before {
 }
 
 input.switch:checked:before {
-    background-color: #878190 !important;
+    background-color:  var(--setting-text-color) !important;
 }
 
 .switch {
@@ -1014,7 +1016,7 @@ input.switch:checked:before {
 input.switch:after {
     content: "" !important;
     display: block !important;
-    border: 1px solid #878190 !important;
+    border: 1px solid  var(--setting-text-color) !important;
     visibility: initial;
     width: 8px !important;
     height: 8px;
@@ -1038,7 +1040,7 @@ input.switch:checked:after {
     position: absolute;
     border-left: 5px solid transparent;
     border-right: 5px solid transparent;
-    border-bottom: 5px solid #878190;
+    border-bottom: 5px solid  var(--setting-text-color);
     margin-top: 20px;
     margin-left: 3px;
     font-family: sans-serif;
@@ -1050,7 +1052,7 @@ input.switch:checked:after {
     display: block;
     position: absolute;
     margin-top: 24px;
-    background-color: #878190;
+    background-color:  var(--setting-text-color);
     color: #f1f1f1;
     padding: 5px;
     border-radius: 5px;
@@ -1160,12 +1162,12 @@ input[name="innerMenu"]+label {
     font-size: 16px;
     line-height: 16px;
     word-spacing: -6px;
-    margin-left: 7px;
+    margin-left: 5px;
     margin-top: 10px;
     margin-bottom: 10px;
     font-family: pixeled;
     width: 93px;
-    border: 3px solid #878190;
+    border: 3px solid  var(--setting-text-color);
     padding: 5px;
     text-align: center;
     border-radius: 32px;
@@ -1185,7 +1187,7 @@ input[name="innerMenu"]+label {
 
 input[name="innerMenu"]:checked+label {
     color: #EDECEE;
-    background-color: #878190;
+    background-color:  var(--setting-text-color);
 }
 
 label[for="MenuHabiticaSettings"] .innerMenuIcon {
@@ -1216,7 +1218,7 @@ div#PomoToday {
     position: relative;
     width: 50px;
     height: 50px;
-    border: 3px solid #878190;
+    border: 3px solid  var(--setting-text-color);
     border-radius: 100px;
     align-items: center;
     justify-content: center;

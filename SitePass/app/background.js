@@ -163,17 +163,22 @@ function checkBlockedUrl(siteUrl) {
     var pomodoro = Vars.TimerRunnig && !Vars.onBreak;
     var whitelist = Vars.UserData.Whitelist.split('\n');
 
+    var unblocked = { block: false };
+
     if (!site || site.passExpiry > Date.now() || pomodoro || site.cost == 0 || freePass || !Vars.UserData.ConnectHabitica) {
-        return {
-            block: false
-        }; //do not block
+        return unblocked;
     };
 
     for (var i = 0; i < whitelist.length; i ++) {
-        if (whitelist[i] === siteUrl.toString()) {
-            return {
-                block: false
-            };
+        var line = whitelist[i];
+        if (line[0] === '/' && line[line.length - 1] === '/'){
+            var re = new RegExp(line.substring(1, line.length - 1));
+            if (re.test(siteUrl.toString())){
+                return unblocked;
+            }
+        }
+        if (line === siteUrl.toString()) {
+            return unblocked;
         }
     }
 

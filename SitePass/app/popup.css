@@ -77,6 +77,16 @@ input[type="checkbox"] {
     margin-bottom: 4px;
 }
 
+textarea {
+    padding: 4px;
+    width: 300px;
+    border-radius: 5px;
+    background-color: #f9f9f9;
+    color: #45424a;
+    border: 1px solid #878190;
+    white-space: nowrap;
+}
+
 td {
     padding: 5px;
 }

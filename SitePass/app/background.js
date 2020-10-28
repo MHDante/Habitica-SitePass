@@ -67,6 +67,7 @@ var Vars = {
 function UserSettings(copyFrom) {
     //Get User Setting from copyFrom , or set default user settings
     this.BlockedSites = copyFrom ? copyFrom.BlockedSites : {};
+    this.Whitelist = copyFrom ? copyFrom.Whitelist : "";
     this.Credentials = copyFrom ? copyFrom.Credentials : {
         uid: "",
         apiToken: ""
@@ -160,12 +161,21 @@ function checkBlockedUrl(siteUrl) {
     var freePass = (Vars.UserData.BreakFreePass && Vars.onBreak && Vars.TimerRunnig) || (Vars.UserData.VacationMode && (!Vars.TimerRunnig || Vars.onBreak));
     var site = Vars.UserData.GetBlockedSite(hostname);
     var pomodoro = Vars.TimerRunnig && !Vars.onBreak;
+    var whitelist = Vars.UserData.Whitelist.split('\n');
 
     if (!site || site.passExpiry > Date.now() || pomodoro || site.cost == 0 || freePass || !Vars.UserData.ConnectHabitica) {
         return {
             block: false
         }; //do not block
     };
+
+    for (var i = 0; i < whitelist.length; i ++) {
+        if (whitelist[i] === siteUrl.toString()) {
+            return {
+                block: false
+            };
+        }
+    }
 
     if (site.cost > Vars.Monies) {
         return {

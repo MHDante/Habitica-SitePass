@@ -344,6 +344,7 @@ function CredentialFields() {
     $("#BreakDuration").val(Vars.UserData.BreakDuration);
     $("#BreakExtention").val(Vars.UserData.BreakExtention);
     $("#LongBreakDuration").val(Vars.UserData.LongBreakDuration);
+    $("#Whitelist").val(Vars.UserData.Whitelist);
     $("#PomoHabitPlus").prop('checked', Vars.UserData.PomoHabitPlus);
     $("#PomoHabitMinus").prop('checked', Vars.UserData.PomoHabitMinus);
     $("#ManualBreak").prop('checked', Vars.UserData.ManualBreak);
@@ -388,6 +389,7 @@ function CredentialFields() {
     $("#BreakDuration").on("keyup", function () { updateCredentials(); });
     $("#BreakExtention").on("keyup", function () { updateCredentials(); });
     $("#LongBreakDuration").on("keyup", function () { updateCredentials(); });
+    $("#Whitelist").on("keyup", function () { updateCredentials(); }); 
     $("#PomoHabitPlus").click(function () { updateCredentials(); });
     $("#PomoHabitMinus").click(function () { updateCredentials(); });
     $("#ManualBreak").click(function () { updateCredentials(); });
@@ -514,6 +516,7 @@ function updateCredentials() {
     Vars.UserData.pomodoroEndSoundVolume = $("#pomodoroEndSoundVolume").val();
     Vars.UserData.breakEndSoundVolume = $("#breakEndSoundVolume").val();
     Vars.UserData.ManualNextPomodoro = $("#ManualNextPomodoro").prop('checked');
+    Vars.UserData.Whitelist = $("#Whitelist").val();
 }
 
 function updateTimerDisplay() {

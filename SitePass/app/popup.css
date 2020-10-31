@@ -45,7 +45,7 @@ input[type="number"] {
     display: block;
     width: 10px;
     height: 10px;
-    border: 1px solid  var(--setting-text-color);
+    border: 1px solid var(--setting-text-color);
     background-color: #f9f9f9;
     border-radius: 15px;
     visibility: visible;
@@ -58,7 +58,7 @@ input[type="number"] {
 
 :not(.menu-label)>input:checked:before {
     content: "\2713";
-    color:  var(--setting-text-color);
+    color: var(--setting-text-color);
     line-height: 10px;
     font-size: 16px;
     font-weight: bold;
@@ -84,8 +84,9 @@ textarea {
     border-radius: 5px;
     background-color: #f9f9f9;
     color: #45424a;
-    border: 1px solid  var(--setting-text-color);
+    border: 1px solid var(--setting-text-color);
     white-space: nowrap;
+    resize: vertical;
 }
 
 td {
@@ -104,7 +105,7 @@ body {
     font-family: 'pixeled';
     font-size: 14px;
     background: #EDECEE;
-    color:  var(--setting-text-color);
+    color: var(--setting-text-color);
     -webkit-backface-visibility: hidden;
 }
 
@@ -128,7 +129,7 @@ body {
 }
 
 .reward-item {
-    background-color:var(--main-color);
+    background-color: var(--main-color);
     color: var(--secondery-color);
     font-family: 'pixeled';
     webkit-box-shadow: 0 2px 2px 0 rgba(26, 24, 29, 0.16), 0 1px 4px 0 rgba(26, 24, 29, 0.12);
@@ -153,13 +154,12 @@ body {
     font-family: 'pixeled';
 }
 
-input.cost{
+input.cost {
     font-family: 'pixeled';
     font-size: 17px;
     border: none;
     margin-bottom: 3px;
 }
-
 
 a {
     color: var(--secondery-color);
@@ -221,7 +221,7 @@ div#RefreshStats {
 }
 
 .links, .links a {
-    color:  var(--setting-text-color);
+    color: var(--setting-text-color);
 }
 
 .small_icon {
@@ -290,6 +290,10 @@ a.delete {
     background-image: url(img/coffee.png);
 }
 
+.trash_icon {
+    background-image: url(img/trash2.png);
+}
+
 .habitica_small_icon {
     background-image: url(img/habitica_small.png);
 }
@@ -326,7 +330,7 @@ a.delete {
     text-decoration: none;
 }
 
-.gp{
+.gp {
     width: auto;
     height: 100%;
     min-height: 50px;
@@ -336,7 +340,8 @@ a.delete {
     display: inline-block;
     border: none;
 }
-.gp a{
+
+.gp a {
     color: gold;
 }
 
@@ -374,11 +379,11 @@ a.delete {
     background-image: url(img/pomodoroWait.png);
 }
 
-.tomatoWait:not(:hover):after , .tomatoWin:not(:hover):after {
+.tomatoWait:not(:hover):after, .tomatoWin:not(:hover):after {
     content: attr(data-pomodoros);
     display: inline-block;
     position: relative;
-    color:black;
+    color: black;
     font-family: 'pixeled';
     top: -28px;
     left: 20px;
@@ -432,7 +437,7 @@ a.delete {
     color: white;
 }
 
-#PomoStop,#SkipToBreak{
+#PomoStop, #SkipToBreak {
     margin-left: -5px;
     margin-top: -5px
 }
@@ -486,7 +491,7 @@ a.delete {
 
 .blocked:before {
     content: "";
-    z-index:999;
+    z-index: 999;
     text-align: center;
     font-size: 24px;
     color: white;
@@ -507,18 +512,20 @@ a.delete {
 }
 
 .setting-note {
-    color:  var(--setting-text-color);
+    color: var(--setting-text-color);
     font-size: 14px;
     display: block;
     margin: 5px 0 12px 0;
-    border: 1px solid  var(--setting-text-color);
+    border: 1px solid var(--setting-text-color);
     padding: 5px;
     border-radius: 5px;
-}
-.setting-note a {
-    color:  var(--setting-text-color);
+    text-align: center;
+    line-height: 18px;
 }
 
+.setting-note a {
+    color: var(--setting-text-color);
+}
 
 #pomodoro {
     background-color: var(--main-color);
@@ -554,7 +561,7 @@ a.delete {
     width: 100px;
     display: inline-block;
     margin-left: 15px;
-    word-spacing:-12px;
+    word-spacing: -12px;
 }
 
 #Time:after {
@@ -609,7 +616,7 @@ div#Menu {
 }
 
 .menu-item:hover {
-    border-bottom: 3px solid  var(--setting-text-color);
+    border-bottom: 3px solid var(--setting-text-color);
 }
 
 .menu-container {
@@ -696,7 +703,7 @@ button#SaveButton {
     font-size: 16px;
     display: none;
     position: fixed;
-    background-color:  var(--setting-text-color);
+    background-color: var(--setting-text-color);
     width: 100%;
     height: 30px;
     cursor: pointer;
@@ -724,13 +731,13 @@ button#SaveButton span {
     padding: 3px;
     font-family: 'pixeled';
     font-size: 27px;
+    line-height: 27px;
     text-transform: uppercase;
 }
 
 #quickSave:hover {
     background-color: var(--secondery-color);
     color: var(--main-color);
-
 }
 
 #quickSave {
@@ -738,7 +745,8 @@ button#SaveButton span {
 }
 
 label.takeBreakText {
-    color: var(--secondery-color);;
+    color: var(--secondery-color);
+    ;
     text-transform: uppercase;
     font-family: 'pixeled';
     font-size: 20px;
@@ -763,7 +771,7 @@ label.longBreakQuickSet {
     text-transform: uppercase;
 }
 
-input#quickSet-takeBreakDuration , #quickSet-PomoSetNum {
+input#quickSet-takeBreakDuration, #quickSet-PomoSetNum {
     line-height: 20px;
     font-size: 20px;
     font-family: 'pixeled';
@@ -793,10 +801,9 @@ input#quickSet-takeBreakDuration , #quickSet-PomoSetNum {
     padding: 8px 0px;
     width: 100%;
     text-align: center;
-    line-height: 21px; 
+    line-height: 21px;
     font-size: 16px;
 }
-
 
 #BlockLink .blockSite {
     background: indianred;
@@ -809,7 +816,7 @@ input#quickSet-takeBreakDuration , #quickSet-PomoSetNum {
 }
 
 .plus_minus_icon {
-    border: 1px solid  var(--setting-text-color);
+    border: 1px solid var(--setting-text-color);
     border-radius: 4px;
     display: inline-block;
     width: 12px;
@@ -819,13 +826,13 @@ input#quickSet-takeBreakDuration , #quickSet-PomoSetNum {
 }
 
 .xbtn {
-    border: 1px solid  var(--setting-text-color);
+    border: 1px solid var(--setting-text-color);
     border-radius: 2px;
     display: inline-block;
     width: 12px;
     text-align: center;
     font-size: 11px;
-    background-color:  var(--setting-text-color);
+    background-color: var(--setting-text-color);
     color: white;
     cursor: pointer;
 }
@@ -859,8 +866,8 @@ input#quickSet-takeBreakDuration , #quickSet-PomoSetNum {
 }
 
 input[type="time"] {
-    width: 33%;
-    font-size: 11px;
+    width: 65px;
+    font-size: 12px;
 }
 
 .vacationBanner {
@@ -871,6 +878,7 @@ input[type="time"] {
     text-align: center;
     color: black;
     display: none;
+    font-size: 16px;
 }
 
 span.passExp {
@@ -909,27 +917,33 @@ input#UID, #APIToken {
     border-radius: 10px;
     /* -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.5); */
     /* background-color: var(--main-color); */
-    background-color:  var(--setting-text-color);
+    background-color: var(--setting-text-color);
 }
 
-input,select{
+input, select {
     font-family: "pixeled";
     font-size: 16px;
 }
+
 input[type="range"] {
     height: 10px;
     margin-left: 5px;
 }
-input[type="text"], input[type="number"], input[type="password"], select {
+
+input[type="text"], input[type="number"], input[type="password"], input[type="time"], select {
     text-align: center;
-    width: 25px;
     border-radius: 5px;
     text-align: center;
     background-color: #f9f9f9;
     color: #45424a;
-    border: 1px solid  var(--setting-text-color);
+    border: 1px solid var(--setting-text-color);
 }
-#pomodoroEndSound, #breakEndSound,#ambientSound {
+
+input[type="text"], input[type="number"] {
+    width: 25px;
+}
+
+#pomodoroEndSound, #breakEndSound, #ambientSound {
     width: 200px;
     margin: 5px 0;
 }
@@ -967,7 +981,7 @@ label[for="quickSet-PomoDuration"]:before, label[for="quickSet-BreakDuration"]:b
     top: 54px;
 }
 
-label[for="quickSet-PomoDuration"]:after,label[for="quickSet-BreakDuration"]:after,label[for="quickSet-LongBreakDuration"]:after {
+label[for="quickSet-PomoDuration"]:after, label[for="quickSet-BreakDuration"]:after, label[for="quickSet-LongBreakDuration"]:after {
     display: none;
     content: "Minutes";
     position: absolute;
@@ -1006,7 +1020,7 @@ input.switch:before {
 }
 
 input.switch:checked:before {
-    background-color:  var(--setting-text-color) !important;
+    background-color: var(--setting-text-color) !important;
 }
 
 .switch {
@@ -1016,7 +1030,7 @@ input.switch:checked:before {
 input.switch:after {
     content: "" !important;
     display: block !important;
-    border: 1px solid  var(--setting-text-color) !important;
+    border: 1px solid var(--setting-text-color) !important;
     visibility: initial;
     width: 8px !important;
     height: 8px;
@@ -1040,7 +1054,7 @@ input.switch:checked:after {
     position: absolute;
     border-left: 5px solid transparent;
     border-right: 5px solid transparent;
-    border-bottom: 5px solid  var(--setting-text-color);
+    border-bottom: 5px solid var(--setting-text-color);
     margin-top: 20px;
     margin-left: 3px;
     font-family: sans-serif;
@@ -1052,7 +1066,7 @@ input.switch:checked:after {
     display: block;
     position: absolute;
     margin-top: 24px;
-    background-color:  var(--setting-text-color);
+    background-color: var(--setting-text-color);
     color: #f1f1f1;
     padding: 5px;
     border-radius: 5px;
@@ -1167,7 +1181,7 @@ input[name="innerMenu"]+label {
     margin-bottom: 10px;
     font-family: pixeled;
     width: 93px;
-    border: 3px solid  var(--setting-text-color);
+    border: 3px solid var(--setting-text-color);
     padding: 5px;
     text-align: center;
     border-radius: 32px;
@@ -1187,7 +1201,7 @@ input[name="innerMenu"]+label {
 
 input[name="innerMenu"]:checked+label {
     color: #EDECEE;
-    background-color:  var(--setting-text-color);
+    background-color: var(--setting-text-color);
 }
 
 label[for="MenuHabiticaSettings"] .innerMenuIcon {
@@ -1214,27 +1228,35 @@ input:checked+label[for="MenuTimerSettings"] .innerMenuIcon {
     background-image: url(img/Timer2.png);
 }
 
-div#PomoToday {
+div.HistoryFlex {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+div.historyDataCircle {
     position: relative;
     width: 50px;
     height: 50px;
-    border: 3px solid  var(--setting-text-color);
+    border: 3px solid var(--setting-text-color);
     border-radius: 100px;
     align-items: center;
     justify-content: center;
-    margin: 10px auto;
+    margin: 15px;
     margin-bottom: 50px;
     display: flex;
-    font-size: 21px;
+    font-size: 16px;
 }
-div#PomoToday:after {
-    content: "POMODOROS TODAY";
+
+div.historyDataCircle:after {
+    content: attr(data-text);
     position: absolute;
     text-align: center;
     font-size: 15px;
     line-height: 15px;
     font-family: 'pixeled';
     top: 57px;
+    min-width: 65px;
 }
 
 .delete, .edit {
@@ -1242,14 +1264,106 @@ div#PomoToday:after {
     margin-left: -25px;
     margin-top: -10px;
 }
-.edit{
+
+.edit {
     margin-left: -45px;
 }
+
 .edit:hover {
     zoom: 120%;
     margin-left: -40px;
 }
-.delete:hover{
+
+.delete:hover {
     zoom: 120%;
     margin-left: -23px;
+}
+
+.freePassBlock input, .freePassBlock select {
+    width: 26%;
+    margin: 5px;
+    font-size: 14px;
+}
+
+.freePassBlock {
+    display: flex;
+    justify-content: center;
+    line-height: 35px;
+}
+
+div#addFreePassBlock {
+    font-weight: normal;
+    line-height: 0px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 5px;
+    border-radius: 10px;
+    border: 2px dashed;
+    cursor: pointer;
+    padding: 14px;
+}
+
+div#addFreePassBlock:hover {
+    background-color: var(--setting-text-color);
+    color: #EDECEE;
+    border: 2px solid var(--setting-text-color);
+}
+
+.freePassBlock .small_icon {
+    margin-top: 8px;
+    cursor: pointer;
+}
+
+.canvasChart {
+    height: 300px;
+}
+
+#PomoToday, #MinutesToday {
+    width: 60px;
+    height: 60px;
+    font-size: 26px;
+    font-weight: bold;
+    border-width: 4px;
+}
+
+#PomoToday:after, #MinutesToday:after {
+    top: 70px;
+    font-size: 16px;
+    font-weight: bold;
+}
+
+.settingButton {
+    background-color: transparent;
+    color: #878190;
+    border: none;
+    margin: 5px;
+    cursor: pointer;
+    padding: 5px;
+    border: 1px solid #878190;
+    text-decoration: none;
+    text-align: center;
+    font-family: "pixeled";
+}
+
+.settingButton:hover{
+    background-color: #878190;
+    color: white;
+}
+#HistoryChartShowMinutes,#HistoryChartShowPomodoros{
+width: 45%;
+}
+
+ #selectHistogramFile{
+    border: 1px solid #878190;
+    padding: 5px;
+}
+
+#DownloadHistogram, #ClearHistogram {
+    width: 100% !important;
+}
+div#HistoryChartTotal {
+    width: 100%;
+    padding: 6px;
+    pointer-events: none;
 }

@@ -2,17 +2,52 @@ Node.prototype.AppendText = function (string) { this.appendChild(document.create
 Node.prototype.AppendBreak = function () { this.appendChild(document.createElement("br")); }
 
 var background = chrome.extension.getBackgroundPage();
-console.log(background);
 var Vars = background.Vars;
 var Consts = background.Consts;
 var CurrentTabHostname;
 var updatedHabitica = false;
+var HistoryChart;
+var HistoryFromDay = 0;
+var HistoryToDay = 7;
+var HistoryPomodoroSelected = true;
 
 //----- on popup load -----//
 document.addEventListener("DOMContentLoaded", function () {
 
     background.FetchHabiticaData(true); //Fetch Habitica basic data when opening the popup
-    CredentialFields(); // Update settings
+
+    //Custome pomodoro habits
+    $("#customPomodoroTask").empty();
+    $("#customSetTask").empty();
+    for (var i in Vars.PomodoroTaskCustomList) {
+        var title = Vars.PomodoroTaskCustomList[i].title;
+        var taskId = Vars.PomodoroTaskCustomList[i].id;
+        var option = document.createElement("option");
+        option.value = taskId;
+        option.innerHTML = title;
+        $("#customPomodoroTask").append(option);
+        $("#customSetTask").append(option.cloneNode(true));
+    }
+
+    //Sounds list
+    for (var i in Consts.Sounds) {
+        var FileName = Consts.Sounds[i];
+        var option = document.createElement("option");
+        option.value = FileName;
+        option.innerHTML = FileName.split(".")[0];
+        $("#pomodoroEndSound").append(option);
+        $("#breakEndSound").append(option.cloneNode(true));
+    }
+    for (var i in Consts.AmbientSounds) {
+        var FileName = Consts.AmbientSounds[i];
+        var option = document.createElement("option");
+        option.value = FileName;
+        option.innerHTML = FileName.split(".")[0];
+        $("#ambientSound").append(option);
+    }
+
+    //update settings
+    CredentialFields();
 
     //On version update or install show info
     if (Vars.versionUpdate) {
@@ -141,8 +176,11 @@ document.addEventListener("DOMContentLoaded", function () {
         location.reload();
     });
 
+    //Free pass schedule
+    $("#addFreePassBlock").click(() => addFreePassTimeBlock(background.getWeekDay(), "00:00", "00:00"));
+
     //Vacation Mode Banner
-    if (Vars.UserData.VacationMode) {
+    if (Vars.UserData.VacationMode || background.isFreePassTimeNow()) {
         $(".vacationBanner").show();
     }
     $("#VacationMode").click(function () {
@@ -182,86 +220,68 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     });
 
-    //Custome pomodoro habits
-    $("#customPomodoroTask").empty();
-    $("#customSetTask").empty();
-    for (var i in Vars.PomodoroTaskCustomList) {
-        var title = Vars.PomodoroTaskCustomList[i].title;
-        var taskId = Vars.PomodoroTaskCustomList[i].id;
-        var option = document.createElement("option");
-        option.value = taskId;
-        option.innerHTML = title;
-        $("#customPomodoroTask").append(option);
-        $("#customSetTask").append(option.cloneNode(true));
-    }
-    $("#customPomodoroTask").val(Vars.UserData.PomodoroTaskId);
-    $("#customSetTask").val(Vars.UserData.PomodoroSetTaskId);
-
-    //Sounds list
-    for (var i in Consts.Sounds) {
-        var FileName = Consts.Sounds[i];
-        var option = document.createElement("option");
-        option.value = FileName;
-        option.innerHTML = FileName.split(".")[0];
-        $("#pomodoroEndSound").append(option);
-        $("#breakEndSound").append(option.cloneNode(true));
-    }
-    for (var i in Consts.AmbientSounds) {
-        var FileName = Consts.AmbientSounds[i];
-        var option = document.createElement("option");
-        option.value = FileName;
-        option.innerHTML = FileName.split(".")[0];
-        $("#ambientSound").append(option);
-    }
-
-    $("#pomodoroEndSound").val(Vars.UserData.pomodoroEndSound);
-    $("#breakEndSound").val(Vars.UserData.breakEndSound);
-    $("#ambientSound").val(Vars.UserData.ambientSound);
-
-    $('#breakEndSound').on('change', function () {
-        background.playSound(this.value,Vars.UserData.breakEndSoundVolume),false;
-    });  
-    $('#pomodoroEndSound').on('change', function () {
-        background.playSound(this.value,Vars.UserData.pomodoroEndSoundVolume,false);
-    });
-    $('#ambientSound').on('change', function () {
-        playAmbientSample();
-    });
-    $('#pomodoroEndSoundVolume').mouseup(function() {
-        background.playSound(Vars.UserData.pomodoroEndSound,Vars.UserData.pomodoroEndSoundVolume,false);
-    });
-    $('#breakEndSoundVolume').mouseup(function() {
-        background.playSound(Vars.UserData.breakEndSound,Vars.UserData.breakEndSoundVolume,false);
-    });
-    $('#ambientSoundVolume').mouseup(function() {
-        playAmbientSample();
-    });
-
-    var ambientSampleTimeout;
-    function playAmbientSample(){
-        clearTimeout(ambientSampleTimeout);
-        background.stopAmbientSound();
-        setTimeout(function() {
-            background.playSound(Vars.UserData.ambientSound,Vars.UserData.ambientSoundVolume,true);
-        }, 100);
-        ambientSampleTimeout = setTimeout(function() {background.stopAmbientSound();}, 3000);
-    }
-
     // Save Button
     $("#SaveButton").click(function () {
         updateCredentials();
         //Got over it.
         SaveUserSettings();
-        if (updatedHabitica){
+        if (updatedHabitica) {
             background.FetchHabiticaData();
         }
         location.reload();
     });
-    $(".habitica-setting, .habitica-setting input,.habitica-setting select ").click(function() {updatedHabitica = true;});
+
+    //Habitica setting changed - longer save (full data fetch)
+    $(".habitica-setting, .habitica-setting input,.habitica-setting select ").click(function () { updatedHabitica = true; });
+
+    //Sounds
+    $('#breakEndSound').on('change', function () {
+        background.playSound(this.value, Vars.UserData.breakEndSoundVolume), false;
+    });
+    $('#pomodoroEndSound').on('change', function () {
+        background.playSound(this.value, Vars.UserData.pomodoroEndSoundVolume, false);
+    });
+    $('#ambientSound').on('change', function () {
+        playAmbientSample();
+    });
+    $('#pomodoroEndSoundVolume').mouseup(function () {
+        background.playSound(Vars.UserData.pomodoroEndSound, Vars.UserData.pomodoroEndSoundVolume, false);
+    });
+    $('#breakEndSoundVolume').mouseup(function () {
+        background.playSound(Vars.UserData.breakEndSound, Vars.UserData.breakEndSoundVolume, false);
+    });
+    $('#ambientSoundVolume').mouseup(function () {
+        playAmbientSample();
+    });
+
+    //History Update
+    const Canvas = document.getElementById('myChart').getContext('2d');
+    HistoryChart = new Chart(Canvas, {
+        type: 'bar',
+        data: {
+            labels: [],
+            datasets: [{
+                label: "",
+                data: [],
+                backgroundColor:"#87819091"
+            }]
+        },
+        options: {
+            scales: {
+                yAxes: [{
+                    ticks: {
+                        beginAtZero: true
+                    }
+                }]
+            }
+        }
+    });
+    $("#MenuHistory").click(function () {
+        updateHistory(); 
+    });
+
 
 });
-
-
 
 
 //----- Functions -----//
@@ -396,16 +416,25 @@ function CredentialFields() {
     $("#breakEndSoundVolume").val(Vars.UserData.breakEndSoundVolume);
     $("#ambientSoundVolume").val(Vars.UserData.ambientSoundVolume);
     $("#ManualNextPomodoro").prop('checked', Vars.UserData.ManualNextPomodoro);
-    
+
+    createFreePassTimeBlocks(Vars.UserData.FreePassTimes);
 
     //Update Pomodoros Today, reset on new day
-    today = new Date().setHours(0, 0, 0, 0);
-    if (Vars.PomodorosToday.date != today) {
-        Vars.PomodorosToday.value = 0;
-        Vars.PomodorosToday.date = today;
+    // today = new Date().setHours(0, 0, 0, 0);
+    // if (Vars.PomodorosToday.date != today) {
+    //     Vars.PomodorosToday.value = 0;
+    //     Vars.PomodorosToday.date = today;
+    // }
+
+    // $("#PomoButton").attr("data-pomodoros", Vars.PomodorosToday.value);
+    // $("#PomoToday").html(Vars.PomodorosToday.value);
+
+    var dataToday = Vars.Histogram[background.getDate()];
+    if (!dataToday) {
+        background.setTodaysHistogram(0, 0);
+        dataToday = Vars.Histogram[background.getDate()];
     }
-    $("#PomoButton").attr("data-pomodoros", Vars.PomodorosToday.value);
-    $("#PomoToday").html(Vars.PomodorosToday.value);
+    $("#PomoButton").attr("data-pomodoros", dataToday.pomodoros);
 
     //Update Options on change
     $("#UID").on("keyup", function () { updateCredentials(); });
@@ -415,7 +444,7 @@ function CredentialFields() {
     $("#BreakDuration").on("keyup", function () { updateCredentials(); });
     $("#BreakExtention").on("keyup", function () { updateCredentials(); });
     $("#LongBreakDuration").on("keyup", function () { updateCredentials(); });
-    $("#Whitelist").on("keyup", function () { updateCredentials(); }); 
+    $("#Whitelist").on("keyup", function () { updateCredentials(); });
     $("#PomoHabitPlus").click(function () { updateCredentials(); });
     $("#PomoHabitMinus").click(function () { updateCredentials(); });
     $("#ManualBreak").click(function () { updateCredentials(); });
@@ -427,6 +456,8 @@ function CredentialFields() {
     $("#PomoSetHabitPlus").click(function () { updateCredentials(); });
     $("#LongBreakNotify").click(function () { updateCredentials(); });
     $("#VacationMode").click(function () { updateCredentials(); });
+    $(".freePassBlock select").change(function () { updateCredentials(); });
+    $(".freePassBlock input").change(function () { updateCredentials(); });
     $("#customPomodoroTask").click(function () { updateCredentials(); });
     $("#customSetTask").click(function () { updateCredentials(); });
     $("#customPomodoroTaskEnabled").click(function () { updateCredentials(); });
@@ -444,7 +475,6 @@ function CredentialFields() {
     $("#ambientSoundVolume").mouseup(function () { updateCredentials(); });
     $("#ManualNextPomodoro").click(function () { updateCredentials(); });
     //ugh.
-
 }
 
 function CreateDelegate(onclick, param1) {
@@ -547,6 +577,7 @@ function updateCredentials() {
     Vars.UserData.ambientSoundVolume = $("#ambientSoundVolume").val();
     Vars.UserData.ManualNextPomodoro = $("#ManualNextPomodoro").prop('checked');
     Vars.UserData.Whitelist = $("#Whitelist").val();
+    Vars.UserData.FreePassTimes = getFreePassTimes();
 }
 
 function updateTimerDisplay() {
@@ -557,7 +588,7 @@ function updateTimerDisplay() {
         $("#Time").attr("data-pomodoros-set", Vars.PomoSetCounter + "/" + Vars.UserData.PomoSetNum);
     }
 
-    $("#PomoButton").attr("data-pomodoros", Vars.PomodorosToday.value);
+    $("#PomoButton").attr("data-pomodoros", Vars.Histogram[background.getDate()].pomodoros);
 
     if (Vars.onBreakExtension) { //---On Break Extension---
         $("#QuickSettings").hide();
@@ -630,11 +661,11 @@ function credErrorTipAnimation() {
     $("#MenuHabiticaSettings").prop("checked", true).change();
     $('.connect-habitica-animate').animate(
         {
-            fontSize : "20px"
+            fontSize: "20px"
         }, 700);
     $('.connect-habitica-animate').animate(
         {
-            fontSize : "14px"
+            fontSize: "14px"
         }, 700);
 }
 
@@ -651,4 +682,190 @@ function updateSiteExpireDisplay() {
 
     });
 }
+
+var ambientSampleTimeout;
+function playAmbientSample() {
+    clearTimeout(ambientSampleTimeout);
+    background.stopAmbientSound();
+    setTimeout(function () {
+        background.playSound(Vars.UserData.ambientSound, Vars.UserData.ambientSoundVolume, true);
+    }, 100);
+    ambientSampleTimeout = setTimeout(function () { background.stopAmbientSound(); }, 3000);
+}
+
+function addFreePassTimeBlock(day, fromTime, toTime) {
+    var block = $(`
+    <div class="freePassBlock">
+        <select name="weekday">
+                <option value="Monday">Monday</option>
+                <option value="Tuesday">Tuesday</option>
+                <option value="Wednesday">Wednesday</option>
+                <option value="Thursday">Thursday</option>
+                <option value="Friday">Friday</option>
+                <option value="Saturday">Saturday</option>
+                <option value="Sunday">Sunday</option>
+        </select>
+        <input value="${fromTime}" name="fromTime" type="time"> -
+        <input value="${toTime}" name="toTime" type="time">
+        <span class="trash_icon small_icon"></span>
+    </div>
+     `)
+    block.find('select[name="weekday"]').val(day);
+    $("#freePassBlocks").append(block);
+    block.hide().fadeIn(function () {
+        updateCredentials();
+    });
+
+    block.find(".trash_icon").click(function () {
+        $(this).closest('.freePassBlock').fadeOut(function () {
+            $(this).remove();
+            updateCredentials();
+        });
+    });
+}
+
+//data is array of {day:'weekday name',fromTime:'hh:mm',toTime:'hh:mm'} objects
+function createFreePassTimeBlocks(data) {
+    if (data) {
+        for (let i = 0; i < data.length; i++) {
+            addFreePassTimeBlock(data[i].day, data[i].fromTime, data[i].toTime);
+        }
+    }
+}
+
+//returns array of objects {day:'weekday name',fromTime:'hh:mm',toTime:'hh:mm'}
+function getFreePassTimes() {
+    var times = [];
+    $("#freePassBlocks .freePassBlock").each(function () {
+        var day = $(this).find("select[name='weekday']").val();
+        var fromTime = $(this).find("input[name='fromTime']").val();
+        var toTime = $(this).find("input[name='toTime']").val();
+        times.push({
+            day: day,
+            fromTime: fromTime,
+            toTime: toTime
+        });
+    });
+    return times;
+}
+
+function sumOfArray(array){
+    var total = 0;
+    for (var i = 0; i < array.length; i++) {
+        array[i] = Number(array[i]);
+        total += array[i] << 0;
+    }
+    return total;
+}
+
+function updateHistory(){
+    var dataToday = Vars.Histogram[background.getDate()];
+        if (!dataToday) {
+            background.setTodaysHistogram(0, 0);
+            dataToday = Vars.Histogram[background.getDate()];
+        }
+        $("#PomoToday").html(dataToday.pomodoros);
+        $("#MinutesToday").html(dataToday.minutes.toFixed(1));
+
+        var totalPomodoros = 0;
+        var totalMinutes = 0;
+        var dataSize = 0;
+        var chartData = { dates: [], pomodoros: [], minutes: [] };
+        for (var key in Vars.Histogram) {
+            dataSize++;
+            if (Vars.Histogram.hasOwnProperty(key)) {
+                var data = Vars.Histogram[key];
+                totalPomodoros += Number(data.pomodoros);
+                totalMinutes += Number(data.minutes);
+                chartData.dates.push(key);
+                chartData.pomodoros.push(data.pomodoros);
+                chartData.minutes.push(data.minutes);
+            }
+        }
+        $("#PomoTotal").html(totalPomodoros);
+        $("#MinutesTotal").html(totalMinutes.toFixed(1));
+        $("#PomoAvg").html((totalPomodoros / dataSize).toFixed(1));
+        $("#MinutesAvg").html((totalMinutes / dataSize).toFixed(1));
+
+        udateHistoryTable(HistoryChart,chartData.dates,chartData.pomodoros,"Pomodoros");
+
+        $("#HistoryChartShowPomodoros").click(function(){
+            udateHistoryTable(HistoryChart,chartData.dates,chartData.pomodoros,"Pomodoros");
+            HistoryPomodoroSelected = true;
+        });
+        $("#HistoryChartShowMinutes").click(function(){
+            udateHistoryTable(HistoryChart,chartData.dates,chartData.minutes,"Minutes");
+            HistoryPomodoroSelected = false;
+        });
+        $("#DownloadHistogram").click(function(){
+            //downloadObjectAsJson
+            var dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(Vars.Histogram));
+            this.setAttribute("href",dataStr);
+            this.setAttribute("download","Histogram.json");
+        });
+
+        $("#ImportHistogram").click(function(){
+            //downloadObjectAsJson
+            var files = document.getElementById('selectHistogramFile').files;
+            console.log(files);
+            if (files.length <= 0) {
+              return false;
+            }
+            
+            var fr = new FileReader();
+            
+            fr.onload = function(e) { 
+            console.log(e);
+              var result = JSON.parse(e.target.result);
+              Vars.Histogram = result;
+            }
+            fr.readAsText(files.item(0));
+            location.reload();
+        });
+
+        $("#ClearHistogram").click(function(){
+            background.clearHistogram();
+            location.reload();
+        }); 
+        
+        $("#HistoryChartNext").click(function(){
+            HistoryFromDay = HistoryFromDay + 7;
+            HistoryToDay = HistoryToDay + 7;
+            if(HistoryFromDay >= chartData.dates.length -7 ||  HistoryToDay >= chartData.dates.length ){
+                HistoryFromDay = chartData.dates.length - 8;
+                HistoryToDay = chartData.dates.length -1 ;
+            }
+            if(HistoryPomodoroSelected){
+                udateHistoryTable(HistoryChart,chartData.dates,chartData.pomodoros,"Pomodoros");
+            }else{
+                udateHistoryTable(HistoryChart,chartData.dates,chartData.minutes,"Minutes");
+            }
+        });  
+        $("#HistoryCharPrev").click(function(){
+            HistoryFromDay = HistoryFromDay - 7;
+            HistoryToDay = HistoryToDay - 7;
+            if(HistoryFromDay <= 0 ||  HistoryToDay <=0 ){
+                HistoryFromDay = 0;
+                HistoryToDay = 7;
+            }
+            if(HistoryPomodoroSelected){
+                udateHistoryTable(HistoryChart,chartData.dates,chartData.pomodoros,"Pomodoros");
+            }else{
+                udateHistoryTable(HistoryChart,chartData.dates,chartData.minutes,"Minutes");
+            }
+        });   
+
+}
+
+function udateHistoryTable (Chart,datesArary,dataArray,label){
+    Chart.data.labels = datesArary.slice(HistoryFromDay, HistoryToDay);
+    Chart.data.datasets[0].data = dataArray.slice(HistoryFromDay, HistoryToDay);
+    Chart.data.datasets[0].label = label;
+    $("#HistoryChartTotal").html(`Total ${label} in chart: ${sumOfArray(dataArray.slice(HistoryFromDay, HistoryToDay))}`);
+    Chart.update();
+}
+
+
+
+
 

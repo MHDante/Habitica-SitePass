@@ -34,10 +34,10 @@ var Consts = {
         priority: 1.5
     },
     userDataKey: "USER_DATA",
-    PomodorosTodayDataKey: "PomodorosToday",
+    HistogramDataKey: "Histogram",
     NotificationId: "sitepass_notification",
     Sounds: ["Sound1.mp3", "Sound2.mp3", "Sound3.wav", "Sound4.wav", "Sound5.mp3", "Sound6.wav", "Sound7.wav", "Sound8.wav", "Sound9.mp3"],
-    AmbientSounds: ["Ambient Clock.flac", "Ambient Rain.wav","Ambient Crickets.mp3","Ambient Birds.wav"]
+    AmbientSounds: ["Ambient Clock.flac", "Ambient Rain.wav", "Ambient Crickets.mp3", "Ambient Birds.wav"]
 };
 
 var Vars = {
@@ -45,10 +45,7 @@ var Vars = {
     PomodoroTaskId: null,
     PomodoroSetTaskId: null,
     PomodoroTaskCustomList: [],
-    PomodorosToday: {
-        value: 0,
-        date: 0
-    },
+    Histogram: {}, //Histogram example: {10/29/2020:{pomodoros:3,minutes:75,weekday:Thursday},10/30/2020:{pomodoros:2,minutes:50,weekday:Friday}}
     Monies: 0,
     Exp: 0,
     Hp: 0,
@@ -89,6 +86,7 @@ function UserSettings(copyFrom) {
     this.LongBreakDuration = copyFrom ? copyFrom.LongBreakDuration : 30;
     this.LongBreakNotify = copyFrom ? copyFrom.LongBreakNotify : false;
     this.VacationMode = copyFrom ? copyFrom.VacationMode : false;
+    this.FreePassTimes = copyFrom ? copyFrom.FreePassTimes : [];
     this.CustomPomodoroTask = copyFrom ? copyFrom.CustomPomodoroTask : false;
     this.CustomSetTask = copyFrom ? copyFrom.CustomSetTask : false;
     this.PomodoroSetTaskId = copyFrom ? copyFrom.PomodoroSetTaskId : null;
@@ -107,7 +105,7 @@ function UserSettings(copyFrom) {
     this.ambientSoundVolume = copyFrom ? copyFrom.ambientSoundVolume : 0.5;
     this.ManualNextPomodoro = copyFrom ? copyFrom.ManualNextPomodoro : false;
 
-    //returns site object or false
+    //returns site object {hostname, cost, passExpiry} or false
     this.GetBlockedSite = function (hostname) {
         return this.BlockedSites[hostname];
     }
@@ -162,21 +160,27 @@ function checkBlockedUrl(siteUrl) {
     var hostname = siteUrl.hostname;
 
     //free pass during break session, or Vacation Mode and not in pomodoro session
-    var freePass = (Vars.UserData.BreakFreePass && Vars.onBreak && Vars.TimerRunnig) || (Vars.UserData.VacationMode && (!Vars.TimerRunnig || Vars.onBreak));
+    var freePass = ((Vars.UserData.BreakFreePass && Vars.onBreak && Vars.TimerRunnig) || ((Vars.UserData.VacationMode || isFreePassTimeNow()) && (!Vars.TimerRunnig || Vars.onBreak)));
     var site = Vars.UserData.GetBlockedSite(hostname);
     var pomodoro = Vars.TimerRunnig && !Vars.onBreak;
 
     var unblocked = { block: false };
 
-    if (!site || site.passExpiry > Date.now() || pomodoro || site.cost == 0 || freePass || !Vars.UserData.ConnectHabitica) {
-        return unblocked;
-    };
-
-    if(isInWhiteList(siteUrl)){
+    if (!site || freePass) {
         return unblocked;
     }
 
-    if (site.cost > Vars.Monies) {
+    if (Vars.UserData.ConnectHabitica && site && !pomodoro) {
+        if (site.passExpiry > Date.now() || site.cost == 0) {
+            return unblocked;
+        }
+    }
+
+    if (isInWhiteList(siteUrl)) {
+        return unblocked;
+    }
+
+    if (site.cost > Vars.Monies || !Vars.UserData.ConnectHabitica) {
         return {
             block: true,
             payToPass: false,
@@ -191,13 +195,13 @@ function checkBlockedUrl(siteUrl) {
     } //block website - pay to pass
 }
 
-function isInWhiteList(siteUrl){
+function isInWhiteList(siteUrl) {
     var whitelist = Vars.UserData.Whitelist.split('\n');
-    for (var i = 0; i < whitelist.length; i ++) {
+    for (var i = 0; i < whitelist.length; i++) {
         var line = whitelist[i];
-        if (line[0] === '/' && line[line.length - 1] === '/'){
+        if (line[0] === '/' && line[line.length - 1] === '/') {
             var re = new RegExp(line.substring(1, line.length - 1));
-            if (re.test(siteUrl.toString())){
+            if (re.test(siteUrl.toString())) {
                 return true;
             }
         }
@@ -238,7 +242,6 @@ function callbackTabUpdate(tabId) {
             showPayToPassTimerBadge(site);
         }
     });
-
 }
 
 
@@ -271,6 +274,7 @@ function mainSiteBlockFunction(tab) {
 
         muteBlockedtabs();
     }
+
 }
 
 
@@ -312,13 +316,13 @@ function showPayToPassTimerBadge(site) {
 }
 
 //Create "Pay X coins To Visit" site overlay
-function payToPassOverlay(tab, site) {
+function payToPassOverlay(tab, siteData) {
     var opacity = Vars.UserData.TranspartOverlay ? "0.85" : "1";
     var imageURLPayToPass = chrome.extension.getURL("/img/siteKeeper2.png");
     chrome.tabs.insertCSS({
         code: `
         .payToPass:after { background-image:url("` + imageURLPayToPass + `"); }
-        .payToPass::before {background-color:rgba(0,0,0,`+ opacity + `)}`
+        .payToPass::before {background-color:rgba(0,0,0,`+ opacity + `)!important}`
     });
 
     chrome.tabs.executeScript(tab.id, {
@@ -328,14 +332,14 @@ function payToPassOverlay(tab, site) {
             code: `
             document.getElementById("payToPass_btn").style.display = 'block';
             document.getElementById("SitekeeperOverlay").style.display = 'block';
-            document.getElementById("SitekeeperOverlay").setAttribute("data-html","You're trying to Access ` + site.hostname + `\\n Pay ` + site.cost + ` Gold to access for ` + site.passTime + ` Minutes ");
+            document.getElementById("SitekeeperOverlay").setAttribute("data-html","You're trying to Access ` + siteData.hostname + `\\n Pay ` + siteData.cost + ` Gold to access for ` + siteData.passTime + ` Minutes ");
             document.getElementById("SitekeeperOverlay").className = "payToPass"; `
         });
     });
 }
 
 //Create "Cant Afford To Visit" site overlay
-function cantAffordOverlay(tab, site) {
+function cantAffordOverlay(tab, siteData) {
     var opacity = Vars.UserData.TranspartOverlay ? "0.85" : "1";
     var imageURLNoPass = chrome.extension.getURL("/img/siteKeeper3.png");
     chrome.tabs.insertCSS({
@@ -351,7 +355,7 @@ function cantAffordOverlay(tab, site) {
             code: `
             document.getElementById("SitekeeperOverlay").style.display = 'block'; 
             document.getElementById("payToPass_btn").style.display = 'none';
-            document.getElementById("SitekeeperOverlay").setAttribute("data-html","You can't afford to visit ` + site.hostname + `\\n You shall not pass! ");
+            document.getElementById("SitekeeperOverlay").setAttribute("data-html","You can't afford to visit ` + siteData.hostname + `\\n You shall not pass! ");
             document.getElementById("SitekeeperOverlay").className = "noPass"; `
         });
     });
@@ -375,10 +379,11 @@ chrome.storage.sync.get(Consts.userDataKey, function (result) {
     }
 });
 
-//Set Pomodoros Today from storage
-chrome.storage.sync.get(Consts.PomodorosTodayDataKey, function (result) {
-    if (result[Consts.PomodorosTodayDataKey]) {
-        Vars.PomodorosToday = result[Consts.PomodorosTodayDataKey];
+
+//Set Histogram from storage
+chrome.storage.sync.get(Consts.HistogramDataKey, function (result) {
+    if (result[Consts.HistogramDataKey]) {
+        Vars.Histogram = result[Consts.HistogramDataKey];
     }
 });
 
@@ -388,13 +393,19 @@ function muteBlockedtabs() {
     if (Vars.UserData.MuteBlockedSites) {
         chrome.tabs.getAllInWindow(null, function (tabs) {
             for (var i = 0; i < tabs.length; i++) {
-                var url = new URL(tabs[i].url)
-                var site = Vars.UserData.GetBlockedSite(url.hostname);
+                var hostname = new URL(tabs[i].url).hostname;
+                var site = Vars.UserData.GetBlockedSite(hostname);
                 if (!site) {
                     chrome.tabs.update(tabs[i].id, {
                         "muted": false
                     });
-                } else if (checkBlockedUrl(url).block || pomodoro) {
+                }
+                else if (isInWhiteList(tabs[i].url)) {
+                    chrome.tabs.update(tabs[i].id, {
+                        "muted": false
+                    });
+                }
+                else if (checkBlockedUrl(site).block || pomodoro) {
                     chrome.tabs.update(tabs[i].id, {
                         "muted": true
                     });
@@ -675,32 +686,49 @@ function duringPomodoro() {
     //Block current tab if necessary
     CurrentTab(blockSiteOverlay);
 
-    if(Vars.ambientSound && Vars.ambientSound.paused){
+    if (Vars.ambientSound && Vars.ambientSound.paused) {
         playSound(Vars.UserData.ambientSound, Vars.UserData.ambientSoundVolume, true);
     }
-    //Tick Sound
-    // if (Vars.UserData.TickSound) {
-    //     playSound("clockTicking.mp3", 1,false);
-    // }
 }
 
+function setTodaysHistogram(pomodoros,minutes){
+    Vars.Histogram[getDate()] = {pomodoros:pomodoros,minutes:minutes,weekday:getWeekDay()};
+
+    //update storage
+    var storageKeyVal = {}; //{key: value} for chrome.storage.sync.set
+    storageKeyVal[Consts.HistogramDataKey] = Vars.Histogram; // {HistogramDataKey : Vars.Histogram}
+    chrome.storage.sync.set(storageKeyVal, function () {
+        console.log('updated Todays Histogram ' + JSON.stringify(data));
+    });
+}
+
+function increasePomodorosToday(){
+    var todaysData =  Vars.Histogram[getDate()];
+    if(todaysData){
+        setTodaysHistogram(todaysData.pomodoros + 1, todaysData.minutes + Vars.UserData.PomoDurationMins);
+    }else{
+        setTodaysHistogram(1,Vars.UserData.PomoDurationMins);
+    }
+}
+
+function clearHistogram(){
+    Vars.Histogram = {};
+    //update storage
+    var storageKeyVal = {}; //{key: value} for chrome.storage.sync.set
+    storageKeyVal[Consts.HistogramDataKey] = Vars.Histogram; // {HistogramDataKey : Vars.Histogram}
+    chrome.storage.sync.set(storageKeyVal, function () {
+        console.log('updated Todays Histogram ' + JSON.stringify(data));
+    });
+}
 
 //runs When Pomodoro Timer Ends
 function pomodoroEnds() {
 
     stopTimer();
     stopAmbientSound();
-    //update Pomodoros Count
-    Vars.PomodorosToday.value++;
-
-    var Pomodoros = {};
-    Pomodoros[Consts.PomodorosTodayDataKey] = Vars.PomodorosToday;
-    chrome.storage.sync.set(Pomodoros, function () {
-        console.log('PomodorosToday is set to ' + JSON.stringify(Pomodoros));
-    });
-
+    increasePomodorosToday();
     var title = "Time's Up"
-    var msg = "Pomodoro ended." + "\n" + "You have done " + Vars.PomodorosToday.value + " today!"; //default msg if habit not enabled
+    var msg = "Pomodoro ended." + "\n" + "You have done " + Vars.Histogram[getDate()].pomodoros + " today!"; //default msg if habit not enabled
     var setComplete = Vars.PomoSetCounter >= Vars.UserData.PomoSetNum - 1;
     //If Pomodoro / Pomodoro Set Habit + is enabled
     if (Vars.UserData.PomoHabitPlus || (setComplete && Vars.UserData.PomoSetHabitPlus)) {
@@ -999,4 +1027,69 @@ function stopAmbientSound() {
         Vars.ambientSound.pause();
         Vars.ambientSound.currentTime = 0;
     }
+}
+
+//returns the current date, "mm/dd/yy" format
+function getDate() {
+    var today = new Date();
+    var dd = String(today.getDate()).padStart(2, '0');
+    var mm = String(today.getMonth() + 1).padStart(2, '0'); //January is 0!
+    var yyyy = today.getFullYear();
+    today = mm + '/' + dd + '/' + yyyy;
+    return today;
+}
+
+//returns the current weekday
+function getWeekDay() {
+    var today = new Date();
+    var weekdays = new Array(
+        "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"
+    );
+    var day = today.getDay();
+    return weekdays[day];
+}
+
+//returns the current time in 24hrs format
+function getTime() {
+    var today = new Date();
+    var time = today.getHours() + ":" + today.getMinutes();
+    return time;
+}
+
+//input time str like "18:30", returns number of minutes since "00:00".
+function getMinutes(str) {
+    var time = str.split(':');
+    return time[0] * 60 + time[1] * 1;
+}
+
+
+
+//Input: Time strings 'hh:mm' in 24hr format i.e. '23:28'
+function isTimeBetween(fromTime, toTime) {
+
+    if (fromTime == "" || toTime == "") {
+        return false;
+    }
+
+    var nowMinutes = getMinutes(getTime());
+    var startMinutes = getMinutes(fromTime);
+    var endMinutes = getMinutes(toTime);
+
+    if ((nowMinutes > startMinutes) && (nowMinutes < endMinutes)) {
+        return true
+    }
+    return false;
+}
+
+function isFreePassTimeNow() {
+    var freePassTimes = Vars.UserData.FreePassTimes;
+    for (let i = 0; i < freePassTimes.length; i++) {
+        const freePass = freePassTimes[i]
+        if (freePass.day == getWeekDay()) {
+            if (isTimeBetween(freePass.fromTime, freePass.toTime)) {
+                return true;
+            }
+        }
+    }
+    return false;
 }

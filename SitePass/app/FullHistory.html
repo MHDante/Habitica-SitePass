@@ -1,0 +1,66 @@
+<title>Habitica Pomodoro SiteKeeper</title>
+<script src="jquery-2.1.3.min.js"></script>
+<script src="Chart.bundle.min.js"></script>
+<script src="calendar_yearview_blocks.js"></script>
+<script src="FullHistory.js"></script>
+
+
+<h1 style="width:100%;text-align: center;margin-top: 15px;">All Time Pomodoro History</h1>
+<div style="display:flex;width: 100%;">
+    <canvas id="Chart1" height="120"></canvas>
+</div>
+<progress id="animationProgress" max="1" value="0" style="width: 100%"></progress>
+<h1 style="width:100%;text-align: center;margin-top: 15px;">Year View</h1>
+<div id="calendarView"></div>
+
+
+<!-- calendar_yearview_blocks css -->
+<style>
+    .svg-tip {
+        padding: 10px;
+        background: #191919;
+        opacity: 0.8;
+        color: #eee;
+        font-size: 12px;
+        position: absolute;
+        z-index: 99999;
+        text-align: center;
+        border-radius: 3px;
+    }
+
+    .svg-tip:after {
+        -moz-box-sizing: border-box;
+        box-sizing: border-box;
+        position: absolute;
+        left: 50%;
+        height: 5px;
+        width: 5px;
+        bottom: -10px;
+        margin: 0 0 0 -5px;
+        content: " ";
+        border: 5px solid transparent;
+        border-top-color: rgba(0, 0, 0, 0.8);
+    }
+
+    .wday,
+    .month {
+        font-variant: small-caps;
+        color: #222222;
+        font-size: 12px;
+    }
+
+    div#calendarView {
+        padding: 15px 0 100px 0;
+        width: 100vw;
+        overflow-x: auto;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    svg {
+        background-color: #dddddd;
+        padding: 15px;
+        border-radius: 10px;
+    }
+</style>

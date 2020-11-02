@@ -45,7 +45,7 @@ var Vars = {
     PomodoroTaskId: null,
     PomodoroSetTaskId: null,
     PomodoroTaskCustomList: [],
-    Histogram: {}, //Histogram example: {10/29/2020:{pomodoros:3,minutes:75,weekday:Thursday},10/30/2020:{pomodoros:2,minutes:50,weekday:Friday}}
+    Histogram: {}, //Histogram example: {2020-29-10:{pomodoros:3,minutes:75,weekday:Thursday},2020-30-10:{pomodoros:2,minutes:50,weekday:Friday}}
     Monies: 0,
     Exp: 0,
     Hp: 0,
@@ -1029,13 +1029,14 @@ function stopAmbientSound() {
     }
 }
 
-//returns the current date, "mm/dd/yy" format
+//returns the current date, "yyyy-mm-dd" format
 function getDate() {
     var today = new Date();
     var dd = String(today.getDate()).padStart(2, '0');
     var mm = String(today.getMonth() + 1).padStart(2, '0'); //January is 0!
     var yyyy = today.getFullYear();
-    today = mm + '/' + dd + '/' + yyyy;
+    //today = mm + '/' + dd + '/' + yyyy;
+    today = yyyy + '-' + mm + '-' + dd;
     return today;
 }
 

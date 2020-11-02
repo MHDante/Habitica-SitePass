@@ -1319,7 +1319,7 @@ div#addFreePassBlock:hover {
     height: 300px;
 }
 
-#PomoToday, #MinutesToday {
+#PomoToday, #HoursToday {
     width: 60px;
     height: 60px;
     font-size: 26px;
@@ -1327,7 +1327,7 @@ div#addFreePassBlock:hover {
     border-width: 4px;
 }
 
-#PomoToday:after, #MinutesToday:after {
+#PomoToday:after, #HoursToday:after {
     top: 70px;
     font-size: 16px;
     font-weight: bold;
@@ -1344,17 +1344,24 @@ div#addFreePassBlock:hover {
     text-decoration: none;
     text-align: center;
     font-family: "pixeled";
+    font-size: 16px;
 }
 
-.settingButton:hover{
+.settingButton:hover {
     background-color: #878190;
     color: white;
 }
-#HistoryChartShowMinutes,#HistoryChartShowPomodoros{
-width: 45%;
+
+button#ImportHistogram {
+    width: 35%;
+    padding: 8px;
 }
 
- #selectHistogramFile{
+#HistoryChartShowHours, #HistoryChartShowPomodoros {
+    width: 45%;
+}
+
+#selectHistogramFile {
     border: 1px solid #878190;
     padding: 5px;
 }
@@ -1362,8 +1369,68 @@ width: 45%;
 #DownloadHistogram, #ClearHistogram {
     width: 100% !important;
 }
+
 div#HistoryChartTotal {
     width: 100%;
     padding: 6px;
     pointer-events: none;
+}
+
+.backupDataWarning {
+    color: beige;
+    border-color: indianred;
+    background-color: indianred;
+    margin-top: 15px;
+}
+
+input#selectHistogramFile:before {
+    content: "Choose File";
+    display: flex;
+    align-items: center;
+    vertical-align: middle;
+    position: absolute;
+    background-color: #edecee;
+    color: #878190;
+    padding: 6px 9px;
+    margin-left: -2px;
+    margin-top: -1px;
+    text-align: center;
+    border: 1px solid #edecee;
+    text-decoration: underline;
+}
+
+input#selectHistogramFile:hover:before {
+    background-color: #878190;
+    color: #edecee;
+    border: 1px solid #878190;
+}
+
+.fullScreen_Icon {
+    background-image: url(data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZlcnNpb249IjEuMSIgeG1sbnM6eGxpbms9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGxpbmsiIHhtbG5zOnN2Z2pzPSJodHRwOi8vc3ZnanMuY29tL3N2Z2pzIiB3aWR0aD0iNTEyIiBoZWlnaHQ9IjUxMiIgeD0iMCIgeT0iMCIgdmlld0JveD0iMCAwIDM4NCAzODQiIHN0eWxlPSJlbmFibGUtYmFja2dyb3VuZDpuZXcgMCAwIDUxMiA1MTIiIHhtbDpzcGFjZT0icHJlc2VydmUiIGNsYXNzPSIiPjxnPgo8ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPgoJPGc+CgkJPGc+CgkJCTxwb2x5Z29uIHBvaW50cz0iMjM0LjY2NywwIDIzNC42NjcsNDIuNjY3IDMxMS4xNDcsNDIuNjY3IDEwMS40NCwyNTIuMzczIDEzMS42MjcsMjgyLjU2IDM0MS4zMzMsNzIuODUzIDM0MS4zMzMsMTQ5LjMzMyAgICAgIDM4NCwxNDkuMzMzIDM4NCwwICAgICIgZmlsbD0iIzg3ODE5MCIgZGF0YS1vcmlnaW5hbD0iIzAwMDAwMCIgc3R5bGU9IiIgY2xhc3M9IiI+PC9wb2x5Z29uPgoJCQk8cGF0aCBkPSJNMzQxLjMzMywzNDEuMzMzSDQyLjY2N1Y0Mi42NjdIMTkyVjBINDIuNjY3QzE5LjA5MywwLDAsMTkuMDkzLDAsNDIuNjY3djI5OC42NjdDMCwzNjQuOTA3LDE5LjA5MywzODQsNDIuNjY3LDM4NCAgICAgaDI5OC42NjdDMzY0LjkwNywzODQsMzg0LDM2NC45MDcsMzg0LDM0MS4zMzNWMTkyaC00Mi42NjdWMzQxLjMzM3oiIGZpbGw9IiM4NzgxOTAiIGRhdGEtb3JpZ2luYWw9IiMwMDAwMDAiIHN0eWxlPSIiIGNsYXNzPSIiPjwvcGF0aD4KCQk8L2c+Cgk8L2c+CjwvZz4KPGcgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPC9nPgo8ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPgo8L2c+CjxnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjwvZz4KPGcgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPC9nPgo8ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPgo8L2c+CjxnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjwvZz4KPGcgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPC9nPgo8ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPgo8L2c+CjxnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjwvZz4KPGcgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPC9nPgo8ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPgo8L2c+CjxnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjwvZz4KPGcgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPC9nPgo8ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPgo8L2c+CjxnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjwvZz4KPC9nPjwvc3ZnPg==);
+}
+
+.fullScreen_Icon:hover, .settingButton:hover .fullScreen_Icon {
+    background-image: url(data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZlcnNpb249IjEuMSIgeG1sbnM6eGxpbms9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGxpbmsiIHhtbG5zOnN2Z2pzPSJodHRwOi8vc3ZnanMuY29tL3N2Z2pzIiB3aWR0aD0iNTEyIiBoZWlnaHQ9IjUxMiIgeD0iMCIgeT0iMCIgdmlld0JveD0iMCAwIDM4NCAzODQiIHN0eWxlPSJlbmFibGUtYmFja2dyb3VuZDpuZXcgMCAwIDUxMiA1MTIiIHhtbDpzcGFjZT0icHJlc2VydmUiIGNsYXNzPSIiPjxnPgo8ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPgoJPGc+CgkJPGc+CgkJCTxwb2x5Z29uIHBvaW50cz0iMjM0LjY2NywwIDIzNC42NjcsNDIuNjY3IDMxMS4xNDcsNDIuNjY3IDEwMS40NCwyNTIuMzczIDEzMS42MjcsMjgyLjU2IDM0MS4zMzMsNzIuODUzIDM0MS4zMzMsMTQ5LjMzMyAgICAgIDM4NCwxNDkuMzMzIDM4NCwwICAgICIgZmlsbD0iI2ZmZmZmZiIgZGF0YS1vcmlnaW5hbD0iIzAwMDAwMCIgc3R5bGU9IiIgY2xhc3M9IiI+PC9wb2x5Z29uPgoJCQk8cGF0aCBkPSJNMzQxLjMzMywzNDEuMzMzSDQyLjY2N1Y0Mi42NjdIMTkyVjBINDIuNjY3QzE5LjA5MywwLDAsMTkuMDkzLDAsNDIuNjY3djI5OC42NjdDMCwzNjQuOTA3LDE5LjA5MywzODQsNDIuNjY3LDM4NCAgICAgaDI5OC42NjdDMzY0LjkwNywzODQsMzg0LDM2NC45MDcsMzg0LDM0MS4zMzNWMTkyaC00Mi42NjdWMzQxLjMzM3oiIGZpbGw9IiNmZmZmZmYiIGRhdGEtb3JpZ2luYWw9IiMwMDAwMDAiIHN0eWxlPSIiIGNsYXNzPSIiPjwvcGF0aD4KCQk8L2c+Cgk8L2c+CjwvZz4KPGcgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPC9nPgo8ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPgo8L2c+CjxnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjwvZz4KPGcgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPC9nPgo8ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPgo8L2c+CjxnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjwvZz4KPGcgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPC9nPgo8ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPgo8L2c+CjxnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjwvZz4KPGcgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPC9nPgo8ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPgo8L2c+CjxnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjwvZz4KPGcgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPC9nPgo8ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPgo8L2c+CjxnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjwvZz4KPC9nPjwvc3ZnPg==);
+}
+.settingButton:hover .fullScreen_Icon:after {
+    content: "Full History";
+    position: absolute;
+    margin-top: 30px;
+    margin-left: -48px;
+    width: 100px;
+    background-color: #878190;
+    border-radius: 10px;
+    padding: 5px;
+}
+#ClearHistogram .small_icon{
+    width: 12px;
+    height: 12px;
+    background-size: 12px;
+}
+.settingButton:hover .trash_icon{
+    background-image: url(img/trash3.png);
+}
+#WeekdayChartTitle {
+    width: 100%;
+    text-align: center;
 }

@@ -256,7 +256,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
     //History Update
     const Canvas = document.getElementById('HistoryChart').getContext('2d');
-    const Canvas2 = document.getElementById('WeekdayChart').getContext('2d');
     HistoryChart = new Chart(Canvas, {
         type: 'bar',
         data: {
@@ -276,36 +275,6 @@ document.addEventListener("DOMContentLoaded", function () {
                 }]
             }
         }
-    });
-
-    WeekdayChart = new Chart(Canvas2, {
-        type: 'pie',
-        data: {
-            labels: ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday','Saturday'],
-            datasets: [{
-                label: "Pomodoros",
-                data: [],
-                backgroundColor: [
-                    'rgba(255, 99, 132, 0.2)',
-                    'rgba(54, 162, 235, 0.2)',
-                    'rgba(255, 206, 86, 0.2)',
-                    'rgba(75, 192, 192, 0.2)',
-                    'rgba(153, 102, 255, 0.2)',
-                    'rgba(255, 159, 64, 0.2)',
-                    'rgba(205, 92, 92, 0.2)'
-                ],
-                borderColor: [
-                    'rgba(255, 99, 132, 1)',
-                    'rgba(54, 162, 235, 1)',
-                    'rgba(255, 206, 86, 1)',
-                    'rgba(75, 192, 192, 1)',
-                    'rgba(153, 102, 255, 1)',
-                    'rgba(255, 159, 64, 1)',
-                    'rgba(205, 92, 92, 1)'
-                ],
-                borderWidth: 1
-            }]
-        },
     });
     $("#MenuHistory").click(function () {
         updateHistory();
@@ -803,8 +772,6 @@ function updateHistory() {
     var totalHours = 0;
     var dataSize = 0;
     var chartData = { dates: [], pomodoros: [], hours: [], weekdays:[]};
-    var weekdayPomoCount = {"Sunday":0,"Monday":0,"Tuesday":0,"Wednesday":0,"Thursday":0,"Friday":0,"Saturday":0}
-    var weekdayHourCount = {"Sunday":0,"Monday":0,"Tuesday":0,"Wednesday":0,"Thursday":0,"Friday":0,"Saturday":0}
     
     //collect data from histogram
     for (var key in Vars.Histogram) {
@@ -818,33 +785,25 @@ function updateHistory() {
             chartData.weekdays.push(data.weekday)
             chartData.pomodoros.push(data.pomodoros);
             chartData.hours.push(hrs);
-            weekdayPomoCount[data.weekday] += data.pomodoros;
-            weekdayHourCount[data.weekday] = (Number(weekdayHourCount[data.weekday]) + Number(hrs)).toFixed(1);
         }
     }
     
-
-    var WeekDays = Object.keys(weekdayPomoCount);
-    var WeekDaysPomoData = Object.values(weekdayPomoCount);
-    var WeekDaysHoursData = Object.values(weekdayHourCount);
-    console.log(WeekDaysHoursData);
 
     $("#PomoTotal").html(totalPomodoros);
     $("#HoursTotal").html(totalHours.toFixed(1));
     $("#PomoAvg").html((totalPomodoros / dataSize).toFixed(1));
     $("#HoursAvg").html((totalHours / dataSize).toFixed(1));
 
+    HistoryFromDay = chartData.dates.length -7 > 0? chartData.dates.length -7 : 0;
+    HistoryToDay = chartData.dates.length;
     udateHistoryTable(HistoryChart, chartData.dates, chartData.pomodoros,chartData.weekdays,"Pomodoros");
-    udateWeekdayTable(WeekdayChart,WeekDaysPomoData,WeekDays,"Pomodoros");
 
     $("#HistoryChartShowPomodoros").click(function () {
         udateHistoryTable(HistoryChart, chartData.dates, chartData.pomodoros,chartData.weekdays, "Pomodoros");
-        udateWeekdayTable(WeekdayChart,WeekDaysPomoData,WeekDays,"Pomodoros");
         HistoryPomodoroSelected = true;
     });
     $("#HistoryChartShowHours").click(function () {
         udateHistoryTable(HistoryChart, chartData.dates, chartData.hours,chartData.weekdays, "Hours");
-        udateWeekdayTable(WeekdayChart,WeekDaysHoursData,WeekDays,"Hours");
         HistoryPomodoroSelected = false;
     });
     $("#DownloadHistogram").click(function () {
@@ -896,10 +855,8 @@ function updateHistory() {
         }
         if (HistoryPomodoroSelected) {
             udateHistoryTable(HistoryChart, chartData.dates, chartData.pomodoros,chartData.weekdays, "Pomodoros");
-            udateWeekdayTable(WeekdayChart,WeekDaysPomoData,WeekDays,"Pomodoros");
         } else {
             udateHistoryTable(HistoryChart, chartData.dates, chartData.hours,chartData.weekdays, "Hours");
-            udateWeekdayTable(WeekdayChart,WeekDaysHoursData,WeekDays,"Hours");
         }
     });
 
@@ -917,17 +874,9 @@ function udateHistoryTable(Chart, datesArary, dataArray,weekDaysArray, label) {
     Chart.options.tooltips.callbacks.title = function(tooltipItem, data) {
         return tooltipItem[0].label +" "+ showWeekDays[showDates.indexOf(tooltipItem[0].label)];
     }
-    $("#HistoryChartTotal").html(`Total ${label} in chart: ${sumOfArray(showData)}`);
+    $("#HistoryChartTotal").html(`Sum: ${sumOfArray(showData)} | Avg: ${(sumOfArray(showData)/(HistoryToDay - HistoryFromDay)).toFixed(1)}`);
     Chart.update();
 }
-
-function udateWeekdayTable(Chart,dataArray,labels,label) {
-    Chart.data.labels = labels;
-    Chart.data.datasets[0].data = dataArray;
-    $("#WeekdayChartTitle label").html(label);
-    Chart.update();
-}
-
 
 
 

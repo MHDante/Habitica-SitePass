@@ -28,16 +28,18 @@ input[type="number"] {
 }
 
 #CotentContainer {
-    padding-top: 30px;
+    padding-top: 28px;
 }
 
 .menu-label {
     margin-top: 5px;
-    display: block;
-    margin-right: 10px;
-    font-size: 14px;
+    align-items: center;
+    font-size: 12px;
+    font-weight: bold;
     line-height: 16px;
-    font-family: 'pixeled';
+    font-family: 'Orbitron', sans-serif;
+    font-family: 'Oxanium', cursive;
+    display: flex;
 }
 
 :not(.menu-label)>input[type=checkbox]:before {
@@ -59,7 +61,7 @@ input[type="number"] {
 :not(.menu-label)>input:checked:before {
     content: "\2713";
     color: var(--setting-text-color);
-    line-height: 10px;
+    line-height: 7px;
     font-size: 16px;
     font-weight: bold;
 }
@@ -102,7 +104,8 @@ body {
     width: 364px;
     height: 450px;
     border-collapse: collapse;
-    font-family: 'pixeled';
+    font-family: 'Orbitron', sans-serif;
+    font-family: 'Oxanium', cursive;
     font-size: 14px;
     background: #EDECEE;
     color: var(--setting-text-color);
@@ -119,7 +122,8 @@ body {
 
 .footer_icons {
     margin: 0;
-    font-family: 'pixeled';
+    font-family: 'Orbitron', sans-serif;
+    font-family: 'Oxanium', cursive;
     font-size: 22px;
     display: inline-block;
     margin-right: 10px;
@@ -131,10 +135,11 @@ body {
 .reward-item {
     background-color: var(--main-color);
     color: var(--secondery-color);
-    font-family: 'pixeled';
+    font-family: 'Orbitron', sans-serif;
+    font-family: 'Oxanium', cursive;
     webkit-box-shadow: 0 2px 2px 0 rgba(26, 24, 29, 0.16), 0 1px 4px 0 rgba(26, 24, 29, 0.12);
     box-shadow: 0 2px 2px 0 rgba(26, 24, 29, 0.16), 0 1px 4px 0 rgba(26, 24, 29, 0.12);
-    font-size: 16px;
+    font-size: 14px;
     text-transform: uppercase;
 }
 
@@ -151,11 +156,13 @@ body {
 .cost-input {
     background-color: #e19525;
     color: white;
-    font-family: 'pixeled';
+    font-family: 'Orbitron', sans-serif;
+    font-family: 'Oxanium', cursive;
 }
 
 input.cost {
-    font-family: 'pixeled';
+    font-family: 'Orbitron', sans-serif;
+    font-family: 'Oxanium', cursive;
     font-size: 17px;
     border: none;
     margin-bottom: 3px;
@@ -231,16 +238,16 @@ div#RefreshStats {
     background-size: 16px;
     margin-right: 2px;
     margin-left: 2px;
-    vertical-align: top;
+    vertical-align: middle;
     display: inline-block;
     background-position: 0;
 }
 
-.donate_icon {
+.menu-item  .donate_icon {
     width: 19px;
     height: 19px;
     background-size: 19px;
-    margin-top: -2px;
+    margin-top: -4px !important;
 }
 
 a.delete {
@@ -250,6 +257,7 @@ a.delete {
 .menu-item .small_icon {
     margin-left: -10px;
     padding-right: 5px;
+    margin-top: -2px;
 }
 
 .block_Icon {
@@ -299,7 +307,7 @@ a.delete {
 }
 
 .habitica_small_icon.small_icon, .help_icon.tooltip {
-    margin-top: 5px;
+    margin-top: -3px;
     margin-right: 5px;
 }
 
@@ -554,10 +562,11 @@ a.delete {
 }
 
 #Time {
-    font-size: 52px;
-    top: 20px;
+    font-size:42px;
+    top: 17px;
     position: relative;
-    font-family: 'pixeled', Arial, sans-serif;
+    font-family: 'Orbitron', sans-serif;
+    font-family: 'Oxanium', cursive;
     width: 100px;
     display: inline-block;
     margin-left: 15px;
@@ -566,13 +575,13 @@ a.delete {
 
 #Time:after {
     content: attr(data-pomodoros-set);
-    font-size: 21px !important;
+    font-size: 19px !important;
     letter-spacing: 2px;
     display: inline-block;
     position: absolute;
     right: 0px;
     text-align: center;
-    top: -24px;
+    top: -19px;
     width: 100%;
 }
 
@@ -583,7 +592,7 @@ a.delete {
     left: 0;
     top: 0;
     z-index: 999;
-    border-bottom: 1px solid #ccc;
+    /* border-bottom: 1px solid #ccc; */
 }
 
 label.menu-label {
@@ -601,6 +610,7 @@ div#Menu {
     -webkit-transition: background-color 200ms linear;
     -ms-transition: background-color 200ms linear;
     transition: background-color 200ms linear;
+    border-bottom: 1px solid #ccc;
 }
 
 .menu-item.selected {
@@ -699,8 +709,9 @@ div#TimerSettingsContainer label, #BlockerSettingsContainer label, #HabiticaSett
 }
 
 button#SaveButton {
-    font-family: "pixeled";
-    font-size: 16px;
+    font-family: 'Orbitron', sans-serif;
+    font-family: 'Oxanium', cursive;
+    font-size: 14px;
     display: none;
     position: fixed;
     background-color: var(--setting-text-color);
@@ -712,7 +723,7 @@ button#SaveButton {
     border-radius: 0px;
     left: 0;
     z-index: 999;
-    top: 35px;
+    top: 36px;
 }
 
 button#SaveButton span {
@@ -728,10 +739,11 @@ button#SaveButton span {
     width: 100px;
     margin: 23px 0 13px 0;
     cursor: pointer;
-    padding: 3px;
-    font-family: 'pixeled';
-    font-size: 27px;
-    line-height: 27px;
+    padding: 6px;
+    font-family: 'Orbitron', sans-serif;
+    font-family: 'Oxanium', cursive;
+    font-size: 24px;
+    line-height: 24px;
     text-transform: uppercase;
 }
 
@@ -748,9 +760,10 @@ label.takeBreakText {
     color: var(--secondery-color);
     ;
     text-transform: uppercase;
-    font-family: 'pixeled';
-    font-size: 20px;
-    line-height: 20px;
+    font-family: 'Orbitron', sans-serif;
+    font-family: 'Oxanium', cursive;
+    font-size: 18px;
+    line-height: 18px;
     border: 3px solid var(--secondery-color);
     padding: 5px 15px;
     border-radius: 10px;
@@ -760,21 +773,23 @@ label.takeBreakText {
 
 #quickSet-takeBreak {
     font-size: 22px;
-    line-height: 36px;
+    line-height: 43px;
     margin-left: 3px;
     position: absolute;
 }
 
 label.longBreakQuickSet {
-    font-size: 20px;
-    font-family: 'pixeled';
+    font-size: 18px;
+    font-family: 'Orbitron', sans-serif;
+    font-family: 'Oxanium', cursive;
     text-transform: uppercase;
 }
 
 input#quickSet-takeBreakDuration, #quickSet-PomoSetNum {
     line-height: 20px;
     font-size: 20px;
-    font-family: 'pixeled';
+    font-family: 'Orbitron', sans-serif;
+    font-family: 'Oxanium', cursive;
     text-align: center;
     padding: 3px;
     margin: 5px;
@@ -822,7 +837,8 @@ input#quickSet-takeBreakDuration, #quickSet-PomoSetNum {
     width: 12px;
     line-height: 20px;
     text-align: center;
-    font-family: Arial, Helvetica, sans-serif;
+    font-family: 'Orbitron', sans-serif;
+    font-family: 'Oxanium', cursive;
 }
 
 .xbtn {
@@ -921,8 +937,9 @@ input#UID, #APIToken {
 }
 
 input, select {
-    font-family: "pixeled";
-    font-size: 16px;
+    font-family: 'Orbitron', sans-serif;
+    font-family: 'Oxanium', cursive;
+    font-size: 14px;
 }
 
 input[type="range"] {
@@ -960,7 +977,8 @@ input#quickSet-PomoDuration, input#quickSet-BreakDuration, input#quickSet-LongBr
     width: 85px;
     font-size: 25px;
     margin: 10px;
-    font-family: 'pixeled';
+    font-family: 'Orbitron', sans-serif;
+    font-family: 'Oxanium', cursive;
     line-height: 32px;
     vertical-align: middle;
     padding: 5px;
@@ -975,8 +993,9 @@ label[for="quickSet-PomoDuration"], label[for="quickSet-BreakDuration"], label[f
 label[for="quickSet-PomoDuration"]:before, label[for="quickSet-BreakDuration"]:before, label[for="quickSet-LongBreakDuration"]:before {
     position: absolute;
     width: 118px;
-    font-family: 'pixeled';
-    font-size: 18px;
+    font-family: 'Orbitron', sans-serif;
+    font-family: 'Oxanium', cursive;
+    font-size: 15px;
     text-align: center;
     top: 54px;
 }
@@ -1057,7 +1076,8 @@ input.switch:checked:after {
     border-bottom: 5px solid var(--setting-text-color);
     margin-top: 20px;
     margin-left: 3px;
-    font-family: sans-serif;
+    font-family: 'Orbitron', sans-serif;
+    font-family: 'Oxanium', cursive;
 }
 
 .tooltip:hover:after {
@@ -1114,8 +1134,8 @@ div#Donate {
     text-align: center;
     font-size: 16px;
     line-height: 24px;
-    font-family: 'pixeled';
-    text-transform: uppercase;
+    font-family: 'Orbitron', sans-serif;
+    font-family: 'Oxanium', cursive;
 }
 
 div#Feedback {
@@ -1173,16 +1193,17 @@ input[name="innerMenu"] {
 }
 
 input[name="innerMenu"]+label {
-    font-size: 16px;
-    line-height: 16px;
-    word-spacing: -6px;
+    font-size: 13px;
+    font-weight: bold;
+    word-spacing: -3px;
     margin-left: 5px;
     margin-top: 10px;
     margin-bottom: 10px;
-    font-family: pixeled;
+    font-family: 'Orbitron', sans-serif;
+    font-family: 'Oxanium', cursive;
     width: 93px;
     border: 3px solid var(--setting-text-color);
-    padding: 5px;
+    padding: 6px;
     text-align: center;
     border-radius: 32px;
     cursor: pointer;
@@ -1190,13 +1211,15 @@ input[name="innerMenu"]+label {
 
 .innerMenuIcon {
     width: 25px;
-    height: 25px;
+    height: 26px;
     display: inline-block;
     background-repeat: no-repeat;
     background-size: 21px;
     vertical-align: middle;
     background-position: center;
     margin-left: -3px;
+    margin-top: -3px;
+    margin-right: 2px;
 }
 
 input[name="innerMenu"]:checked+label {
@@ -1252,9 +1275,10 @@ div.historyDataCircle:after {
     content: attr(data-text);
     position: absolute;
     text-align: center;
-    font-size: 15px;
-    line-height: 15px;
-    font-family: 'pixeled';
+    font-size: 12px;
+    line-height: 12px;
+    font-family: 'Orbitron', sans-serif;
+    font-family: 'Oxanium', cursive;
     top: 57px;
     min-width: 65px;
 }
@@ -1329,7 +1353,8 @@ div#addFreePassBlock:hover {
 
 #PomoToday:after, #HoursToday:after {
     top: 70px;
-    font-size: 16px;
+    font-size: 14px;
+    line-height: 14px;
     font-weight: bold;
 }
 
@@ -1343,7 +1368,8 @@ div#addFreePassBlock:hover {
     border: 1px solid #878190;
     text-decoration: none;
     text-align: center;
-    font-family: "pixeled";
+    font-family: 'Orbitron', sans-serif;
+    font-family: 'Oxanium', cursive;
     font-size: 16px;
 }
 
@@ -1393,7 +1419,7 @@ input#selectHistogramFile:before {
     color: #878190;
     padding: 6px 9px;
     margin-left: -2px;
-    margin-top: -1px;
+    margin-top: -4px;
     text-align: center;
     border: 1px solid #edecee;
     text-decoration: underline;
@@ -1412,6 +1438,7 @@ input#selectHistogramFile:hover:before {
 .fullScreen_Icon:hover, .settingButton:hover .fullScreen_Icon {
     background-image: url(data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZlcnNpb249IjEuMSIgeG1sbnM6eGxpbms9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGxpbmsiIHhtbG5zOnN2Z2pzPSJodHRwOi8vc3ZnanMuY29tL3N2Z2pzIiB3aWR0aD0iNTEyIiBoZWlnaHQ9IjUxMiIgeD0iMCIgeT0iMCIgdmlld0JveD0iMCAwIDM4NCAzODQiIHN0eWxlPSJlbmFibGUtYmFja2dyb3VuZDpuZXcgMCAwIDUxMiA1MTIiIHhtbDpzcGFjZT0icHJlc2VydmUiIGNsYXNzPSIiPjxnPgo8ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPgoJPGc+CgkJPGc+CgkJCTxwb2x5Z29uIHBvaW50cz0iMjM0LjY2NywwIDIzNC42NjcsNDIuNjY3IDMxMS4xNDcsNDIuNjY3IDEwMS40NCwyNTIuMzczIDEzMS42MjcsMjgyLjU2IDM0MS4zMzMsNzIuODUzIDM0MS4zMzMsMTQ5LjMzMyAgICAgIDM4NCwxNDkuMzMzIDM4NCwwICAgICIgZmlsbD0iI2ZmZmZmZiIgZGF0YS1vcmlnaW5hbD0iIzAwMDAwMCIgc3R5bGU9IiIgY2xhc3M9IiI+PC9wb2x5Z29uPgoJCQk8cGF0aCBkPSJNMzQxLjMzMywzNDEuMzMzSDQyLjY2N1Y0Mi42NjdIMTkyVjBINDIuNjY3QzE5LjA5MywwLDAsMTkuMDkzLDAsNDIuNjY3djI5OC42NjdDMCwzNjQuOTA3LDE5LjA5MywzODQsNDIuNjY3LDM4NCAgICAgaDI5OC42NjdDMzY0LjkwNywzODQsMzg0LDM2NC45MDcsMzg0LDM0MS4zMzNWMTkyaC00Mi42NjdWMzQxLjMzM3oiIGZpbGw9IiNmZmZmZmYiIGRhdGEtb3JpZ2luYWw9IiMwMDAwMDAiIHN0eWxlPSIiIGNsYXNzPSIiPjwvcGF0aD4KCQk8L2c+Cgk8L2c+CjwvZz4KPGcgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPC9nPgo8ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPgo8L2c+CjxnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjwvZz4KPGcgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPC9nPgo8ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPgo8L2c+CjxnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjwvZz4KPGcgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPC9nPgo8ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPgo8L2c+CjxnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjwvZz4KPGcgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPC9nPgo8ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPgo8L2c+CjxnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjwvZz4KPGcgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPC9nPgo8ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPgo8L2c+CjxnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjwvZz4KPC9nPjwvc3ZnPg==);
 }
+
 .settingButton:hover .fullScreen_Icon:after {
     content: "Full History";
     position: absolute;
@@ -1422,14 +1449,17 @@ input#selectHistogramFile:hover:before {
     border-radius: 10px;
     padding: 5px;
 }
-#ClearHistogram .small_icon{
-    width: 12px;
-    height: 12px;
-    background-size: 12px;
+
+#ClearHistogram .small_icon {
+    width: 16px;
+    height: 16px;
+    background-size: 16px;
 }
-.settingButton:hover .trash_icon{
+
+.settingButton:hover .trash_icon {
     background-image: url(img/trash3.png);
 }
+
 #WeekdayChartTitle {
     width: 100%;
     text-align: center;

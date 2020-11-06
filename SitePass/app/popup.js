@@ -583,7 +583,7 @@ function updateCredentials() {
 function updateTimerDisplay() {
     $('#Time').html(Vars.Timer);
     if (Vars.onManualTakeBreak) {
-        $("#Time").attr("data-pomodoros-set", "");
+        $("#Time").attr("data-pomodoros-set", "--/--");
     } else {
         $("#Time").attr("data-pomodoros-set", Vars.PomoSetCounter + "/" + Vars.UserData.PomoSetNum);
     }

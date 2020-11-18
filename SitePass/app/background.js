@@ -37,7 +37,8 @@ var Consts = {
     HistogramDataKey: "Histogram",
     NotificationId: "sitepass_notification",
     Sounds: ["Sound1.mp3", "Sound2.mp3", "Sound3.wav", "Sound4.wav", "Sound5.mp3", "Sound6.wav", "Sound7.wav", "Sound8.wav", "Sound9.mp3"],
-    AmbientSounds: ["Ambient Clock.flac", "Ambient Rain.wav", "Ambient Crickets.mp3", "Ambient Birds.wav"]
+    AmbientSounds: ["Ambient Clock.flac", "Ambient Rain.wav", "Ambient Crickets.mp3", "Ambient Birds.wav"],
+    POMODORO_DONE_TEXT: "GOOD!"
 };
 
 var Vars = {
@@ -176,6 +177,10 @@ function checkBlockedUrl(siteUrl) {
         }
     }
 
+    if (!Vars.UserData.ConnectHabitica && !pomodoro) {
+        return unblocked;
+    }
+
     if (isInWhiteList(siteUrl)) {
         return unblocked;
     }
@@ -299,15 +304,19 @@ function showPayToPassTimerBadge(site) {
                     text: remainingTime
                 });
             } else {
-                chrome.browserAction.setBadgeText({
-                    text: ''
-                });
+                if (Vars.Timer !=  Consts.POMODORO_DONE_TEXT) {
+                    chrome.browserAction.setBadgeText({
+                        text: ''
+                    });
+                }
                 clearInterval(passInterval);
             }
         } else {
-            chrome.browserAction.setBadgeText({
-                text: ''
-            });
+            if (Vars.Timer !=  Consts.POMODORO_DONE_TEXT) {
+                chrome.browserAction.setBadgeText({
+                    text: ''
+                });
+            }
             clearInterval(passInterval);
         }
     }
@@ -610,6 +619,28 @@ function ScoreHabit(habitId, direction) {
     };
 }
 
+//--------------- Hot Keys -------------------------------
+chrome.commands.onCommand.addListener(function (command) {
+    if (command === "PomodoroHotKey") {
+        ActivatePomodoro();
+    }
+});
+
+function ActivatePomodoro(){
+    if (Vars.onBreak && !Vars.TimerRunnig) {
+        startBreak();
+    }
+    else if (!Vars.TimerRunnig || Vars.onBreak || Vars.onBreakExtension) {
+        if (Vars.PomoSetCounter == Vars.UserData.PomoSetNum) { //Set complete
+            pomoReset();
+        } else {//next pomodoro
+            startPomodoro();
+        }
+    } else {
+        pomodoroInterupted(true);
+    }
+}
+
 // ------------- Pomodoro Timer ---------------------------
 
 var timerInterval; //Used for timer interval in startTimer() function.
@@ -691,8 +722,8 @@ function duringPomodoro() {
     }
 }
 
-function setTodaysHistogram(pomodoros,minutes){
-    Vars.Histogram[getDate()] = {pomodoros:pomodoros,minutes:minutes,weekday:getWeekDay()};
+function setTodaysHistogram(pomodoros, minutes) {
+    Vars.Histogram[getDate()] = { pomodoros: pomodoros, minutes: minutes, weekday: getWeekDay() };
 
     //update storage
     var storageKeyVal = {}; //{key: value} for chrome.storage.sync.set
@@ -702,16 +733,16 @@ function setTodaysHistogram(pomodoros,minutes){
     });
 }
 
-function increasePomodorosToday(){
-    var todaysData =  Vars.Histogram[getDate()];
-    if(todaysData){
+function increasePomodorosToday() {
+    var todaysData = Vars.Histogram[getDate()];
+    if (todaysData) {
         setTodaysHistogram(todaysData.pomodoros + 1, todaysData.minutes + Vars.UserData.PomoDurationMins);
-    }else{
-        setTodaysHistogram(1,Vars.UserData.PomoDurationMins);
+    } else {
+        setTodaysHistogram(1, Vars.UserData.PomoDurationMins);
     }
 }
 
-function clearHistogram(){
+function clearHistogram() {
     Vars.Histogram = {};
     //update storage
     var storageKeyVal = {}; //{key: value} for chrome.storage.sync.set
@@ -800,7 +831,7 @@ function manualBreak() {
     stopTimer();
     Vars.TimerRunnig = false;
     Vars.onBreak = true;
-    Vars.Timer = "GOOD!";
+    Vars.Timer = Consts.POMODORO_DONE_TEXT;
 }
 
 //runs during Break session
@@ -876,7 +907,7 @@ function pomodoroInterupted(breakPomoStreak) {
         pomoReset();
     } else {
         pauseTimer();
-        Vars.Timer = "DO IT";
+        Vars.Timer = "GO!";
     }
 
     if (breakExtensionZero) {

@@ -243,7 +243,7 @@ div#RefreshStats {
     background-position: 0;
 }
 
-.menu-item  .donate_icon {
+.menu-item .donate_icon {
     width: 19px;
     height: 19px;
     background-size: 19px;
@@ -562,7 +562,7 @@ a.delete {
 }
 
 #Time {
-    font-size:42px;
+    font-size: 42px;
     top: 17px;
     position: relative;
     font-family: 'Orbitron', sans-serif;
@@ -758,7 +758,6 @@ button#SaveButton span {
 
 label.takeBreakText {
     color: var(--secondery-color);
-    ;
     text-transform: uppercase;
     font-family: 'Orbitron', sans-serif;
     font-family: 'Oxanium', cursive;
@@ -769,11 +768,12 @@ label.takeBreakText {
     border-radius: 10px;
     margin: 10px 0;
     width: 260px;
+    padding-right: 20px;
 }
 
 #quickSet-takeBreak {
     font-size: 22px;
-    line-height: 43px;
+    line-height: 40px;
     margin-left: 3px;
     position: absolute;
 }
@@ -1417,9 +1417,9 @@ input#selectHistogramFile:before {
     position: absolute;
     background-color: #edecee;
     color: #878190;
-    padding: 6px 9px;
+    padding: 4px 9px;
     margin-left: -2px;
-    margin-top: -4px;
+    margin-top: -3px;
     text-align: center;
     border: 1px solid #edecee;
     text-decoration: underline;
@@ -1451,9 +1451,10 @@ input#selectHistogramFile:hover:before {
 }
 
 #ClearHistogram .small_icon {
-    width: 16px;
-    height: 16px;
-    background-size: 16px;
+    width: 14px;
+    height: 14px;
+    background-size: 14px;
+    margin-top: -4px;
 }
 
 .settingButton:hover .trash_icon {
@@ -1463,4 +1464,11 @@ input#selectHistogramFile:hover:before {
 #WeekdayChartTitle {
     width: 100%;
     text-align: center;
+}
+
+#welcomeInfo {
+    padding: 5px;
+    display: flex;
+    text-align: center;
+    line-height: 25px;
 }

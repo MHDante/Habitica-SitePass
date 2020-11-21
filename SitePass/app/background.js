@@ -1046,9 +1046,10 @@ function playSound(soundFileName, volume, loop) {
             myAudio.volume = volume;
             myAudio.play();
         }
-        if (loop) {
+        if (loop && Vars.ambientSound != myAudio) {
+            stopAmbientSound();
             Vars.ambientSound = myAudio;
-            myAudio.loop = true;
+            myAudio.loop = true;    
         }
     }
 }

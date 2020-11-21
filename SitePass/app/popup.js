@@ -671,9 +671,9 @@ function updateSiteExpireDisplay() {
 }
 
 var ambientSampleTimeout;
-function playAmbientSample() {
-    clearTimeout(ambientSampleTimeout);
+function playAmbientSample() {  
     background.stopAmbientSound();
+    clearTimeout(ambientSampleTimeout);
     setTimeout(function () {
         background.playSound(Vars.UserData.ambientSound, Vars.UserData.ambientSoundVolume, true);
     }, 100);

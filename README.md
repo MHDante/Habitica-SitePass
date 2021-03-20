@@ -20,3 +20,5 @@ After installing the extension, click on the icon at the top right to open the m
 
 For more information, recommended settings and version update log:
 https://habitica.fandom.com/wiki/Habitica_Pomodoro_SiteKeeper
+
+Bug reports and Feature requests are welcome! https://github.com/ofekmiz/Habitica-Pomodoro-SiteKeeper/issues

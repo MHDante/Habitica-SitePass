@@ -22,3 +22,5 @@ For more information, recommended settings and version update log:
 https://habitica.fandom.com/wiki/Habitica_Pomodoro_SiteKeeper
 
 Bug reports and Feature requests are welcome! https://github.com/ofekmiz/Habitica-Pomodoro-SiteKeeper/issues
+
+If you like this project and want to support, you can buy me a coffe :) https://ko-fi.com/ofexcoffee

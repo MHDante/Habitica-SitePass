@@ -214,7 +214,7 @@ document.addEventListener("DOMContentLoaded", function () {
     //block table message
     var tbl = $('#SiteTable');
     if ($('#SiteTable tr').length == 0) {
-        tbl.append(`<p id="welcomeInfo">Navigate to the sites you want to block during Pomodoro and click on 'Block Site'.<br><br> If Habitia is Connected, choose a cost for visiting the site (cost 0 is blocked only during Pomodoro).</p>`);
+        tbl.append(`<p id="welcomeInfo">Navigate to the sites you want to block during Pomodoro and click on 'Block Site'.<br><br> If Habitia is connected, choose a cost for visiting the site (cost 0 is blocked only during Pomodoro).</p>`);
     }
 
     // Save Button

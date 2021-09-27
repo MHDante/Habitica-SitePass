@@ -34,6 +34,7 @@ input[type="number"] {
 .menu-label {
     margin-top: 5px;
     align-items: center;
+    justify-content: center;
     font-size: 12px;
     font-weight: bold;
     line-height: 16px;
@@ -101,7 +102,7 @@ table {
 }
 
 body {
-    width: 364px;
+    min-width: 365px;
     height: 450px;
     border-collapse: collapse;
     font-family: 'Orbitron', sans-serif;
@@ -110,6 +111,7 @@ body {
     background: #EDECEE;
     color: var(--setting-text-color);
     -webkit-backface-visibility: hidden;
+    overflow-x: hidden;
 }
 
 /* @media only screen and (min-width: 400px) {
@@ -255,7 +257,7 @@ a.delete {
 }
 
 .menu-item .small_icon {
-    margin-left: -10px;
+    margin-left: -21px;
     padding-right: 5px;
     margin-top: -2px;
 }
@@ -507,7 +509,7 @@ a.delete {
     line-height: 59px;
     background-color: #540000b0;
     display: block;
-    width: 95.5%;
+    width: calc(100% - 16px);
     height: 62px;
     position: absolute;
     background-image: url(img/chainLock.png);
@@ -879,6 +881,7 @@ input#quickSet-takeBreakDuration, #quickSet-PomoSetNum {
     height: 26px;
     padding: 7px;
     box-shadow: 0px 10px 5px #888, 0px 0px 5px #888;
+    z-index: 99999;
 }
 
 input[type="time"] {
@@ -1379,12 +1382,12 @@ div#addFreePassBlock:hover {
 }
 
 button#ImportHistogram {
-    width: 35%;
+    width: 45%;
     padding: 8px;
 }
 
 #HistoryChartShowHours, #HistoryChartShowPomodoros {
-    width: 45%;
+    width: 55%;
 }
 
 #selectHistogramFile {

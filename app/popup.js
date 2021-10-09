@@ -277,7 +277,6 @@ function onPopupPageLoad() {
 
     //Vacation Mode Banner
     runBackgroundFunction("isFreePassTimeNow", []).then((response) => {
-        console.log("A", response);
         if (Vars.UserData.VacationMode || response == true) {
             $(".vacationBanner").show();
         }
@@ -596,7 +595,6 @@ function NewTab(url) {
 function UpdateBlockCommand() {
     getBackgroundData().then(() => {
         var currentSite = Vars.UserData.BlockedSites[CurrentTabHostname];
-        console.log(currentSite);
         if (currentSite) {
             $("#BlockLink").html("<div class='unBlockSite'><span class='unblock_Icon small_icon'></span>Un-Block Site</div>");
         } else {
@@ -995,7 +993,7 @@ function udateHistoryTable(Chart, datesArary, dataArray, weekDaysArray, label) {
 function setBrowserReviewLink() {
     var rateAndReviewLink = $("#rateAndReviewLink");
     if (BROWSER === "Mozilla Firefox") {
-        rateAndReviewLink.attr("href", "https://chrome.google.com/webstore/detail/habitica-pomodoro-sitekee/iaanigfbldakklgdfcnbjonbehpbpecl");
+        rateAndReviewLink.attr("href", "https://addons.mozilla.org/he/firefox/addon/habitica-pomodoro-sitekeeper");
     } else if (BROWSER.includes("Microsoft Edge")) {
         rateAndReviewLink.attr("href", "https://microsoftedge.microsoft.com/addons/detail/habitica-pomodoro-sitekee/loclmeljcebbomgebpnbdmcmofmhoand");
     }

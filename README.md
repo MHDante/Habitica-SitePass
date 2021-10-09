@@ -26,7 +26,7 @@ Bug reports and Feature requests are welcome! https://github.com/ofekmiz/Habitic
 If you like this project and want to support, you can buy me a coffe :) https://ko-fi.com/ofexcoffee
 
 ### Debuging in Firefox:
-To test the extension in firefox go to the url "about:debugging" and install it as a temporary add-on.
+To test the extension in firefox go to the url "about:debugging" => This firefox => Load Temporary add-on => choose manifest.json file in the app folder.
 Before installing, add the following option to manifest.json to allow using local storage to the temporary add-on 
 (the specific id is not relavent, just the format):
 

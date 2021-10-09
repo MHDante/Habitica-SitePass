@@ -1,12 +1,17 @@
 {
     "manifest_version": 2,
-
+    "browser_specific_settings": {
+        "gecko": {
+            "id": "{daf44bf7-a45e-4450-979c-91cf07434c3d}",
+            "strict_min_version": "42.0"
+        }
+    },
     "name": "Habitica Pomodoro SiteKeeper",
     "description": "Pomodoro Timer and Site Blocker that Plugs into Habitica and turns your time-wasting navigation tendencies into rewards.",
-    "version": "5.98",
-
+    "version": "6.00",
     "permissions": [
         "storage",
+        "unlimitedStorage",
         "<all_urls>",
         "notifications",
         "tabs"
@@ -17,27 +22,23 @@
         "48": "img/icon48.png",
         "128": "img/icon128.png"
     },
-
     "browser_action": {
         "default_icon": "img/icon.png",
         "default_popup": "popup.html"
     },
-
-
     "background": {
         "page": "background.html",
         "persistent": true
-        
     },
     "web_accessible_resources": [
-          "img/siteKeeper.png",
-          "img/siteKeeper2.png",
-          "img/siteKeeper3.png"
+        "img/siteKeeper.png",
+        "img/siteKeeper2.png",
+        "img/siteKeeper3.png"
     ],
     "commands": {
-        "PomodoroHotKey" : {
+        "PomodoroHotKey": {
             "suggested_key": {
-                    "default": "Alt+Shift+P" 
+                "default": "Alt+Shift+P"
             },
             "description": "Pomodoro hotkey"
         }

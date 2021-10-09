@@ -24,3 +24,15 @@ https://habitica.fandom.com/wiki/Habitica_Pomodoro_SiteKeeper
 Bug reports and Feature requests are welcome! https://github.com/ofekmiz/Habitica-Pomodoro-SiteKeeper/issues
 
 If you like this project and want to support, you can buy me a coffe :) https://ko-fi.com/ofexcoffee
+
+### Debuging in Firefox:
+To test the extension in firefox go to the url "about:debugging" and install it as a temporary add-on.
+Before installing, add the following option to manifest.json to allow using local storage to the temporary add-on 
+(the specific id is not relavent, just the format):
+
+    "browser_specific_settings": {
+        "gecko": {
+            "id": "{daf44bf7-a45e-4450-979c-91cf07434c3d}",
+            "strict_min_version": "42.0"
+        }
+    },

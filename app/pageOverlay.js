@@ -9,7 +9,7 @@ btn.innerHTML = "Pay To Pass"
 document.getElementById("SitekeeperOverlay").append(btn);
 
 btn.onclick = function(){
-    chrome.runtime.sendMessage({sender:"HabiticaPomodoro",msg:"Confirm_Purchase",hostname:currentHostname});
+    chrome.runtime.sendMessage({sender:"pageOverlay",msg:"Confirm_Purchase",hostname:currentHostname});
     btn.innerHTML =  "&#10004 Loading...";
     setTimeout(function(){ location.reload(); }, 1500);
 };

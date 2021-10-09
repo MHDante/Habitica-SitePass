@@ -2,16 +2,21 @@
 <html>
 
 <head>
+        <meta content="text/html;charset=utf-8" http-equiv="Content-Type">
+        <meta content="utf-8" http-equiv="encoding">
+        
         <title>Habitica SiteKeeper</title>
         <script src="jquery-2.1.3.min.js"></script>
         <script src="Chart.bundle.min.js"></script>
         <link rel="stylesheet" type="text/css" href="popup.css">
         <link href="https://fonts.googleapis.com/css2?family=Orbitron&family=Oxanium:wght@200;300&display=swap"
                 rel="stylesheet">
+        <script src="utility.js"></script>
         <script src="popup.js"></script>
+
 </head>
 
-<body>
+<body class="loading">
         <!-- Menu -->
         <div id=MenuContainer>
                 <div id="Menu">
@@ -267,7 +272,7 @@
                 <div id="Feedback" class="menu-container" style="display: none;">
                         <br>
                         <a href="https://chrome.google.com/webstore/detail/habitica-pomodoro-sitekee/iaanigfbldakklgdfcnbjonbehpbpecl"
-                                target="_blank" class="links""><span class=" rate_icon small_icon"></span>Rate &
+                                target="_blank" id="rateAndReviewLink" class="links""><span class=" rate_icon small_icon"></span>Rate &
                                 Review</a>
                         <br><br>
                         <span class="links bug_icon small_icon"> </span>
@@ -357,7 +362,7 @@
 
                 <!-- Block Site -->
                 <br>
-                <a id="BlockLink" href="#"><span class="block_Icon small_icon"></span>Block Site!</a>
+                <a id="BlockLink"><span class="block_Icon small_icon"></span>Block Site!</a>
                 <br>
                 <!-- Blocked Sites -->
                 <table id="SiteTable"></table>

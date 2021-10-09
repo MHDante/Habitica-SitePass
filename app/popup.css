@@ -34,7 +34,6 @@ input[type="number"] {
 .menu-label {
     margin-top: 5px;
     align-items: center;
-    justify-content: center;
     font-size: 12px;
     font-weight: bold;
     line-height: 16px;
@@ -102,7 +101,7 @@ table {
 }
 
 body {
-    min-width: 365px;
+    width: 364px;
     height: 450px;
     border-collapse: collapse;
     font-family: 'Orbitron', sans-serif;
@@ -111,7 +110,6 @@ body {
     background: #EDECEE;
     color: var(--setting-text-color);
     -webkit-backface-visibility: hidden;
-    overflow-x: hidden;
 }
 
 /* @media only screen and (min-width: 400px) {
@@ -257,7 +255,7 @@ a.delete {
 }
 
 .menu-item .small_icon {
-    margin-left: -21px;
+    margin-left: -10px;
     padding-right: 5px;
     margin-top: -2px;
 }
@@ -509,7 +507,7 @@ a.delete {
     line-height: 59px;
     background-color: #540000b0;
     display: block;
-    width: calc(100% - 16px);
+    width: 95.5%;
     height: 62px;
     position: absolute;
     background-image: url(img/chainLock.png);
@@ -812,6 +810,7 @@ input#quickSet-takeBreakDuration, #quickSet-PomoSetNum {
     width: 100%;
     display: block;
     text-decoration: none !important;
+    cursor: pointer;
 }
 
 #BlockLink .blockSite, #BlockLink .unBlockSite {
@@ -881,7 +880,6 @@ input#quickSet-takeBreakDuration, #quickSet-PomoSetNum {
     height: 26px;
     padding: 7px;
     box-shadow: 0px 10px 5px #888, 0px 0px 5px #888;
-    z-index: 99999;
 }
 
 input[type="time"] {
@@ -928,15 +926,22 @@ input#UID, #APIToken {
 }
 
 ::-webkit-scrollbar-track {
-    /* -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3); */
     border-radius: 10px;
 }
 
 ::-webkit-scrollbar-thumb {
     border-radius: 10px;
-    /* -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.5); */
-    /* background-color: var(--main-color); */
     background-color: var(--setting-text-color);
+}
+
+/* firefox scrollbar */
+
+* {
+    scrollbar-color:var(--setting-text-color);
+    scrollbar-width: thin;
+}
+body{
+    overflow-x: hidden;
 }
 
 input, select {
@@ -947,7 +952,9 @@ input, select {
 
 input[type="range"] {
     height: 10px;
-    margin-left: 5px;
+    margin-left: 10px;
+    width: 150px;
+    display: inline;
 }
 
 input[type="text"], input[type="number"], input[type="password"], input[type="time"], select {
@@ -964,8 +971,9 @@ input[type="text"], input[type="number"] {
 }
 
 #pomodoroEndSound, #breakEndSound, #ambientSound {
-    width: 200px;
+    width: 180px;
     margin: 5px 0;
+    display: inline;
 }
 
 .lightTextInput {
@@ -1290,6 +1298,7 @@ div.historyDataCircle:after {
     position: absolute;
     margin-left: -25px;
     margin-top: -10px;
+    cursor: pointer;
 }
 
 .edit {
@@ -1382,12 +1391,12 @@ div#addFreePassBlock:hover {
 }
 
 button#ImportHistogram {
-    width: 45%;
+    width: 35%;
     padding: 8px;
 }
 
 #HistoryChartShowHours, #HistoryChartShowPomodoros {
-    width: 55%;
+    width: 45%;
 }
 
 #selectHistogramFile {
@@ -1475,3 +1484,8 @@ input#selectHistogramFile:hover:before {
     text-align: center;
     line-height: 25px;
 }
+
+.loading{
+    opacity: 0.2;
+}
+

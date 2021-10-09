@@ -1,21 +1,122 @@
 Node.prototype.AppendText = function (string) { this.appendChild(document.createTextNode(string)); }
 Node.prototype.AppendBreak = function () { this.appendChild(document.createElement("br")); }
 
-var background = chrome.extension.getBackgroundPage();
-var Vars = background.Vars;
-var Consts = background.Consts;
+const BROWSER = getBrowser();
+var browser = browser || chrome; //for firefox support (browser.runtime instead of chrome.runtime)
+var Vars = {};
+var Consts = {};
 var CurrentTabHostname;
 var updatedHabitica = false;
 var HistoryChart;
 var HistoryFromDay = 0;
 var HistoryToDay = 7;
-var HistoryPomodoroSelected = true; 
+var HistoryPomodoroSelected = true;
+
+// chrome.extension.getBackgroundPage() has issues in firefox 
+//-------- background.js communication (with firefox support) -------//
+
+var timerPort = chrome.runtime.connect({ name: "timer" });
+timerPort.onMessage.addListener(function (response) {
+    if (response.complete) {
+        Vars = response.vars;
+    }
+});
+
+/**
+ * @param {*} functionName String
+ * @param {*} args array with the function args
+ */
+async function runBackgroundFunction(functionName, args) {
+    //FireFox
+    if (BROWSER === "Mozilla Firefox") {
+        var response = await browser.runtime.sendMessage({ sender: "popup", msg: "run_function", functionName: functionName, args: args });
+        return response.result;
+    }
+    //Chromium
+    else {
+        try {
+            var response = await sendMessagePromise({ sender: "popup", msg: "run_function", functionName: functionName, args: args });
+            return response.result;
+        }
+        catch (e) {
+            console.log(e)
+            return e;
+        }
+    }
+}
+
+async function getBackgroundData() {
+    //FireFox
+    if (BROWSER === "Mozilla Firefox") {
+        var response = await browser.runtime.sendMessage({ sender: "popup", msg: "get_data" });
+        Vars = response.vars;
+        Consts = response.consts;
+
+    }
+    //Chromium
+    else {
+        try {
+            var response = await sendMessagePromise({ sender: "popup", msg: "get_data" });
+            Vars = response.vars;
+            Consts = response.consts;
+        } catch (e) {
+            console.log(e)
+            return e;
+        }
+    }
+}
+
+async function updateBackgroundData() {
+    //FireFox
+    if (BROWSER === "Mozilla Firefox") {
+        await browser.runtime.sendMessage({ sender: "popup", msg: "set_data", data: { vars: Vars } });
+    }
+    //Chromium
+    else {
+        try {
+            await sendMessagePromise({ sender: "popup", msg: "set_data", data: { vars: Vars } });
+        } catch (e) {
+            console.log(e)
+            return e;
+        }
+    }
+}
+
+/**
+ * Promise wrapper for chrome.tabs.sendMessage (not returning promise bug in chrome)
+ * @param item
+ * @returns {Promise<any>}
+ */
+function sendMessagePromise(item) {
+    return new Promise((resolve, reject) => {
+        chrome.runtime.sendMessage(item, (response) => {
+            console.log(item);
+            console.log(response);
+            if (response.complete) {
+                resolve(response);
+            } else {
+                reject('Something wrong');
+            }
+        });
+    });
+}
+
+
+//-------- background.js communication [END]-------------------------------
 
 
 //----- on popup load -----//
-document.addEventListener("DOMContentLoaded", function () {
+document.addEventListener("DOMContentLoaded", async function () {
+    await runBackgroundFunction("FetchHabiticaData", [true]);
+    await getBackgroundData();
+    console.log("Vars", Vars);
+    onPopupPageLoad();
+});
 
-    background.FetchHabiticaData(true); //Fetch Habitica basic data when opening the popup
+function onPopupPageLoad() {
+
+    //Link to app store by browser in feedback section
+    setBrowserReviewLink();
 
     //Custome pomodoro habits
     $("#customPomodoroTask").empty();
@@ -67,14 +168,17 @@ document.addEventListener("DOMContentLoaded", function () {
 
     $("#BlockLink").click(function () {
         $('#welcomeInfo').hide();
-        var currentSite = Vars.UserData.GetBlockedSite(CurrentTabHostname);
-        if (currentSite) removeSite(currentSite);
+        var currentSite = Vars.UserData.BlockedSites[CurrentTabHostname];
+        if (currentSite) {
+            removeSite(currentSite);
+        }
         else {
-            currentSite = Vars.UserData.AddBlockedSite(CurrentTabHostname, 0, Date.now());
+            currentSite = { hostname: CurrentTabHostname, cost: 0, passExpiry: Date.now() }
+            Vars.UserData.BlockedSites[CurrentTabHostname] = currentSite;
             AddSiteToTable(currentSite, true);
+            SaveUserSettings();
             UpdateBlockCommand();
         }
-        SaveUserSettings();
         return false;
     });
 
@@ -93,18 +197,19 @@ document.addEventListener("DOMContentLoaded", function () {
     setInterval(function () {
         updateTimerDisplay();
         updateSiteExpireDisplay();
-    }, 1000);
+    }, 250);
 
     //Credentials Error tip
     $(".credErrorTip").click(function () { credErrorTipAnimation() });
 
     //Pomodoro Button actions
     $("#PomoButton").click(function () {
-        background.ActivatePomodoro();
+        runBackgroundFunction("ActivatePomodoro");
     });
 
     //Menu
     $(".menu-item").change(function () {
+        window.scrollTo(0, 0);
         var selected = $(this).find("input");
         var menu_container = $(this).attr("menu-container-id");
         $(".menu-item label input").not(selected).attr("checked", false);
@@ -145,35 +250,39 @@ document.addEventListener("DOMContentLoaded", function () {
 
     //Take manual break in quick settings
     $("#quickSet-takeBreak").click(function () {
-        background.takeBreak($("#quickSet-takeBreakDuration").val());
+        var duration = $("#quickSet-takeBreakDuration").val();
+        runBackgroundFunction("takeBreak", [duration]);
         $("#pomodoroSettings").hide();
         $("#pomodoro").show();
     });
 
     //Pomodoro X button (stop pomodoro during break)
     $("#PomoStop").click(function () {
-        background.pomoReset();
+        runBackgroundFunction("pomoReset");
     });
 
     //Pomodoro >> skip to break button
     $("#SkipToBreak").click(function () {
-        background.skipToBreak();
+        runBackgroundFunction("skipToBreak");
     });
 
 
     //Refresh stats button
     $("#RefreshStats").click(function () {
-        background.FetchHabiticaData();
-        location.reload();
+        runBackgroundFunction("FetchHabiticaData", []).then(location.reload());
     });
 
     //Free pass schedule
-    $("#addFreePassBlock").click(() => addFreePassTimeBlock(background.getWeekDay(), "00:00", "00:00"));
+    $("#addFreePassBlock").click(() => addFreePassTimeBlock(getWeekDay(), "00:00", "00:00"));
 
     //Vacation Mode Banner
-    if (Vars.UserData.VacationMode || background.isFreePassTimeNow()) {
-        $(".vacationBanner").show();
-    }
+    runBackgroundFunction("isFreePassTimeNow", []).then((response) => {
+        console.log("A", response);
+        if (Vars.UserData.VacationMode || response == true) {
+            $(".vacationBanner").show();
+        }
+    });
+
     $("#VacationMode").click(function () {
         if (Vars.UserData.VacationMode) {
             $(".vacationBanner").show();
@@ -223,7 +332,7 @@ document.addEventListener("DOMContentLoaded", function () {
         //Got over it.
         SaveUserSettings();
         if (updatedHabitica) {
-            background.FetchHabiticaData();
+            runBackgroundFunction("FetchHabiticaData", []).then(location.reload());
         }
         location.reload();
     });
@@ -233,22 +342,27 @@ document.addEventListener("DOMContentLoaded", function () {
 
     //Sounds
     $('#breakEndSound').on('change', function () {
-        background.playSound(this.value, Vars.UserData.breakEndSoundVolume), false;
+        runBackgroundFunction("playSound", [this.value, Vars.UserData.breakEndSoundVolume, false]);
     });
+
     $('#pomodoroEndSound').on('change', function () {
-        background.playSound(this.value, Vars.UserData.pomodoroEndSoundVolume, false);
+        runBackgroundFunction("playSound", [this.value, Vars.UserData.pomodoroEndSoundVolume, false]);
     });
+
     $('#ambientSound').on('change', function () {
-        playAmbientSample();
+        runBackgroundFunction("playAmbientSample");
     });
+
     $('#pomodoroEndSoundVolume').mouseup(function () {
-        background.playSound(Vars.UserData.pomodoroEndSound, Vars.UserData.pomodoroEndSoundVolume, false);
+        runBackgroundFunction("playSound", [Vars.UserData.pomodoroEndSound, Vars.UserData.pomodoroEndSoundVolume, false]);
     });
+
     $('#breakEndSoundVolume').mouseup(function () {
-        background.playSound(Vars.UserData.breakEndSound, Vars.UserData.breakEndSoundVolume, false);
+        runBackgroundFunction("playSound", [Vars.UserData.breakEndSound, Vars.UserData.breakEndSoundVolume, false]);
     });
+
     $('#ambientSoundVolume').mouseup(function () {
-        playAmbientSample();
+        runBackgroundFunction("playAmbientSample");
     });
 
     //History Update
@@ -273,13 +387,13 @@ document.addEventListener("DOMContentLoaded", function () {
             }
         }
     });
+
     $("#MenuHistory").click(function () {
         updateHistory();
     });
 
-
-});
-
+    $('body').removeClass("loading");
+}
 
 //----- Functions -----//
 
@@ -293,7 +407,7 @@ function AddSiteToTable(site, fadein) {
         if (site.passExpiry > Date.now()) {
 
             //Remaining time in minutes
-            var remainingTime = background.getSitePassRemainingTime(site)
+            var remainingTime = getSitePassRemainingTime(site)
             passExpiryElement = '<br><span class="passExp" data-hostname=' + site.hostname + '>' + remainingTime + '</span>';
         }
     }
@@ -309,8 +423,8 @@ function AddSiteToTable(site, fadein) {
         '<span class="gold_icon"></span><br>' + cost +
         '</a></td>' +
         '<td><div class="hostname">' + site.hostname + passExpiryElement + '</div></td>' +
-        '<td><a class="edit" href="#"><img src="img/pencil.png"></a></td>' +
-        '<td><a class="delete" href="#"><img src="img/trash.png"></a></td>' +
+        '<td><a class="edit"><img src="img/pencil.png"></a></td>' +
+        '<td><a class="delete"><img src="img/trash.png"></a></td>' +
         '</tr>' +
         '<tr class="cost-input" style="display:none;">' +
         '<td style="white-space:nowrap;text-align:center;" colspan="4">' +
@@ -416,12 +530,18 @@ function CredentialFields() {
 
     createFreePassTimeBlocks(Vars.UserData.FreePassTimes);
 
-    var dataToday = Vars.Histogram[background.getDate()];
+    var dataToday = Vars.Histogram[getDate()];
     if (!dataToday) {
-        background.setTodaysHistogram(0, 0);
-        dataToday = Vars.Histogram[background.getDate()];
+        // background.setTodaysHistogram(0, 0);
+        runBackgroundFunction("setTodaysHistogram", [0, 0]).then(
+            getBackgroundData().then(() => {
+                dataToday = Vars.Histogram[getDate()];
+                $("#PomoButton").attr("data-pomodoros", dataToday.pomodoros);
+            })
+        );
+    } else {
+        $("#PomoButton").attr("data-pomodoros", dataToday.pomodoros);
     }
-    $("#PomoButton").attr("data-pomodoros", dataToday.pomodoros);
 
     //Update Options on change
     $("#UID").on("keyup", function () { updateCredentials(); });
@@ -462,6 +582,7 @@ function CredentialFields() {
     $("#ambientSoundVolume").mouseup(function () { updateCredentials(); });
     $("#ManualNextPomodoro").click(function () { updateCredentials(); });
     //ugh.
+    updateBackgroundData();
 }
 
 function CreateDelegate(onclick, param1) {
@@ -473,14 +594,16 @@ function NewTab(url) {
 }
 
 function UpdateBlockCommand() {
-    var currentSite = Vars.UserData.GetBlockedSite(CurrentTabHostname);
-
-    if (currentSite) {
-        $("#BlockLink").html("<div class='unBlockSite'><span class='unblock_Icon small_icon'></span>Un-Block Site</div>");
-    } else {
-        $("#BlockLink").html("<div class='blockSite'><span class='block_Icon small_icon'></span>Block Site!</div>");
-    }
-    updateTimerDisplay();
+    getBackgroundData().then(() => {
+        var currentSite = Vars.UserData.BlockedSites[CurrentTabHostname];
+        console.log(currentSite);
+        if (currentSite) {
+            $("#BlockLink").html("<div class='unBlockSite'><span class='unblock_Icon small_icon'></span>Un-Block Site</div>");
+        } else {
+            $("#BlockLink").html("<div class='blockSite'><span class='block_Icon small_icon'></span>Block Site!</div>");
+        }
+        updateTimerDisplay();
+    });
 }
 
 function SaveUserSettings() {
@@ -488,24 +611,27 @@ function SaveUserSettings() {
     dataPack[Consts.userDataKey] = Vars.UserData;
     // ReSharper disable once PossiblyUnassignedProperty
     chrome.storage.sync.set(dataPack, function () { });
+    updateBackgroundData();
 }
 
 function updateSiteCost(siteAndCost) {
-
+    var hostname = siteAndCost.site.hostname;
     var selection = parseFloat(siteAndCost.cost.val());
-    if (!isNaN(selection) && selection >= 0) {
+    if (!isNaN(selection) && selection >= 0 && Vars.UserData.BlockedSites[hostname]) {
+        Vars.UserData.BlockedSites[hostname].cost = selection;
         siteAndCost.site.cost = selection;
     }
+    updateBackgroundData();
 }
+
 function removeSite(site) {
     var siterow = $(document.getElementById(site.hostname));
     siterow.fadeOut({ complete: function () { siterow.remove() } });
-    Vars.UserData.RemoveBlockedSite(site.hostname);
-    SaveUserSettings();
-    getCurrentTabUrl(function (url) {
-        UpdateBlockCommand(url);
+    runBackgroundFunction("RemoveBlockedSite", [site]).then(() => {
+        UpdateBlockCommand();
     });
 }
+
 function getCurrentTabUrl(callback) {
     var queryInfo = {
         active: true,
@@ -565,9 +691,12 @@ function updateCredentials() {
     Vars.UserData.ManualNextPomodoro = $("#ManualNextPomodoro").prop('checked');
     Vars.UserData.Whitelist = $("#Whitelist").val();
     Vars.UserData.FreePassTimes = getFreePassTimes();
+
+    updateBackgroundData();
 }
 
 function updateTimerDisplay() {
+    timerPort.postMessage("sync");
     $('#Time').html(Vars.Timer);
     if (Vars.onManualTakeBreak) {
         $("#Time").attr("data-pomodoros-set", "--/--");
@@ -575,7 +704,7 @@ function updateTimerDisplay() {
         $("#Time").attr("data-pomodoros-set", Vars.PomoSetCounter + "/" + Vars.UserData.PomoSetNum);
     }
 
-    $("#PomoButton").attr("data-pomodoros", Vars.Histogram[background.getDate()].pomodoros);
+    $("#PomoButton").attr("data-pomodoros", Vars.Histogram[getDate()].pomodoros || 0);
 
     if (Vars.onBreakExtension) { //---On Break Extension---
         $("#QuickSettings").hide();
@@ -659,8 +788,8 @@ function credErrorTipAnimation() {
 function updateSiteExpireDisplay() {
     $(".passExp").each(function () {
         var hostname = $(this).attr("data-hostname")
-        var site = Vars.UserData.GetBlockedSite(hostname);
-        var time = background.getSitePassRemainingTime(site);
+        var site = Vars.UserData.BlockedSites[hostname];
+        var time = getSitePassRemainingTime(site);
         if (time) {
             $(this).html(time);
         } else {
@@ -668,16 +797,6 @@ function updateSiteExpireDisplay() {
         }
 
     });
-}
-
-var ambientSampleTimeout;
-function playAmbientSample() {  
-    background.stopAmbientSound();
-    clearTimeout(ambientSampleTimeout);
-    setTimeout(function () {
-        background.playSound(Vars.UserData.ambientSound, Vars.UserData.ambientSoundVolume, true);
-    }, 100);
-    ambientSampleTimeout = setTimeout(function () { background.stopAmbientSound(); }, 3000);
 }
 
 function addFreePassTimeBlock(day, fromTime, toTime) {
@@ -744,106 +863,115 @@ function sumOfArray(array) {
 }
 
 function updateHistory() {
-    var dataToday = Vars.Histogram[background.getDate()];
+
+    var dataToday = Vars.Histogram[getDate()];
     if (!dataToday) {
-        background.setTodaysHistogram(0, 0);
-        dataToday = Vars.Histogram[background.getDate()];
+        runBackgroundFunction("setTodaysHistogram", [0, 0]).then(
+            getBackgroundData().then(() => {
+                updateHistoryHTML();
+            })
+        );
+    } else {
+        updateHistoryHTML();
     }
-    $("#PomoToday").html(dataToday.pomodoros);
-    var hrs = dataToday.minutes <= 0 ? 0 : (dataToday.minutes / 60).toFixed(1);
-    $("#HoursToday").html(hrs);
 
-    var totalPomodoros = 0;
-    var totalHours = 0;
-    var dataSize = 0;
-    var chartData = { dates: [], pomodoros: [], hours: [], weekdays: [] };
+    function updateHistoryHTML() {
+        dataToday = Vars.Histogram[getDate()];
+        $("#PomoToday").html(dataToday.pomodoros);
+        var hrs = dataToday.minutes <= 0 ? 0 : (dataToday.minutes / 60).toFixed(1);
+        $("#HoursToday").html(hrs);
 
-    //collect data from histogram
-    for (var key in Vars.Histogram) {
-        dataSize++;
-        if (Vars.Histogram.hasOwnProperty(key)) {
-            var data = Vars.Histogram[key];
-            var hrs = data.minutes <= 0 ? 0 : (data.minutes / 60).toFixed(1);
-            totalPomodoros += Number(data.pomodoros);
-            totalHours += Number(hrs);
-            chartData.dates.push(`${key} (${data.weekday.slice(0,2)})`);
-            chartData.weekdays.push(data.weekday)
-            chartData.pomodoros.push(data.pomodoros);
-            chartData.hours.push(hrs);
+        var totalPomodoros = 0;
+        var totalHours = 0;
+        var dataSize = 0;
+        var chartData = { dates: [], pomodoros: [], hours: [], weekdays: [] };
+
+        //collect data from histogram
+        for (var key in Vars.Histogram) {
+            dataSize++;
+            if (Vars.Histogram.hasOwnProperty(key)) {
+                var data = Vars.Histogram[key];
+                var hrs = data.minutes <= 0 ? 0 : (data.minutes / 60).toFixed(1);
+                totalPomodoros += Number(data.pomodoros);
+                totalHours += Number(hrs);
+                chartData.dates.push(`${key} (${data.weekday.slice(0, 2)})`);
+                chartData.weekdays.push(data.weekday)
+                chartData.pomodoros.push(data.pomodoros);
+                chartData.hours.push(hrs);
+            }
         }
-    }
 
 
-    $("#PomoTotal").html(totalPomodoros);
-    $("#HoursTotal").html(totalHours.toFixed(1));
-    $("#PomoAvg").html((totalPomodoros / dataSize).toFixed(1));
-    $("#HoursAvg").html((totalHours / dataSize).toFixed(1));
+        $("#PomoTotal").html(totalPomodoros);
+        $("#HoursTotal").html(totalHours.toFixed(1));
+        $("#PomoAvg").html((totalPomodoros / dataSize).toFixed(1));
+        $("#HoursAvg").html((totalHours / dataSize).toFixed(1));
 
-    HistoryFromDay = chartData.dates.length - 7 > 0 ? chartData.dates.length - 7 : 0;
-    HistoryToDay = chartData.dates.length;
-    udateHistoryTable(HistoryChart, chartData.dates, chartData.pomodoros, chartData.weekdays, "Pomodoros");
-
-    $("#HistoryChartShowPomodoros").click(function () {
+        HistoryFromDay = chartData.dates.length - 7 > 0 ? chartData.dates.length - 7 : 0;
+        HistoryToDay = chartData.dates.length;
         udateHistoryTable(HistoryChart, chartData.dates, chartData.pomodoros, chartData.weekdays, "Pomodoros");
-        HistoryPomodoroSelected = true;
-    });
-    $("#HistoryChartShowHours").click(function () {
-        udateHistoryTable(HistoryChart, chartData.dates, chartData.hours, chartData.weekdays, "Hours");
-        HistoryPomodoroSelected = false;
-    });
-    $("#DownloadHistogram").click(function () {
-        //downloadObjectAsJson
-        var dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(Vars.Histogram));
-        this.setAttribute("href", dataStr);
-        this.setAttribute("download", "Histogram.json");
-    });
 
-    $("#ImportHistogram").click(function () {
-        //downloadObjectAsJson
-        var files = document.getElementById('selectHistogramFile').files;
-        console.log(files);
-        if (files.length <= 0) {
-            return false;
-        }
-
-        var fr = new FileReader();
-
-        fr.onload = function (e) {
-            console.log(e);
-            var result = JSON.parse(e.target.result);
-            Vars.Histogram = result;
-        }
-        fr.readAsText(files.item(0));
-        location.reload();
-    });
-
-    $("#ClearHistogram").click(function () {
-        background.clearHistogram();
-        location.reload();
-    });
-
-    $("#HistoryChartNext").click(function () {
-        HistoryFromDay = HistoryFromDay + 7 > chartData.dates.length - 7 ? chartData.dates.length - 7 : HistoryFromDay + 7;
-        HistoryToDay = HistoryToDay + 7 > chartData.dates.length ? chartData.dates.length : HistoryToDay + 7;
-        if (HistoryPomodoroSelected) {
+        $("#HistoryChartShowPomodoros").click(function () {
             udateHistoryTable(HistoryChart, chartData.dates, chartData.pomodoros, chartData.weekdays, "Pomodoros");
-        } else {
+            HistoryPomodoroSelected = true;
+        });
+        $("#HistoryChartShowHours").click(function () {
             udateHistoryTable(HistoryChart, chartData.dates, chartData.hours, chartData.weekdays, "Hours");
-        }
-    });
-    $("#HistoryCharPrev").click(function () {
-        HistoryFromDay = HistoryFromDay - 7;
-        HistoryToDay = HistoryToDay - 7;
-        if (HistoryFromDay <= 0 || HistoryToDay <= 0) {
-            HistoryFromDay = 0;
-            HistoryToDay = 7;
-        }
-        if (HistoryPomodoroSelected) {
-            udateHistoryTable(HistoryChart, chartData.dates, chartData.pomodoros, chartData.weekdays, "Pomodoros");
-        } else {
-            udateHistoryTable(HistoryChart, chartData.dates, chartData.hours, chartData.weekdays, "Hours");
-        }
-    });
+            HistoryPomodoroSelected = false;
+        });
+        $("#DownloadHistogram").click(function () {
+            //downloadObjectAsJson
+            var dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(Vars.Histogram));
+            this.setAttribute("href", dataStr);
+            this.setAttribute("download", "Histogram.json");
+        });
+
+        $("#ImportHistogram").click(function () {
+            //downloadObjectAsJson
+            var files = document.getElementById('selectHistogramFile').files;
+            console.log(files);
+            if (files.length <= 0) {
+                return false;
+            }
+
+            var fr = new FileReader();
+
+            fr.onload = function (e) {
+                console.log(e);
+                var result = JSON.parse(e.target.result);
+                Vars.Histogram = result;
+            }
+            fr.readAsText(files.item(0));
+            location.reload();
+        });
+
+        $("#ClearHistogram").click(function () {
+            runBackgroundFunction("clearHistogram", []).then(location.reload());
+        });
+
+        $("#HistoryChartNext").click(function () {
+            HistoryFromDay = HistoryFromDay + 7 > chartData.dates.length - 7 ? chartData.dates.length - 7 : HistoryFromDay + 7;
+            HistoryToDay = HistoryToDay + 7 > chartData.dates.length ? chartData.dates.length : HistoryToDay + 7;
+            if (HistoryPomodoroSelected) {
+                udateHistoryTable(HistoryChart, chartData.dates, chartData.pomodoros, chartData.weekdays, "Pomodoros");
+            } else {
+                udateHistoryTable(HistoryChart, chartData.dates, chartData.hours, chartData.weekdays, "Hours");
+            }
+        });
+        $("#HistoryCharPrev").click(function () {
+            HistoryFromDay = HistoryFromDay - 7;
+            HistoryToDay = HistoryToDay - 7;
+            if (HistoryFromDay <= 0 || HistoryToDay <= 0) {
+                HistoryFromDay = 0;
+                HistoryToDay = 7;
+            }
+            if (HistoryPomodoroSelected) {
+                udateHistoryTable(HistoryChart, chartData.dates, chartData.pomodoros, chartData.weekdays, "Pomodoros");
+            } else {
+                udateHistoryTable(HistoryChart, chartData.dates, chartData.hours, chartData.weekdays, "Hours");
+            }
+        });
+    }
 
 }
 
@@ -862,6 +990,52 @@ function udateHistoryTable(Chart, datesArary, dataArray, weekDaysArray, label) {
 
     $("#HistoryChartTotal").html(`Sum: ${sumOfArray(showData)} | Avg: ${(sumOfArray(showData) / (HistoryToDay - HistoryFromDay)).toFixed(1)}`);
     Chart.update();
+}
+
+function setBrowserReviewLink() {
+    var rateAndReviewLink = $("#rateAndReviewLink");
+    if (BROWSER === "Mozilla Firefox") {
+        rateAndReviewLink.attr("href", "https://chrome.google.com/webstore/detail/habitica-pomodoro-sitekee/iaanigfbldakklgdfcnbjonbehpbpecl");
+    } else if (BROWSER.includes("Microsoft Edge")) {
+        rateAndReviewLink.attr("href", "https://microsoftedge.microsoft.com/addons/detail/habitica-pomodoro-sitekee/loclmeljcebbomgebpnbdmcmofmhoand");
+    }
+}
+
+function getBrowser() {
+    var sBrowser, sUsrAg = navigator.userAgent;
+
+    // The order matters here, and this may report false positives for unlisted browsers.
+
+    if (sUsrAg.indexOf("Firefox") > -1) {
+        sBrowser = "Mozilla Firefox";
+        // "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:61.0) Gecko/20100101 Firefox/61.0"
+    } else if (sUsrAg.indexOf("SamsungBrowser") > -1) {
+        sBrowser = "Samsung Internet";
+        // "Mozilla/5.0 (Linux; Android 9; SAMSUNG SM-G955F Build/PPR1.180610.011) AppleWebKit/537.36 (KHTML, like Gecko) SamsungBrowser/9.4 Chrome/67.0.3396.87 Mobile Safari/537.36
+    } else if (sUsrAg.indexOf("Opera") > -1 || sUsrAg.indexOf("OPR") > -1) {
+        sBrowser = "Opera";
+        // "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.102 Safari/537.36 OPR/57.0.3098.106"
+    } else if (sUsrAg.indexOf("Trident") > -1) {
+        sBrowser = "Microsoft Internet Explorer";
+        // "Mozilla/5.0 (Windows NT 10.0; WOW64; Trident/7.0; .NET4.0C; .NET4.0E; Zoom 3.6.0; wbx 1.0.0; rv:11.0) like Gecko"
+    } else if (sUsrAg.indexOf("Edge") > -1) {
+        sBrowser = "Microsoft Edge (Legacy)";
+        // "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36 Edge/16.16299"
+    } else if (sUsrAg.indexOf("Edg") > -1) {
+        sBrowser = "Microsoft Edge (Chromium)";
+        // Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36 Edg/91.0.864.64
+    } else if (sUsrAg.indexOf("Chrome") > -1) {
+        sBrowser = "Google Chrome or Chromium";
+        // "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Ubuntu Chromium/66.0.3359.181 Chrome/66.0.3359.181 Safari/537.36"
+    } else if (sUsrAg.indexOf("Safari") > -1) {
+        sBrowser = "Apple Safari";
+        // "Mozilla/5.0 (iPhone; CPU iPhone OS 11_4 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/11.0 Mobile/15E148 Safari/604.1 980x1306"
+    } else {
+        sBrowser = "unknown";
+    }
+
+    console.log(sBrowser);
+    return sBrowser;
 }
 
 

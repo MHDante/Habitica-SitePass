@@ -1,4 +1,5 @@
 "use strict";
+
 var Consts = {
     xClientHeader: "5a8238ab-1819-4f7f-a750-f23264719a2d-HabiticaPomodoroSiteKeeper",
     serverUrl: 'https://habitica.com/api/v3/',
@@ -41,7 +42,7 @@ var Consts = {
     POMODORO_DONE_TEXT: "GOOD!"
 };
 
-var Vars = {
+var Vars = { //synced with popup.js , includes only data (not pointers nor functions)
     RewardTask: Consts.RewardTemplate,
     PomodoroTaskId: null,
     PomodoroSetTaskId: null,
@@ -59,14 +60,16 @@ var Vars = {
     onBreakExtension: false,
     PomoSetCounter: 0,
     onManualTakeBreak: false,
-    versionUpdate: false,
-    ambientSound: null
+    versionUpdate: false
 };
 
+var ambientAudio = null;
+
+// ----------------------------------------------------------------------- //
 
 function UserSettings(copyFrom) {
     //Get User Setting from copyFrom , or set default user settings
-    this.BlockedSites = copyFrom ? copyFrom.BlockedSites : {};
+    this.BlockedSites = copyFrom ? copyFrom.BlockedSites : {}; //array of site objects {hostname, cost, passExpiry} or false
     this.Whitelist = copyFrom ? copyFrom.Whitelist : "";
     this.Credentials = copyFrom ? copyFrom.Credentials : {
         uid: "",
@@ -105,51 +108,52 @@ function UserSettings(copyFrom) {
     this.breakEndSoundVolume = copyFrom ? copyFrom.breakEndSoundVolume : 0.5;
     this.ambientSoundVolume = copyFrom ? copyFrom.ambientSoundVolume : 0.5;
     this.ManualNextPomodoro = copyFrom ? copyFrom.ManualNextPomodoro : false;
-
-    //returns site object {hostname, cost, passExpiry} or false
-    this.GetBlockedSite = function (hostname) {
-        return this.BlockedSites[hostname];
-    }
-
-    this.GetSiteCost = function (site) {
-        return site.cost;
-    }
-
-    this.GetSiteHostName = function (site) {
-        return site.hostname;
-    }
-
-    this.GetSitePassExpiry = function (site) {
-        return site.passExpiry;
-    }
-
-    this.isSitePassExpired = function (site) {
-        return site.passExpiry <= Date.now();
-    }
-
-    this.RemoveBlockedSite = function (site) {
-        if (site.hostname) {
-            delete this.BlockedSites[site.hostname];
-        } else
-            delete this.BlockedSites[site];
-    };
-    this.AddBlockedSite = function (hostname, cost, passExpiry) {
-        this.BlockedSites[hostname] = new BlockedSite(hostname, cost, passExpiry);
-        return this.BlockedSites[hostname];
-    }
-
 }
-
-// Runs on version update / Install
-chrome.runtime.onInstalled.addListener(function () {
-    Vars.versionUpdate = true;
-});
 
 function BlockedSite(hostname, cost, passExpiry) {
     this.hostname = hostname;
     this.cost = cost;
     this.passExpiry = passExpiry;
 }
+
+//returns BlockedSite object or fals if hostname is not in block list
+this.GetBlockedSite = function (hostname) {
+    return Vars.UserData.BlockedSites[hostname];
+}
+
+function GetSiteCost(site) {
+    return site.cost;
+}
+
+function GetSiteHostName(site) {
+    return site.hostname;
+}
+
+function GetSitePassExpiry(site) {
+    return site.passExpiry;
+}
+
+function isSitePassExpired(site) {
+    return site.passExpiry <= Date.now();
+}
+
+function RemoveBlockedSite(site) {
+    if (site.hostname) {
+        delete Vars.UserData.BlockedSites[site.hostname];
+        console.log ("BG", Vars.UserData.BlockedSites);
+    } else
+        delete Vars.UserData.BlockedSites[site];
+};
+
+function AddBlockedSite(hostname, cost, passExpiry) {
+    Vars.UserData.BlockedSites[hostname] = new BlockedSite(hostname, cost, passExpiry);
+    return Vars.UserData.BlockedSites[hostname];
+}
+
+// Runs on version update / Install
+chrome.runtime.onInstalled.addListener(function () {
+    Vars.versionUpdate = true;
+});
 
 // Checks the hostname and block it if the user dosent have enough gold or pomodoro is active.
 // Returns Json object:
@@ -162,7 +166,7 @@ function checkBlockedUrl(siteUrl) {
 
     //free pass during break session, or Vacation Mode and not in pomodoro session
     var freePass = ((Vars.UserData.BreakFreePass && Vars.onBreak && Vars.TimerRunnig) || ((Vars.UserData.VacationMode || isFreePassTimeNow()) && (!Vars.TimerRunnig || Vars.onBreak)));
-    var site = Vars.UserData.GetBlockedSite(hostname);
+    var site = GetBlockedSite(hostname);
     var pomodoro = Vars.TimerRunnig && !Vars.onBreak;
 
     var unblocked = { block: false };
@@ -227,7 +231,7 @@ var callbackTabActive = function (details) {
         //Pass Expiry time badge
         if (!Vars.TimerRunnig) {
             var siteUrl = new URL(tab.url);
-            var site = Vars.UserData.GetBlockedSite(siteUrl.hostname);
+            var site = GetBlockedSite(siteUrl.hostname);
             showPayToPassTimerBadge(site);
         }
     });
@@ -243,7 +247,7 @@ function callbackTabUpdate(tabId) {
         //Pass Expiry time badge
         if (!Vars.TimerRunnig) {
             var siteUrl = new URL(tab.url);
-            var site = Vars.UserData.GetBlockedSite(siteUrl.hostname);
+            var site = GetBlockedSite(siteUrl.hostname);
             showPayToPassTimerBadge(site);
         }
     });
@@ -304,7 +308,7 @@ function showPayToPassTimerBadge(site) {
                     text: remainingTime
                 });
             } else {
-                if (Vars.Timer !=  Consts.POMODORO_DONE_TEXT) {
+                if (Vars.Timer != Consts.POMODORO_DONE_TEXT) {
                     chrome.browserAction.setBadgeText({
                         text: ''
                     });
@@ -312,7 +316,7 @@ function showPayToPassTimerBadge(site) {
                 clearInterval(passInterval);
             }
         } else {
-            if (Vars.Timer !=  Consts.POMODORO_DONE_TEXT) {
+            if (Vars.Timer != Consts.POMODORO_DONE_TEXT) {
                 chrome.browserAction.setBadgeText({
                     text: ''
                 });
@@ -400,10 +404,12 @@ chrome.storage.sync.get(Consts.HistogramDataKey, function (result) {
 function muteBlockedtabs() {
     var pomodoro = Vars.TimerRunnig && !Vars.onBreak;
     if (Vars.UserData.MuteBlockedSites) {
-        chrome.tabs.getAllInWindow(null, function (tabs) {
+        chrome.tabs.query({
+            currentWindow: true
+        }, function (tabs) {
             for (var i = 0; i < tabs.length; i++) {
                 var hostname = new URL(tabs[i].url).hostname;
-                var site = Vars.UserData.GetBlockedSite(hostname);
+                var site = GetBlockedSite(hostname);
                 if (!site) {
                     chrome.tabs.update(tabs[i].id, {
                         "muted": false
@@ -581,15 +587,69 @@ function CreatePomodoroSetHabit() {
     }
 }
 
-//Confirm Purchase
-chrome.runtime.onMessage.addListener(function (message) {
-    if (message.msg == "Confirm_Purchase" && message.sender == "HabiticaPomodoro") {
-        var site = Vars.UserData.GetBlockedSite(message.hostname);
-        console.log('confirming Purchase for ' + site.hostname);
-        ConfirmPurchase(site);
-    }
+//------------------Handle messaging, communication with popup and overlay-----------------------------
+chrome.runtime.onMessage.addListener(handleMessage);
+
+chrome.runtime.onConnect.addListener(function (port) {
+    console.assert(port.name == "timer");
+    port.onMessage.addListener((msg) => {
+        if (msg === "sync") {
+            port.postMessage({ vars: Vars, complete: true });
+        }
+    });
+
 });
 
+function handleMessage(request, sender, sendResponse) {
+
+    var response = { complete: true };
+
+    //Confirm Purchase page overlay
+    if (request.sender === "pageOverlay") {
+        if (request.msg === "Confirm_Purchase") {
+            var site = GetBlockedSite(request.hostname);
+            console.log('confirming Purchase for ' + site.hostname);
+            ConfirmPurchase(site);
+        }
+    }
+
+    //Popup communication
+    else if (request.sender === "popup") {
+        if (request.msg === "get_data") {
+            response = { vars: Vars, consts: Consts, complete: true };
+        }
+        else if (request.msg === "set_data") {
+            Vars = request.data.vars;
+        }
+        else if (request.msg === "run_function") {
+            if (request.args) {
+                //what spread(...) is doing here is taking the array element and expanding or unpacking it into a list of arguments
+                response = { result: executeFunctionByName(request.functionName, ...request.args), complete: true };
+            } else {
+                response = { result: executeFunctionByName(request.functionName), complete: true };
+            }
+        }
+    }
+
+    sendResponse(response);
+
+    // return true from the event listener to indicate you wish to send a response asynchronously
+    // (this will keep the message channel open to the other end until sendResponse is called).
+    return true;
+}
+
+function executeFunctionByName(functionName /*, args */) {
+    var args = Array.prototype.slice.call(arguments, 1);
+    var context = window;
+    var namespaces = functionName.split(".");
+    var func = namespaces.pop();
+    for (var i = 0; i < namespaces.length; i++) {
+        context = context[namespaces[i]];
+    }
+    return context[func].apply(context, args);
+}
+
+//-------------------------------------------------------------------------------------------
 function ConfirmPurchase(site) {
     UpdateRewardTask(site.cost, false);
     var p = JSON.parse(callAPI("POST", Consts.serverPathTask + "/score/down"));
@@ -626,7 +686,7 @@ chrome.commands.onCommand.addListener(function (command) {
     }
 });
 
-function ActivatePomodoro(){
+function ActivatePomodoro() {
     if (Vars.onBreak && !Vars.TimerRunnig) {
         startBreak();
     }
@@ -675,24 +735,6 @@ function startTimer(duration, duringTimerFunction, endTimerFunction) {
     }, 1000);
 }
 
-//Convert seconds to time string, for example: 65 -> "01:05"
-function secondsToTimeString(seconds) {
-    var minutes = parseInt(seconds / 60, 10)
-    var seconds = parseInt(seconds % 60, 10);
-    minutes = minutes < 10 ? "0" + minutes : minutes;
-    seconds = seconds < 10 ? "0" + seconds : seconds;
-    return minutes + ":" + seconds;
-}
-
-
-function getSitePassRemainingTime(site) {
-    if (site.passExpiry - Date.now() <= 0) {
-        return false;
-    }
-    var seconds = (site.passExpiry - Date.now()) / 1000;
-    return secondsToTimeString(seconds);
-}
-
 
 //start pomodoro session - duration in seconds
 function startPomodoro() {
@@ -717,7 +759,7 @@ function duringPomodoro() {
     //Block current tab if necessary
     CurrentTab(blockSiteOverlay);
 
-    if (Vars.ambientSound && Vars.ambientSound.paused) {
+    if (ambientAudio instanceof Audio && ambientAudio.paused) {
         playSound(Vars.UserData.ambientSound, Vars.UserData.ambientSoundVolume, true);
     }
 }
@@ -729,7 +771,7 @@ function setTodaysHistogram(pomodoros, minutes) {
     var storageKeyVal = {}; //{key: value} for chrome.storage.sync.set
     storageKeyVal[Consts.HistogramDataKey] = Vars.Histogram; // {HistogramDataKey : Vars.Histogram}
     chrome.storage.sync.set(storageKeyVal, function () {
-        console.log('updated Todays Histogram ' + JSON.stringify(data));
+        console.log('updated Todays Histogram ' + JSON.stringify(storageKeyVal));
     });
 }
 
@@ -1001,7 +1043,7 @@ function blockSiteOverlay(tab) {
     var opacity = Vars.UserData.TranspartOverlay ? "0.85" : "1";
     var url = new URL(tab.url);
     var message = "Stay Focused! Time Left: " + Vars.Timer;
-    if (Vars.UserData.GetBlockedSite(url.hostname) && !isInWhiteList(url)) {
+    if (GetBlockedSite(url.hostname) && !isInWhiteList(url)) {
         chrome.tabs.executeScript({
             code: `
             document.body.classList.add('blockedSite');
@@ -1046,78 +1088,35 @@ function playSound(soundFileName, volume, loop) {
             myAudio.volume = volume;
             myAudio.play();
         }
-        if (loop && Vars.ambientSound != myAudio) {
+        if (myAudio && loop && ambientAudio != myAudio) {
             stopAmbientSound();
-            Vars.ambientSound = myAudio;
-            myAudio.loop = true;    
+            ambientAudio = myAudio;
+            myAudio.loop = true;
         }
     }
 }
 
 function stopAmbientSound() {
-    if (Vars.ambientSound) {
-        Vars.ambientSound.pause();
-        Vars.ambientSound.currentTime = 0;
+    if (ambientAudio instanceof Audio) {
+        ambientAudio.pause();
+        ambientAudio.currentTime = 0;
     }
 }
 
-//returns the current date, "yyyy-mm-dd" format
-function getDate() {
-    var today = new Date();
-    var dd = String(today.getDate()).padStart(2, '0');
-    var mm = String(today.getMonth() + 1).padStart(2, '0'); //January is 0!
-    var yyyy = today.getFullYear();
-    //today = mm + '/' + dd + '/' + yyyy;
-    today = yyyy + '-' + mm + '-' + dd;
-    return today;
-}
-
-//returns the current weekday
-function getWeekDay() {
-    var today = new Date();
-    var weekdays = new Array(
-        "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"
-    );
-    var day = today.getDay();
-    return weekdays[day];
-}
-
-//returns the current time in 24hrs format
-function getTime() {
-    var today = new Date();
-    var time = today.getHours() + ":" + today.getMinutes();
-    return time;
-}
-
-//input time str like "18:30", returns number of minutes since "00:00".
-function getMinutes(str) {
-    var time = str.split(':');
-    return time[0] * 60 + time[1] * 1;
-}
-
-
-
-//Input: Time strings 'hh:mm' in 24hr format i.e. '23:28'
-function isTimeBetween(fromTime, toTime) {
-
-    if (fromTime == "" || toTime == "") {
-        return false;
-    }
-
-    var nowMinutes = getMinutes(getTime());
-    var startMinutes = getMinutes(fromTime);
-    var endMinutes = getMinutes(toTime);
-
-    if ((nowMinutes > startMinutes) && (nowMinutes < endMinutes)) {
-        return true
-    }
-    return false;
+var ambientSampleTimeout;
+function playAmbientSample() {
+    stopAmbientSound();
+    clearTimeout(ambientSampleTimeout);
+    setTimeout(function () {
+        playSound(Vars.UserData.ambientSound, Vars.UserData.ambientSoundVolume, true);
+    }, 100);
+    ambientSampleTimeout = setTimeout(() => { stopAmbientSound() }, 3000);
 }
 
 function isFreePassTimeNow() {
     var freePassTimes = Vars.UserData.FreePassTimes;
-    for (let i = 0; i < freePassTimes.length; i++) {
-        const freePass = freePassTimes[i]
+    for (var i = 0; i < freePassTimes.length; i++) {
+        var freePass = freePassTimes[i]
         if (freePass.day == getWeekDay()) {
             if (isTimeBetween(freePass.fromTime, freePass.toTime)) {
                 return true;

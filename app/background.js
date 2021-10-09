@@ -37,8 +37,8 @@ var Consts = {
     userDataKey: "USER_DATA",
     HistogramDataKey: "Histogram",
     NotificationId: "sitepass_notification",
-    Sounds: ["Sound1.mp3", "Sound2.mp3", "Sound3.wav", "Sound4.wav", "Sound5.mp3", "Sound6.wav", "Sound7.wav", "Sound8.wav", "Sound9.mp3"],
-    AmbientSounds: ["Ambient Clock.flac", "Ambient Rain.wav", "Ambient Crickets.mp3", "Ambient Birds.wav"],
+    Sounds: ["Sound1.mp3", "Sound2.mp3", "Sound3.mp3", "Sound4.mp3", "Sound5.mp3", "Sound6.mp3", "Sound7.mp3", "Sound8.mp3", "Sound9.mp3"],
+    AmbientSounds: ["Ambient Clock.mp3", "Ambient Rain.mp3", "Ambient Crickets.mp3", "Ambient Birds.mp3"],
     POMODORO_DONE_TEXT: "GOOD!"
 };
 

@@ -36,4 +36,4 @@ To test the extension in firefox go to the url "about:debugging" => This firefox
             "id": "{daf44bf7-a45e-4450-979c-91cf07434c3d}",
             "strict_min_version": "42.0"
         }
-    },
+    }

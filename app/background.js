@@ -331,7 +331,7 @@ function showPayToPassTimerBadge(site) {
 //Create "Pay X coins To Visit" site overlay
 function payToPassOverlay(tab, siteData) {
     var opacity = Vars.UserData.TranspartOverlay ? "0.85" : "1";
-    var imageURLPayToPass = chrome.extension.getURL("/img/siteKeeper2.png");
+    var imageURLPayToPass = chrome.runtime.getURL("/img/siteKeeper2.png");
     chrome.tabs.insertCSS({
         code: `
         .payToPass:after { background-image:url("` + imageURLPayToPass + `"); }
@@ -354,7 +354,7 @@ function payToPassOverlay(tab, siteData) {
 //Create "Cant Afford To Visit" site overlay
 function cantAffordOverlay(tab, siteData) {
     var opacity = Vars.UserData.TranspartOverlay ? "0.85" : "1";
-    var imageURLNoPass = chrome.extension.getURL("/img/siteKeeper3.png");
+    var imageURLNoPass = chrome.runtime.getURL("/img/siteKeeper3.png");
     chrome.tabs.insertCSS({
         code: `
         .noPass:after { background-image:url("` + imageURLNoPass + `"); }
@@ -1050,7 +1050,7 @@ function blockSiteOverlay(tab) {
             document.body.setAttribute('data-html',"` + message + `");            
             `
         });
-        var imageURL = chrome.extension.getURL("/img/siteKeeper.png");
+        var imageURL = chrome.runtime.getURL("/img/siteKeeper.png");
         chrome.tabs.insertCSS({
             code: `
             .blockedSite:after {background-image:url("` + imageURL + `");}

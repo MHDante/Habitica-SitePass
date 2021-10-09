@@ -122,9 +122,9 @@ function onPopupPageLoad() {
     $("#customPomodoroTask").empty();
     $("#customSetTask").empty();
     for (var i in Vars.PomodoroTaskCustomList) {
-        var title = Vars.PomodoroTaskCustomList[i].title;
-        var taskId = Vars.PomodoroTaskCustomList[i].id;
-        var option = document.createElement("option");
+        const title = Vars.PomodoroTaskCustomList[i].title;
+        const taskId = Vars.PomodoroTaskCustomList[i].id;
+        const option = document.createElement("option");
         option.value = taskId;
         option.innerHTML = title;
         $("#customPomodoroTask").append(option);
@@ -133,8 +133,8 @@ function onPopupPageLoad() {
 
     //Sounds list
     for (var i in Consts.Sounds) {
-        var FileName = Consts.Sounds[i];
-        var option = document.createElement("option");
+        const FileName = Consts.Sounds[i];
+        const option = document.createElement("option");
         option.value = FileName;
         option.innerHTML = FileName.split(".")[0];
         $("#pomodoroEndSound").append(option);

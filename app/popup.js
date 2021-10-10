@@ -996,7 +996,7 @@ function udateHistoryTable(Chart, datesArary, dataArray, weekDaysArray, label) {
 function setBrowserReviewLink() {
     var rateAndReviewLink = $("#rateAndReviewLink");
     if (BROWSER === "Mozilla Firefox") {
-        rateAndReviewLink.attr("href", "https://addons.mozilla.org/he/firefox/addon/habitica-pomodoro-sitekeeper");
+        rateAndReviewLink.attr("href", "https://addons.mozilla.org/en/firefox/addon/habitica-pomodoro-sitekeeper");
     } else if (BROWSER.includes("Microsoft Edge")) {
         rateAndReviewLink.attr("href", "https://microsoftedge.microsoft.com/addons/detail/habitica-pomodoro-sitekee/loclmeljcebbomgebpnbdmcmofmhoand");
     }

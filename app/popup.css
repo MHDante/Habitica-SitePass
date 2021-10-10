@@ -1489,3 +1489,14 @@ input#selectHistogramFile:hover:before {
     opacity: 0.2;
 }
 
+@supports ( -moz-appearance:none ){
+    /* Add firefox only CSS code here */
+    :not(.menu-label) > input[type=checkbox] {
+        visibility: visible !important;
+    }
+}
+
+@supports not( -moz-appearance:none ){
+    /* Add non-firefox CSS code here */
+}
+

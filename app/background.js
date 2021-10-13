@@ -1,5 +1,5 @@
 "use strict";
-
+//------synced variables with popup.js , includes only data (not pointers nor functions)------//
 var Consts = {
     xClientHeader: "5a8238ab-1819-4f7f-a750-f23264719a2d-HabiticaPomodoroSiteKeeper",
     serverUrl: 'https://habitica.com/api/v3/',
@@ -42,7 +42,7 @@ var Consts = {
     POMODORO_DONE_TEXT: "GOOD!"
 };
 
-var Vars = { //synced with popup.js , includes only data (not pointers nor functions)
+var Vars = { 
     RewardTask: Consts.RewardTemplate,
     PomodoroTaskId: null,
     PomodoroSetTaskId: null,
@@ -62,10 +62,10 @@ var Vars = { //synced with popup.js , includes only data (not pointers nor funct
     onManualTakeBreak: false,
     versionUpdate: false
 };
-
-var ambientAudio = null;
-
-// ----------------------------------------------------------------------- //
+// -------------------------background variables----------------------------- //
+var currentAmbientAudio = null; //current playing ambient sound
+const BROWSER = getBrowser();
+// -------------------------------------------------------------------------- //
 
 function UserSettings(copyFrom) {
     //Get User Setting from copyFrom , or set default user settings
@@ -304,8 +304,9 @@ function showPayToPassTimerBadge(site) {
                 chrome.browserAction.setBadgeBackgroundColor({
                     color: "#F18E02"
                 });
+                var timeString = BROWSER === "Mozilla Firefox" ? shortTimeString(remainingTime) : remainingTime;
                 chrome.browserAction.setBadgeText({
-                    text: remainingTime
+                    text: timeString
                 });
             } else {
                 if (Vars.Timer != Consts.POMODORO_DONE_TEXT) {
@@ -753,13 +754,14 @@ function duringPomodoro() {
     chrome.browserAction.setBadgeBackgroundColor({
         color: "green"
     });
+    var timeString = BROWSER === "Mozilla Firefox" ? shortTimeString(Vars.Timer) : Vars.Timer;
     chrome.browserAction.setBadgeText({
-        text: Vars.Timer
+        text: timeString
     });
     //Block current tab if necessary
     CurrentTab(blockSiteOverlay);
 
-    if (ambientAudio instanceof Audio && ambientAudio.paused) {
+    if (currentAmbientAudio instanceof Audio && currentAmbientAudio.paused) {
         playSound(Vars.UserData.ambientSound, Vars.UserData.ambientSoundVolume, true);
     }
 }
@@ -789,9 +791,7 @@ function clearHistogram() {
     //update storage
     var storageKeyVal = {}; //{key: value} for chrome.storage.sync.set
     storageKeyVal[Consts.HistogramDataKey] = Vars.Histogram; // {HistogramDataKey : Vars.Histogram}
-    chrome.storage.sync.set(storageKeyVal, function () {
-        console.log('updated Todays Histogram ' + JSON.stringify(data));
-    });
+    chrome.storage.sync.set(storageKeyVal);
 }
 
 //runs When Pomodoro Timer Ends
@@ -882,8 +882,9 @@ function duringBreak() {
     chrome.browserAction.setBadgeBackgroundColor({
         color: "blue"
     });
+    var timeString = BROWSER === "Mozilla Firefox" ? shortTimeString(Vars.Timer) : Vars.Timer;
     chrome.browserAction.setBadgeText({
-        text: Vars.Timer
+        text: timeString
     });
 }
 
@@ -1088,18 +1089,18 @@ function playSound(soundFileName, volume, loop) {
             myAudio.volume = volume;
             myAudio.play();
         }
-        if (myAudio && loop && ambientAudio != myAudio) {
+        if (myAudio && loop && currentAmbientAudio != myAudio) {
             stopAmbientSound();
-            ambientAudio = myAudio;
+            currentAmbientAudio = myAudio;
             myAudio.loop = true;
         }
     }
 }
 
 function stopAmbientSound() {
-    if (ambientAudio instanceof Audio) {
-        ambientAudio.pause();
-        ambientAudio.currentTime = 0;
+    if (currentAmbientAudio instanceof Audio) {
+        currentAmbientAudio.pause();
+        currentAmbientAudio.currentTime = 0;
     }
 }
 

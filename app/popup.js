@@ -1,109 +1,13 @@
 Node.prototype.AppendText = function (string) { this.appendChild(document.createTextNode(string)); }
 Node.prototype.AppendBreak = function () { this.appendChild(document.createElement("br")); }
 
-const BROWSER = getBrowser();
-var browser = browser || chrome; //for firefox support (browser.runtime instead of chrome.runtime)
-var Vars = {};
-var Consts = {};
 var CurrentTabHostname;
 var updatedHabitica = false;
 var HistoryChart;
 var HistoryFromDay = 0;
 var HistoryToDay = 7;
 var HistoryPomodoroSelected = true;
-
-// chrome.extension.getBackgroundPage() has issues in firefox 
-//-------- background.js communication (with firefox support) -------//
-
-var timerPort = chrome.runtime.connect({ name: "timer" });
-timerPort.onMessage.addListener(function (response) {
-    if (response.complete) {
-        Vars = response.vars;
-    }
-});
-
-/**
- * @param {*} functionName String
- * @param {*} args array with the function args
- */
-async function runBackgroundFunction(functionName, args) {
-    //FireFox
-    if (BROWSER === "Mozilla Firefox") {
-        var response = await browser.runtime.sendMessage({ sender: "popup", msg: "run_function", functionName: functionName, args: args });
-        return response.result;
-    }
-    //Chromium
-    else {
-        try {
-            var response = await sendMessagePromise({ sender: "popup", msg: "run_function", functionName: functionName, args: args });
-            return response.result;
-        }
-        catch (e) {
-            console.log(e)
-            return e;
-        }
-    }
-}
-
-async function getBackgroundData() {
-    //FireFox
-    if (BROWSER === "Mozilla Firefox") {
-        var response = await browser.runtime.sendMessage({ sender: "popup", msg: "get_data" });
-        Vars = response.vars;
-        Consts = response.consts;
-
-    }
-    //Chromium
-    else {
-        try {
-            var response = await sendMessagePromise({ sender: "popup", msg: "get_data" });
-            Vars = response.vars;
-            Consts = response.consts;
-        } catch (e) {
-            console.log(e)
-            return e;
-        }
-    }
-}
-
-async function updateBackgroundData() {
-    //FireFox
-    if (BROWSER === "Mozilla Firefox") {
-        await browser.runtime.sendMessage({ sender: "popup", msg: "set_data", data: { vars: Vars } });
-    }
-    //Chromium
-    else {
-        try {
-            await sendMessagePromise({ sender: "popup", msg: "set_data", data: { vars: Vars } });
-        } catch (e) {
-            console.log(e)
-            return e;
-        }
-    }
-}
-
-/**
- * Promise wrapper for chrome.tabs.sendMessage (not returning promise bug in chrome)
- * @param item
- * @returns {Promise<any>}
- */
-function sendMessagePromise(item) {
-    return new Promise((resolve, reject) => {
-        chrome.runtime.sendMessage(item, (response) => {
-            console.log(item);
-            console.log(response);
-            if (response.complete) {
-                resolve(response);
-            } else {
-                reject('Something wrong');
-            }
-        });
-    });
-}
-
-
-//-------- background.js communication [END]-------------------------------
-
+const BROWSER = getBrowser();
 
 //----- on popup load -----//
 document.addEventListener("DOMContentLoaded", async function () {
@@ -152,6 +56,7 @@ function onPopupPageLoad() {
     CredentialFields();
 
     //On version update or install show info
+    console.log(Vars.versionUpdate);
     if (Vars.versionUpdate) {
         $("#VersionUpdate").show();
         $("#VersionUpdate .version").html("version " + chrome.runtime.getManifest().version);
@@ -159,6 +64,7 @@ function onPopupPageLoad() {
     $("#VersionUpdate .closeAlert").click(function () {
         $("#VersionUpdate").hide();
         Vars.versionUpdate = false;
+        updateBackgroundData();
     });
 
     getCurrentTabUrl(function (url) {
@@ -181,6 +87,15 @@ function onPopupPageLoad() {
         }
         return false;
     });
+
+    //open popup in new window
+    $("#PopupNewWindow").click(function () {
+        window.open('popup.html',
+            'newwindow',
+            `width=400,height=520`);
+        return false;
+    });
+
 
     var blockedSites = Vars.UserData.BlockedSites;
     for (var site in blockedSites) {
@@ -277,7 +192,6 @@ function onPopupPageLoad() {
 
     //Vacation Mode Banner
     runBackgroundFunction("isFreePassTimeNow", []).then((response) => {
-        console.log("A", response);
         if (Vars.UserData.VacationMode || response == true) {
             $(".vacationBanner").show();
         }
@@ -596,7 +510,6 @@ function NewTab(url) {
 function UpdateBlockCommand() {
     getBackgroundData().then(() => {
         var currentSite = Vars.UserData.BlockedSites[CurrentTabHostname];
-        console.log(currentSite);
         if (currentSite) {
             $("#BlockLink").html("<div class='unBlockSite'><span class='unblock_Icon small_icon'></span>Un-Block Site</div>");
         } else {
@@ -704,7 +617,8 @@ function updateTimerDisplay() {
         $("#Time").attr("data-pomodoros-set", Vars.PomoSetCounter + "/" + Vars.UserData.PomoSetNum);
     }
 
-    $("#PomoButton").attr("data-pomodoros", Vars.Histogram[getDate()].pomodoros || 0);
+    var pomodoros = (Vars && Vars.Histogram[getDate()]) ? Vars.Histogram[getDate()].pomodoros : 0;
+    $("#PomoButton").attr("data-pomodoros", pomodoros);
 
     if (Vars.onBreakExtension) { //---On Break Extension---
         $("#QuickSettings").hide();
@@ -919,29 +833,18 @@ function updateHistory() {
             udateHistoryTable(HistoryChart, chartData.dates, chartData.hours, chartData.weekdays, "Hours");
             HistoryPomodoroSelected = false;
         });
-        $("#DownloadHistogram").click(function () {
-            //downloadObjectAsJson
-            var dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(Vars.Histogram));
-            this.setAttribute("href", dataStr);
-            this.setAttribute("download", "Histogram.json");
+
+        $("#DownloadHistogram").click(function (e) {
+            downloadObjectAsJson(Vars.Histogram);
+            e.stopImmediatePropagation();
         });
 
-        $("#ImportHistogram").click(function () {
-            //downloadObjectAsJson
+        $("#ImportHistogram").click(async function () {
+            //ImportObjectAsJson
             var files = document.getElementById('selectHistogramFile').files;
-            console.log(files);
-            if (files.length <= 0) {
-                return false;
-            }
-
-            var fr = new FileReader();
-
-            fr.onload = function (e) {
-                console.log(e);
-                var result = JSON.parse(e.target.result);
-                Vars.Histogram = result;
-            }
-            fr.readAsText(files.item(0));
+            var json = await readJsonFileAsync(files);
+            Vars.Histogram = json;
+            await updateBackgroundData();
             location.reload();
         });
 
@@ -995,47 +898,10 @@ function udateHistoryTable(Chart, datesArary, dataArray, weekDaysArray, label) {
 function setBrowserReviewLink() {
     var rateAndReviewLink = $("#rateAndReviewLink");
     if (BROWSER === "Mozilla Firefox") {
-        rateAndReviewLink.attr("href", "https://chrome.google.com/webstore/detail/habitica-pomodoro-sitekee/iaanigfbldakklgdfcnbjonbehpbpecl");
+        rateAndReviewLink.attr("href", "https://addons.mozilla.org/en/firefox/addon/habitica-pomodoro-sitekeeper");
     } else if (BROWSER.includes("Microsoft Edge")) {
         rateAndReviewLink.attr("href", "https://microsoftedge.microsoft.com/addons/detail/habitica-pomodoro-sitekee/loclmeljcebbomgebpnbdmcmofmhoand");
     }
-}
-
-function getBrowser() {
-    var sBrowser, sUsrAg = navigator.userAgent;
-
-    // The order matters here, and this may report false positives for unlisted browsers.
-
-    if (sUsrAg.indexOf("Firefox") > -1) {
-        sBrowser = "Mozilla Firefox";
-        // "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:61.0) Gecko/20100101 Firefox/61.0"
-    } else if (sUsrAg.indexOf("SamsungBrowser") > -1) {
-        sBrowser = "Samsung Internet";
-        // "Mozilla/5.0 (Linux; Android 9; SAMSUNG SM-G955F Build/PPR1.180610.011) AppleWebKit/537.36 (KHTML, like Gecko) SamsungBrowser/9.4 Chrome/67.0.3396.87 Mobile Safari/537.36
-    } else if (sUsrAg.indexOf("Opera") > -1 || sUsrAg.indexOf("OPR") > -1) {
-        sBrowser = "Opera";
-        // "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.102 Safari/537.36 OPR/57.0.3098.106"
-    } else if (sUsrAg.indexOf("Trident") > -1) {
-        sBrowser = "Microsoft Internet Explorer";
-        // "Mozilla/5.0 (Windows NT 10.0; WOW64; Trident/7.0; .NET4.0C; .NET4.0E; Zoom 3.6.0; wbx 1.0.0; rv:11.0) like Gecko"
-    } else if (sUsrAg.indexOf("Edge") > -1) {
-        sBrowser = "Microsoft Edge (Legacy)";
-        // "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36 Edge/16.16299"
-    } else if (sUsrAg.indexOf("Edg") > -1) {
-        sBrowser = "Microsoft Edge (Chromium)";
-        // Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36 Edg/91.0.864.64
-    } else if (sUsrAg.indexOf("Chrome") > -1) {
-        sBrowser = "Google Chrome or Chromium";
-        // "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Ubuntu Chromium/66.0.3359.181 Chrome/66.0.3359.181 Safari/537.36"
-    } else if (sUsrAg.indexOf("Safari") > -1) {
-        sBrowser = "Apple Safari";
-        // "Mozilla/5.0 (iPhone; CPU iPhone OS 11_4 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/11.0 Mobile/15E148 Safari/604.1 980x1306"
-    } else {
-        sBrowser = "unknown";
-    }
-
-    console.log(sBrowser);
-    return sBrowser;
 }
 
 

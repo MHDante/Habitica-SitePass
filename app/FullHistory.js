@@ -1,14 +1,30 @@
-var background = chrome.extension.getBackgroundPage();
-var Vars = background.Vars;
-var Consts = background.Consts;
 var YearViewData = {}; // data must be string, dataExample = `{"2020-08-01": {"items": ["banana", "apple"]}, "2020-09-01": {"items": ["orange"]}}`;
 var chartData = { dates: [], pomodoros: [], hours: [], weekdays: [] };
 var weekdayPomoCount = { "Sunday": 0, "Monday": 0, "Tuesday": 0, "Wednesday": 0, "Thursday": 0, "Friday": 0, "Saturday": 0 };
 var weekdayHourCount = { "Sunday": 0, "Monday": 0, "Tuesday": 0, "Wednesday": 0, "Thursday": 0, "Friday": 0, "Saturday": 0 };
+const BROWSER = getBrowser();
 
+document.addEventListener("DOMContentLoaded", async function () {
 
-window.onload = function () {
+    await getBackgroundData();
 
+    $("#DownloadHistogram").click(function (e) {
+        downloadObjectAsJson(Vars.Histogram);
+        e.stopImmediatePropagation();
+    });
+
+    $("#ImportHistogram").click(async function () {
+        //ImportObjectAsJson
+        var files = document.getElementById('selectHistogramFile').files;
+        var json = await readJsonFileAsync(files);
+        Vars.Histogram = json;
+        await updateBackgroundData();
+        location.reload();
+    });
+
+    $("#ClearHistogram").click(function () {
+        runBackgroundFunction("clearHistogram", []).then(location.reload());
+    });
 
     //collect Histogrm data
     for (var key in Vars.Histogram) {
@@ -109,7 +125,7 @@ window.onload = function () {
         always_show_tooltip: true,
         colors: YearViewColors()
     });
-}
+});
 
 function YearViewColors() {
     var colors = { 'default': '#e6e6e6' }

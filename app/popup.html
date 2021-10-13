@@ -4,380 +4,421 @@
 <head>
         <meta content="text/html;charset=utf-8" http-equiv="Content-Type">
         <meta content="utf-8" http-equiv="encoding">
-        
+
         <title>Habitica SiteKeeper</title>
-        <script src="jquery-2.1.3.min.js"></script>
-        <script src="Chart.bundle.min.js"></script>
-        <link rel="stylesheet" type="text/css" href="popup.css">
+        <!-- CSS -->
+        <link rel="stylesheet" type="text/css" href="app.css">
         <link href="https://fonts.googleapis.com/css2?family=Orbitron&family=Oxanium:wght@200;300&display=swap"
                 rel="stylesheet">
+        <!-- SCRIPTS -->
+        <script src="jquery-2.1.3.min.js"></script>
+        <script src="Chart.bundle.min.js"></script>
         <script src="utility.js"></script>
+        <script src="backgroundMessaging.js"></script>
         <script src="popup.js"></script>
 
 </head>
 
-<body class="loading">
-        <!-- Menu -->
-        <div id=MenuContainer>
-                <div id="Menu">
-                        <table>
-                                <div class="menu-item" id="MenuSettings" menu-container-id="Settings">
-                                        <label class="menu-label"><input type="checkbox"><span
-                                                        class="settings_icon small_icon"></span>SETTINGS</label>
-                                </div>
-                                <div class="menu-item" id="MenuHistory" menu-container-id="History">
-                                        <label class="menu-label"><input type="checkbox"><span
-                                                        class="history_icon small_icon"></span>HISTORY</label>
-                                </div>
-                                <div class="menu-item" id="MenuFeedback" menu-container-id="Feedback">
-                                        <label class="menu-label"><input type="checkbox"><span
-                                                        class="rate_icon small_icon"></span>FEEDBACK</label>
-                                </div>
-                                <div class="menu-item" id="MenuDonate" menu-container-id="Donate">
-                                        <label class="menu-label"><input type="checkbox"><span
-                                                        class="donate_icon small_icon"></span>COFFEE</label>
-                                </div>
-                        </table>
+<body id="popup" class="loading">
+        <div id="mainContainer">
+                <!-- Menu -->
+                <div id=MenuContainer>
+                        <div id="Menu">
+                                <table>
+                                        <div class="menu-item" id="MenuSettings" menu-container-id="Settings">
+                                                <label class="menu-label"><input type="checkbox"><span
+                                                                class="settings_icon small_icon"></span>SETTINGS</label>
+                                        </div>
+                                        <div class="menu-item" id="MenuHistory" menu-container-id="History">
+                                                <label class="menu-label"><input type="checkbox"><span
+                                                                class="history_icon small_icon"></span>HISTORY</label>
+                                        </div>
+                                        <div class="menu-item" id="MenuFeedback" menu-container-id="Feedback">
+                                                <label class="menu-label"><input type="checkbox"><span
+                                                                class="rate_icon small_icon"></span>FEEDBACK</label>
+                                        </div>
+                                        <div class="menu-item" id="MenuDonate" menu-container-id="Donate">
+                                                <label class="menu-label"><input type="checkbox"><span
+                                                                class="donate_icon small_icon"></span>COFFEE</label>
+                                        </div>
+                                </table>
+                        </div>
                 </div>
-        </div>
 
-        <!-- Save Settings Button -->
-        <button id="SaveButton" type="submit"></button>
+                <!-- Save Settings Button -->
+                <button id="SaveButton" type="submit"></button>
 
-        <!-- Content -->
-        <div id="CotentContainer">
-                <!-- Settings -->
-                <div id="Settings" class="menu-container">
+                <!-- Content -->
+                <div id="CotentContainer">
+                        <!-- Settings -->
+                        <div id="Settings" class="menu-container">
 
-                        <!-- inner menu -->
+                                <!-- inner menu -->
 
-                        <input type="radio" checked id="MenuTimerSettings" name="innerMenu">
-                        <label for="MenuTimerSettings"><span class="innerMenuIcon"></span> TIMER</label>
-                        <input type="radio" id="MenuHabiticaSettings" name="innerMenu">
-                        <label for="MenuHabiticaSettings"><span class="innerMenuIcon"></span> HABITICA</label>
-                        <input type="radio" id="MenuBlockerSettings" name="innerMenu">
-                        <label for="MenuBlockerSettings"><span class="innerMenuIcon"></span> BLOCKER</label><br>
+                                <input type="radio" checked id="MenuTimerSettings" name="innerMenu">
+                                <label for="MenuTimerSettings"><span class="innerMenuIcon"></span> TIMER</label>
+                                <input type="radio" id="MenuHabiticaSettings" name="innerMenu">
+                                <label for="MenuHabiticaSettings"><span class="innerMenuIcon"></span> HABITICA</label>
+                                <input type="radio" id="MenuBlockerSettings" name="innerMenu">
+                                <label for="MenuBlockerSettings"><span class="innerMenuIcon"></span> BLOCKER</label><br>
 
 
-                        <!-- Timer settings -->
-                        <div id="TimerSettingsContainer">
+                                <!-- Timer settings -->
+                                <div id="TimerSettingsContainer">
+                                        <br>
+                                        <label><b>Pomodoro duration </b><input id="PomoDuration" type="text"></label>
+                                        Minutes<br>
+                                        <label><input type="checkbox" id="showSkipToBreak">Skip to break button</label>
+                                        <span class="small_icon help_icon tooltip"
+                                                data-tip=" shows &#9658; button that lets you skip the current pomodoro session (with no habitica rewards)"></span>
+                                        <br>
+                                        <hr>
+                                        <label><b>Short Break duration </b><input id="BreakDuration"
+                                                        type="text"></label>
+                                        Minutes<br>
+                                        <label>Break Extention <input id="BreakExtention" type="text"></label>
+                                        Minutes
+                                        <span class="small_icon help_icon tooltip"
+                                                data-tip="Break Extension is some extra time to come back from the short break. When you get back, click on the Tomato to start the next pomodoro. If the break extesion ended before you pressed the tomato the streak will break and the timer will reset."></span><br>
+                                        <label><input type="checkbox" id="ManualBreak">Start breaks manually</label>
+                                        <span class="small_icon help_icon tooltip"
+                                                data-tip="If enabled, breaks will start by clicking on the tomato after a pomodoro. If disabled breaks will start automatically after Pomodoro."></span>
+                                        <br>
+                                        <label><input type="checkbox" id="ManualNextPomodoro">Start pomodoros
+                                                manually</label>
+                                        <span class="small_icon help_icon tooltip"
+                                                data-tip="If enabled, the next pomodoro will start by clicking on the tomato after break (without breaking the steak)."></span>
+                                        <br>
+                                        <hr>
+                                        <label><b>Long Break after </b><input id="PomoSetNum" type="number"
+                                                        step="1"></label>
+                                        Pomodoros<br>
+                                        <label><b>Long Break duration </b><input id="LongBreakDuration"
+                                                        type="text"></label>
+                                        Minutes<br>
+                                        <hr>
+                                        <label for="pomodoroEndSound"><b>Pomodoro end sound:</b></label><br>
+                                        <select id="pomodoroEndSound">
+                                                <option value="None">None</option>
+                                        </select><input id="pomodoroEndSoundVolume" type="range" min="0" max="1"
+                                                step="0.01" value="0.5">
+                                        <br>
+                                        <label for="breakEndSound"><b>Break end sound:</b></label><br>
+                                        <select id="breakEndSound">
+                                                <option value="None">None</option>
+                                        </select><input id="breakEndSoundVolume" type="range" min="0" max="1"
+                                                step="0.01" value="0.5">
+                                        <br>
+                                        <label for="ambientSound"><b>Ambient sound:</b></label><br>
+                                        <select id="ambientSound">
+                                                <option value="None">None</option>
+                                        </select><input id="ambientSoundVolume" type="range" min="0" max="1" step="0.01"
+                                                value="0.5">
+                                        <br><br>
+                                        <span class="setting-note">
+                                                Pomodoro Default HotKey: <b>Alt + Shift + P</b><br>
+                                                change hotKeys at chrome://extensions/shortcuts
+                                        </span>
+                                </div>
+                                <!-- Habitica settings -->
+                                <div id="HabiticaSettingsContainer">
+                                        <br>
+                                        <label><b class="connect-habitica-animate">Connect to Habitica</b><input
+                                                        type="checkbox" checked id="ConnectHabitica"
+                                                        class="switch"></label><br>
+                                        <label class="connect-habitica-animate habitica-setting"><b>Habitica User
+                                                        ID:</b><br /><input id="UID" type="text"></label><br>
+                                        <label class="connect-habitica-animate habitica-setting"><b>Habitica API
+                                                        Token:</b><br /><input id="APIToken"
+                                                        type="password"></label><br>
+                                        <sapn class="setting-note habitica-setting">User ID and API token can be found
+                                                here: <a href="https://habitica.com/user/settings/api"
+                                                        target="_blank">https://habitica.com/user/settings/api</a>
+                                        </sapn>
+                                        <hr>
+                                        <label class="habitica-setting"><b>Pomodoro Habit</b></label>
+                                        <span class="small_icon help_icon tooltip"
+                                                data-tip='"Pomodoro" Habit will be created automatically in Habitica and will be activated after each pomodoro before a short break'></span>
+                                        <br>
+                                        <label class="habitica-setting"><input type="checkbox" id="PomoHabitPlus"> <span
+                                                        class="plus_minus_icon">+</span> habit when pomodoro is
+                                                done</label><br>
+                                        <label class="habitica-setting"><input type="checkbox" id="PomoHabitMinus">
+                                                <span class="plus_minus_icon">-</span> habit if stopped before timer
+                                                ends</label><br>
+                                        <label class="habitica-setting"><input type="checkbox" id="BreakExtentionFails">
+                                                <span class="plus_minus_icon">-</span> habit if Break Extention is
+                                                over</label><br>
+
+                                        <label class="habitica-setting"><input type="checkbox"
+                                                        id="customPomodoroTaskEnabled">Custom
+                                                Habit:</label>
+                                        <select class="habitica-setting" id="customPomodoroTask"></select>
+                                        <hr>
+                                        <label class="habitica-setting"><b>Pomodoro Combo Habit</b></label>
+                                        <span class="small_icon help_icon tooltip"
+                                                data-tip='"Pomodoro Combo!" Habit will be created automatically in Habitica and will be activated after the last pomodoro before a long break'></span>
+                                        <br>
+                                        <label class="habitica-setting"><input type="checkbox" id="PomoSetHabitPlus">
+                                                <span class="plus_minus_icon">+</span> habit for pomodoro set
+                                                complete</label><br>
+
+                                        <label class="habitica-setting"><input type="checkbox"
+                                                        id="customSetTaskEnabled">Custom
+                                                Habit:</label>
+                                        <select class="habitica-setting" id="customSetTask"></select>
+                                        <hr>
+                                        <label class="habitica-setting"><input type="checkbox"
+                                                        id="BreakExtentionNotify">
+                                                Mobile Notification - Short break is over</label>
+                                        <span class="small_icon help_icon tooltip"
+                                                data-tip='Notification is sent as a private message to yourself in the Habitica mobile app. Make sure private messaging is enabled.'></span>
+                                        <br>
+                                        <label class="habitica-setting"><input type="checkbox" id="LongBreakNotify">
+                                                Mobile Notification - Long break is over</label>
+                                        <span class="small_icon help_icon tooltip"
+                                                data-tip='Notification is sent as a private message to yourself in the Habitica mobile app. Make sure private messaging is enabled.'></span>
+                                        <br>
+                                </div>
+                                <!-- Site Blocker settings -->
+                                <div id="BlockerSettingsContainer">
+                                        <br>
+                                        <label class="habitica-setting"><b>Pay to Pass Duration </b><input id="Duration"
+                                                        type="text"> Minutes</label>
+                                        <span class=" habitica_small_icon small_icon tooltip"></span>
+                                        <span class="small_icon help_icon tooltip"
+                                                data-tip="All sites are blocked during pomodoro. Sites with cost 0 are blocked only during pomodoro."></span>
+                                        <br><label class="habitica-setting"><input type="checkbox"
+                                                        id="BreakFreePass">During
+                                                break
+                                                all sites are free</label>
+                                        <span class=" habitica_small_icon small_icon tooltip"></span>
+                                        <hr>
+                                        <label><input type="checkbox" id="HideEdit">Hide edit options</label>
+                                        <span class="small_icon help_icon tooltip"
+                                                data-tip="Hide the option to block/unblock websites to lower the temptation of removing a blocked website during a work session."></span><br>
+                                        <label><input type="checkbox" id="MuteBlockedSites">Mute blocked
+                                                websites</label><br>
+                                        <label><input type="checkbox" id="TranspartOverlay">Blocked website background
+                                                transparency</label>
+                                        <hr>
+                                        <label><b>Whitelist: </b></label><span class="small_icon help_icon tooltip"
+                                                data-tip="Websites in whitelist are also unblocked during pomodoro."></span><br>
+                                        <textarea id="Whitelist" rows="4"
+                                                placeholder="(i.e. https://habitica.com/#/tasks)"></textarea>
+
+                                        <span class="setting-note">One url or regex per line.<br>Encase line in "/" for
+                                                <a href="https://regexr.com/" target="_blank">Regex</a> support. i.e.
+                                                /Regex line/.</span>
+                                        <hr>
+                                        <label class="habitica-setting"><b>Vacation Mode</b><input type="checkbox"
+                                                        id="VacationMode" class="switch">&nbsp;&nbsp;</label>
+                                        <span class=" habitica_small_icon small_icon tooltip"></span>
+                                        <span class="small_icon help_icon tooltip"
+                                                data-tip="All websites are free when enabled."></span>
+                                        <hr>
+                                        <label class="habitica-setting"><b>Free Pass Schedule:</b></label>
+                                        <span class=" habitica_small_icon small_icon tooltip"></span>
+                                        <span class="small_icon help_icon tooltip"
+                                                data-tip="All websites are free during this time."></span>
+                                        <br>
+                                        <div class="habitica-setting" id="freePassBlocks"></div>
+                                        <div class="habitica-setting" id="addFreePassBlock"><span
+                                                        style="margin-top: 1px;">Add
+                                                        Free Pass Time</span>
+                                        </div>
+                                </div>
+
+                                <!-- More info -->
                                 <br>
-                                <label><b>Pomodoro duration </b><input id="PomoDuration" type="text"></label>
-                                Minutes<br>
-                                <label><input type="checkbox" id="showSkipToBreak">Skip to break button</label>
-                                <span class="small_icon help_icon tooltip"
-                                        data-tip=" shows &#9658; button that lets you skip the current pomodoro session (with no habitica rewards)"></span>
-                                <br>
-                                <hr>
-                                <label><b>Short Break duration </b><input id="BreakDuration" type="text"></label>
-                                Minutes<br>
-                                <label>Break Extention <input id="BreakExtention" type="text"></label>
-                                Minutes
-                                <span class="small_icon help_icon tooltip"
-                                        data-tip="Break Extension is some extra time to come back from the short break. When you get back, click on the Tomato to start the next pomodoro. If the break extesion ended before you pressed the tomato the streak will break and the timer will reset."></span><br>
-                                <label><input type="checkbox" id="ManualBreak">Start breaks manually</label>
-                                <span class="small_icon help_icon tooltip"
-                                        data-tip="If enabled, breaks will start by clicking on the tomato after a pomodoro. If disabled breaks will start automatically after Pomodoro."></span>
-                                <br>
-                                <label><input type="checkbox" id="ManualNextPomodoro">Start pomodoros manually</label>
-                                <span class="small_icon help_icon tooltip"
-                                        data-tip="If enabled, the next pomodoro will start by clicking on the tomato after break (without breaking the steak)."></span>
-                                <br>
-                                <hr>
-                                <label><b>Long Break after </b><input id="PomoSetNum" type="number" step="1"></label>
-                                Pomodoros<br>
-                                <label><b>Long Break duration </b><input id="LongBreakDuration" type="text"></label>
-                                Minutes<br>
-                                <hr>
-                                <label for="pomodoroEndSound"><b>Pomodoro end sound:</b></label><br>
-                                <select id="pomodoroEndSound">
-                                        <option value="None">None</option>
-                                </select><input id="pomodoroEndSoundVolume" type="range" min="0" max="1" step="0.01"
-                                        value="0.5">
-                                <br>
-                                <label for="breakEndSound"><b>Break end sound:</b></label><br>
-                                <select id="breakEndSound">
-                                        <option value="None">None</option>
-                                </select><input id="breakEndSoundVolume" type="range" min="0" max="1" step="0.01"
-                                        value="0.5">
-                                <br>
-                                <label for="ambientSound"><b>Ambient sound:</b></label><br>
-                                <select id="ambientSound">
-                                        <option value="None">None</option>
-                                </select><input id="ambientSoundVolume" type="range" min="0" max="1" step="0.01"
-                                        value="0.5">
-                                <br><br>
-                                <span class="setting-note">
-                                        Pomodoro Default HotKey: <b>Alt + Shift + P</b><br>
-                                        change hotKeys at chrome://extensions/shortcuts
+                                <a class="wiki-page"
+                                        href="https://habitica.fandom.com/wiki/Habitica_Pomodoro_SiteKeeper"
+                                        target="_blank" class="links"><span class="help_icon small_icon"> </span>See the
+                                        Wiki
+                                        page for recommended settings</a>
+                        </div>
+                        <!-- History -->
+                        <div id="History" class="menu-container" style="display: none;">
+                                <span class="setting-note backupDataWarning">
+                                        <span style="font-size: 19px;">&#9888;</span>
+                                        Uninstalling the extension will result in loss of history data! Please back up
+                                        your data.
                                 </span>
-                        </div>
-                        <!-- Habitica settings -->
-                        <div id="HabiticaSettingsContainer">
-                                <br>
-                                <label><b class="connect-habitica-animate">Connect to Habitica</b><input type="checkbox"
-                                                checked id="ConnectHabitica" class="switch"></label><br>
-                                <label class="connect-habitica-animate habitica-setting"><b>Habitica User
-                                                ID:</b><br /><input id="UID" type="text"></label><br>
-                                <label class="connect-habitica-animate habitica-setting"><b>Habitica API
-                                                Token:</b><br /><input id="APIToken" type="password"></label><br>
-                                <sapn class="setting-note habitica-setting">User ID and API token can be found here: <a
-                                                href="https://habitica.com/user/settings/api"
-                                                target="_blank">https://habitica.com/user/settings/api</a></sapn>
+                                <div class="HistoryFlex">
+                                        <a class="settingButton" href="FullHistory.html" target="_blank"
+                                                class="settingButton" id="BackupHistogram">
+                                                <span style="margin-top:-1px" class="fullScreen_Icon small_icon"></span>
+                                                &nbsp;&nbsp;Full History & Backup
+                                        </a>
+                                </div>
                                 <hr>
-                                <label class="habitica-setting"><b>Pomodoro Habit</b></label>
-                                <span class="small_icon help_icon tooltip"
-                                        data-tip='"Pomodoro" Habit will be created automatically in Habitica and will be activated after each pomodoro before a short break'></span>
-                                <br>
-                                <label class="habitica-setting"><input type="checkbox" id="PomoHabitPlus"> <span
-                                                class="plus_minus_icon">+</span> habit when pomodoro is done</label><br>
-                                <label class="habitica-setting"><input type="checkbox" id="PomoHabitMinus"> <span
-                                                class="plus_minus_icon">-</span> habit if stopped before timer
-                                        ends</label><br>
-                                <label class="habitica-setting"><input type="checkbox" id="BreakExtentionFails"> <span
-                                                class="plus_minus_icon">-</span> habit if Break Extention is
-                                        over</label><br>
-
-                                <label class="habitica-setting"><input type="checkbox"
-                                                id="customPomodoroTaskEnabled">Custom
-                                        Habit:</label>
-                                <select class="habitica-setting" id="customPomodoroTask"></select>
+                                <div class="HistoryFlex">
+                                        <div class="historyDataCircle" id="PomoToday" data-text="POMODOROS TODAY">0
+                                        </div>
+                                        <div class="historyDataCircle" id="HoursToday" data-text="HOURS TODAY">0
+                                        </div>
+                                </div>
+                                <div class="HistoryFlex">
+                                        <div class="historyDataCircle" id="PomoTotal" data-text="POMODOROS TOTAL">0
+                                        </div>
+                                        <div class="historyDataCircle" id="HoursTotal" data-text="HOURS TOTAL">0
+                                        </div>
+                                        <div class="historyDataCircle" id="PomoAvg" data-text="POMODORO DAILY Avg">0
+                                        </div>
+                                        <div class="historyDataCircle" id="HoursAvg" data-text="HOURS DAILY Avg">0</div>
+                                </div>
                                 <hr>
-                                <label class="habitica-setting"><b>Pomodoro Combo Habit</b></label>
-                                <span class="small_icon help_icon tooltip"
-                                        data-tip='"Pomodoro Combo!" Habit will be created automatically in Habitica and will be activated after the last pomodoro before a long break'></span>
-                                <br>
-                                <label class="habitica-setting"><input type="checkbox" id="PomoSetHabitPlus"> <span
-                                                class="plus_minus_icon">+</span> habit for pomodoro set
-                                        complete</label><br>
-
-                                <label class="habitica-setting"><input type="checkbox" id="customSetTaskEnabled">Custom
-                                        Habit:</label>
-                                <select class="habitica-setting" id="customSetTask"></select>
+                                <div class="HistoryFlex">
+                                        <button class="settingButton" id="HistoryChartShowPomodoros">Pomodoros</button>
+                                        <button class="settingButton" id="HistoryChartShowHours">Hours</button>
+                                </div>
                                 <hr>
-                                <label class="habitica-setting"><input type="checkbox" id="BreakExtentionNotify">
-                                        Mobile Notification - Short break is over</label>
-                                <span class="small_icon help_icon tooltip"
-                                        data-tip='Notification is sent as a private message to yourself in the Habitica mobile app. Make sure private messaging is enabled.'></span>
-                                <br>
-                                <label class="habitica-setting"><input type="checkbox" id="LongBreakNotify">
-                                        Mobile Notification - Long break is over</label>
-                                <span class="small_icon help_icon tooltip"
-                                        data-tip='Notification is sent as a private message to yourself in the Habitica mobile app. Make sure private messaging is enabled.'></span>
-                                <br>
-                        </div>
-                        <!-- Site Blocker settings -->
-                        <div id="BlockerSettingsContainer">
-                                <br>
-                                <label class="habitica-setting"><b>Pay to Pass Duration </b><input id="Duration"
-                                                type="text"> Minutes</label>
-                                <span class=" habitica_small_icon small_icon tooltip"></span>
-                                <span class="small_icon help_icon tooltip"
-                                        data-tip="All sites are blocked during pomodoro. Sites with cost 0 are blocked only during pomodoro."></span>
-                                <label class="habitica-setting"><input type="checkbox" id="BreakFreePass">During break
-                                        all sites are free</label>
-                                <span class=" habitica_small_icon small_icon tooltip"></span>
+                                <div class="canvasChar">
+                                        <canvas id="HistoryChart" height="300" width="400"></canvas>
+                                </div>
+                                <div class="HistoryFlex">
+                                        <button class="settingButton" id="HistoryCharPrev">&#x27F5;</button>
+                                        <div class="settingButton" id="HistoryChartTotal"></div>
+                                        <!-- <a href="FullHistory.html" target="_blank" class="settingButton"><span
+                                                        class="fullScreen_Icon small_icon"></span></a> -->
+                                        <button class="settingButton" id="HistoryChartNext">&#x27F6;</button>
+                                </div>
                                 <hr>
-                                <label><input type="checkbox" id="HideEdit">Hide edit options</label>
-                                <span class="small_icon help_icon tooltip"
-                                        data-tip="Hide the option to block/unblock websites to lower the temptation of removing a blocked website during a work session."></span><br>
-                                <label><input type="checkbox" id="MuteBlockedSites">Mute blocked websites</label><br>
-                                <label><input type="checkbox" id="TranspartOverlay">Blocked website background
-                                        transparency</label>
-                                <hr>
-                                <label><b>Whitelist: </b></label><span class="small_icon help_icon tooltip"
-                                        data-tip="Websites in whitelist are also unblocked during pomodoro."></span><br>
-                                <textarea id="Whitelist" rows="4"
-                                        placeholder="(i.e. https://habitica.com/#/tasks)"></textarea>
-
-                                <span class="setting-note">One url or regex per line.<br>Encase line in "/" for <a
-                                                href="https://regexr.com/" target="_blank">Regex</a> support. i.e.
-                                        /Regex line/.</span>
-                                <hr>
-                                <label class="habitica-setting"><b>Vacation Mode</b><input type="checkbox"
-                                                id="VacationMode" class="switch">&nbsp;&nbsp;</label>
-                                <span class=" habitica_small_icon small_icon tooltip"></span>
-                                <span class="small_icon help_icon tooltip"
-                                        data-tip="All websites are free when enabled."></span>
-                                <hr>
-                                <label class="habitica-setting"><b>Free Pass Schedule:</b></label>
-                                <span class=" habitica_small_icon small_icon tooltip"></span>
-                                <span class="small_icon help_icon tooltip"
-                                        data-tip="All websites are free during this time."></span>
-                                <br>
-                                <div class="habitica-setting" id="freePassBlocks"></div>
-                                <div class="habitica-setting" id="addFreePassBlock"><span style="margin-top: 1px;">Add
-                                                Free Pass Time</span>
+                                <div class="HistoryFlex">
+                                        <a class="settingButton" id="DownloadHistogram">&#x21e9; Download
+                                                History</a>
+                                </div>
+                                <div class="HistoryFlex">
+                                        <input class="settingButton" type="file" id="selectHistogramFile"
+                                                value="Import" />
+                                        <button class="settingButton" id="ImportHistogram">&#8683;
+                                                Import</button>
+                                </div>
+                                <div class="HistoryFlex">
+                                        <button class="settingButton" id="ClearHistogram"><span
+                                                        class="trash_icon small_icon"></span>&nbsp;&nbsp;Clear
+                                                History</button>
                                 </div>
                         </div>
+                        <!-- Feedback -->
+                        <div id="Feedback" class="menu-container" style="display: none;">
+                                <br>
+                                <a href="https://chrome.google.com/webstore/detail/habitica-pomodoro-sitekee/iaanigfbldakklgdfcnbjonbehpbpecl"
+                                        target="_blank" id="rateAndReviewLink" class="links""><span class=" rate_icon
+                                        small_icon"></span>Rate &
+                                        Review</a>
+                                <br><br>
+                                <span class="links bug_icon small_icon"> </span>
+                                <a href="https://github.com/ofekmiz/Habitica-Pomodoro-SiteKeeper/issues" target="_blank"
+                                        class="links" style="margin-left:30px">Report a bug /
+                                        Suggest a feature</a>
+                                <br><span class="links" style="margin-left:30px;line-height: 25px;"> or contact
+                                        me at <a href="mailto:ofex.create@gmail.com">ofex.create@gmail.com</a></span>
+                                <br><br>
+                                <span class="help_icon small_icon"></span>&nbsp;
+                                <a href="https://habitica.fandom.com/wiki/Habitica_Pomodoro_SiteKeeper" target="_blank"
+                                        class="links">Wiki Page</a> - What's new? Info & Credits
+                                <br><br>
+                                <span class="help_icon small_icon"></span>&nbsp;
+                                <a href="https://habitica.fandom.com/wiki/Pomodoro" target="_blank" class="links">What
+                                        is
+                                        Pomodoro</a>?
+                                <br><br>
 
-                        <!-- More info -->
+                        </div>
+
+                        <!-- Donate -->
+                        <div id="Donate" class="menu-container" style="display: none;">
+                                <br>
+                                <div>If you like this extension and want to support,<br>you can
+                                        buy me a coffee &#9749; or pizza &#127829;</div>
+                                <br>
+                                <div>Thank you &#10084;</div>
+
+                                <a style="display: block;margin: auto;margin-top: 12px;width: 150px;"
+                                        href='https://ko-fi.com/T6T12QP01' target='_blank'><img height='36'
+                                                style='border:0px;height:36px;'
+                                                src='https://cdn.ko-fi.com/cdn/kofi3.png?v=2' border='0'
+                                                alt='Buy Me a Coffee at ko-fi.com' /></a>
+                                <br>
+
+                        </div>
+
+                        <!-- Alerts -->
+                        <div id="Alerts">
+                                <p id="CredError">
+                                        <span style="font-size: 19px;">&#9888;</span></span> Credential
+                                        Error!<br> The
+                                        extension
+                                        is currently not updating Habitica!<br><a class="credErrorTip">Fix Login
+                                                or
+                                                Disable
+                                                Here</a>
+                                </p>
+                                <p id="VersionUpdate">
+                                        <span style="font-size: 19px;">&#10024;</span>New Update! <span
+                                                class="version"></span>
+                                        <br>Read the release notes on the <a
+                                                href="https://habitica.fandom.com/wiki/Habitica_Pomodoro_SiteKeeper#Version_Update_Log"
+                                                target="_blank">Wiki Page </a>
+                                        <span class="closeAlert">X</span>
+                                </p>
+                        </div>
+
+                        <!-- Pomodoro Timer -->
+                        <div id="pomodoro">
+                                <div id="QuickSettings"></div>
+                                <div id="PopupNewWindow" title="open in new window"></div>
+                                <div id="PomoStop">X</div>
+                                <div id="SkipToBreak">&#9658;&#9658;</div>
+                                <span id="PomoButton" data-pomodoros="0" class="tomato"></span><span id="Time"
+                                        data-pomodoros-set="0/4">00:00</span>
+                        </div>
+
+                        <!-- Quick Settings -->
+                        <div id="pomodoroSettings">
+                                <label for="quickSet-PomoDuration"><input id="quickSet-PomoDuration"
+                                                class="lightTextInput" type="text"></label>
+                                <label for="quickSet-BreakDuration"><input id="quickSet-BreakDuration"
+                                                class="lightTextInput" type="text"></label>
+                                <label for="quickSet-LongBreakDuration"><input id="quickSet-LongBreakDuration"
+                                                class="lightTextInput" type="text"></label>
+                                <br>
+                                <label class="longBreakQuickSet"><b>Long Break After </b><input id="quickSet-PomoSetNum"
+                                                class="lightTextInput" type="text"><b>
+                                                Pomodoros</b></label>
+                                <br>
+                                <label class="takeBreakText">Take <input id="quickSet-takeBreakDuration"
+                                                class="lightTextInput" type="text" value="0"> Minutes Break
+                                        <span id="quickSet-takeBreak">
+                                                &#9658;</span></label><br>
+                                <button id="quickSave" type="submit">Ok</button>
+                        </div>
+
+                        <!-- Vacation mode -->
+                        <div class="vacationBanner">Free Pass enabled!<br> All WebSites are free</div>
+
+                        <!-- Block Site -->
                         <br>
-                        <a class="wiki-page" href="https://habitica.fandom.com/wiki/Habitica_Pomodoro_SiteKeeper"
-                                target="_blank" class="links"><span class="help_icon small_icon"> </span>See the Wiki
-                                page for recommended settings</a>
-                </div>
-                <!-- History -->
-                <div id="History" class="menu-container" style="display: none;">
-                        <h3 style="margin-left: 70px;text-align: center;">
-                                <img style="width: 35px;position: absolute;margin-left: -50px;"
-                                        src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZlcnNpb249IjEuMSIgeG1sbnM6eGxpbms9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGxpbmsiIHhtbG5zOnN2Z2pzPSJodHRwOi8vc3ZnanMuY29tL3N2Z2pzIiB3aWR0aD0iNTEyIiBoZWlnaHQ9IjUxMiIgeD0iMCIgeT0iMCIgdmlld0JveD0iMCAwIDUxMi4wMDEgNTEyIiBzdHlsZT0iZW5hYmxlLWJhY2tncm91bmQ6bmV3IDAgMCA1MTIgNTEyIiB4bWw6c3BhY2U9InByZXNlcnZlIiBjbGFzcz0iIj48Zz48cGF0aCB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIGQ9Im00OTYuNjgzNTk0IDBjLTkuMzY3MTg4IDAtNDY5LjY0NDUzMiAwLTQ4MS4zNjcxODggMC04LjQ1NzAzMSAwLTE1LjMxNjQwNiA2Ljg3ODkwNi0xNS4zMTY0MDYgMTUuMzU5Mzc1djQ4MS4yODEyNWMwIDguNDg0Mzc1IDYuODU5Mzc1IDE1LjM1OTM3NSAxNS4zMTY0MDYgMTUuMzU5Mzc1aDQ4MS4zNjcxODhjOC40NTcwMzEgMCAxNS4zMTY0MDYtNi44NzUgMTUuMzE2NDA2LTE1LjM1OTM3NSAwLTEwLjAyNzM0NCAwLTQ2NC43MTQ4NDQgMC00ODEuMjgxMjUgMC04LjQ4MDQ2OS02Ljg1OTM3NS0xNS4zNTkzNzUtMTUuMzE2NDA2LTE1LjM1OTM3NXptLTE1LjMxNjQwNiA3NC4wMTk1MzFoLTI4OGwtMTMuODMyMDMyLTQzLjMwMDc4MWgzMDEuODMyMDMyem0wIDQwNy4yNjE3MTloLTQ1MC43MzQzNzZ2LTQ1MC41NjI1aDExNi43MzQzNzZsMjAuMjM0Mzc0IDYzLjM0Mzc1YzIuMDMxMjUgNi4zNTkzNzUgNy45Mjk2ODggMTAuNjc1NzgxIDE0LjU4OTg0NCAxMC42NzU3ODFoMjk5LjE3NTc4MnptMCAwIiBmaWxsPSIjODc4MTkwIiBkYXRhLW9yaWdpbmFsPSIjMDAwMDAwIiBzdHlsZT0iIiBjbGFzcz0iIj48L3BhdGg+PHBhdGggeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiBkPSJtMTEwLjY4NzUgNTIuMjY5NTMxaC0zOS43ODkwNjJjLTguNDU3MDMyIDAtMTUuMzE2NDA3IDYuODc1LTE1LjMxNjQwNyAxNS4zNTkzNzVzNi44NTU0NjkgMTUuMzU5Mzc1IDE1LjMxNjQwNyAxNS4zNTkzNzVoMzkuNzg5MDYyYzguNDU3MDMxIDAgMTUuMzE2NDA2LTYuODc1IDE1LjMxNjQwNi0xNS4zNTkzNzVzLTYuODU5Mzc1LTE1LjM1OTM3NS0xNS4zMTY0MDYtMTUuMzU5Mzc1em0wIDAiIGZpbGw9IiM4NzgxOTAiIGRhdGEtb3JpZ2luYWw9IiMwMDAwMDAiIHN0eWxlPSIiIGNsYXNzPSIiPjwvcGF0aD48cGF0aCB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIGQ9Im0yMDQuOTYwOTM4IDMwMy4yMTA5Mzh2MTAyLjM5MDYyNGMwIDI4LjIyMjY1NyAyMi44OTQ1MzEgNTEuMTgzNTk0IDUxLjAzOTA2MiA1MS4xODM1OTRzNTEuMDM5MDYyLTIyLjk2MDkzNyA1MS4wMzkwNjItNTEuMTgzNTk0di0xMDIuMzkwNjI0YzI2LjgwMDc4Mi0xNy4yOTI5NjkgNDMuMDg5ODQ0LTQ2Ljg3NSA0My4wODk4NDQtNzkuMzAwNzgyIDAtNDAuOTI5Njg3LTI2LjAzOTA2Mi03Ni45NzY1NjItNjQuODA0Njg3LTg5LjcwMzEyNS05LjkwNjI1LTMuMjUzOTA2LTIwLjA4MjAzMSA0LjE2Nzk2OS0yMC4wODIwMzEgMTQuNTk3NjU3djcwLjM1MTU2MmMwIDUuMjUzOTA2LTMuOTg4MjgyIDkuNjc1NzgxLTguODg2NzE5IDkuODUxNTYyLTUuMjc3MzQ0LjE4MzU5NC05LjU5Mzc1LTQuMDE5NTMxLTkuNTkzNzUtOS4yNTc4MTJ2LTcwLjk0NTMxMmMwLTEwLjQ1MzEyNi0xMC4xOTkyMTktMTcuODQzNzUtMjAuMDg1OTM4LTE0LjU5NzY1Ny0zOC43NjE3MTkgMTIuNzI2NTYzLTY0LjgwNDY4NyA0OC43NzM0MzgtNjQuODA0Njg3IDg5LjcwMzEyNSAwIDMyLjQyNTc4MiAxNi4yODkwNjIgNjIuMDA3ODEzIDQzLjA4OTg0NCA3OS4zMDA3ODJ6bTExLjE2NDA2Mi0xMjguOTAyMzQ0djQ1LjQ0MTQwNmMwIDIyLjYyODkwNiAxOC42NzE4NzUgNDAuNzczNDM4IDQxLjMzMjAzMSAzOS45NjA5MzggMjEuNTQyOTY5LS43ODEyNSAzOC40MTc5NjktMTguNTkzNzUgMzguNDE3OTY5LTQwLjU1NDY4OHYtNDQuODQ3NjU2YzE0LjY1NjI1IDExLjgyODEyNSAyMy42MjEwOTQgMjkuODc1IDIzLjYyMTA5NCA0OS42MDE1NjIgMCAyNC4wNjI1LTEzLjMwNDY4OCA0NS44MDQ2ODgtMzQuNzI2NTYzIDU2Ljc0NjA5NC01LjEzMjgxMiAyLjYyMTA5NC04LjM2MzI4MSA3LjkxMDE1Ni04LjM2MzI4MSAxMy42ODM1OTR2MTExLjI2MTcxOGMwIDExLjI4NTE1Ny05LjE1NjI1IDIwLjQ2NDg0NC0yMC40MDYyNSAyMC40NjQ4NDRzLTIwLjQwNjI1LTkuMTc5Njg3LTIwLjQwNjI1LTIwLjQ2NDg0NHYtMTExLjI2MTcxOGMwLTUuNzczNDM4LTMuMjMwNDY5LTExLjA2MjUtOC4zNjMyODEtMTMuNjgzNTk0LTIxLjQyMTg3NS0xMC45NDE0MDYtMzQuNzI2NTYzLTMyLjY4MzU5NC0zNC43MjY1NjMtNTYuNzQ2MDk0IDAtMTkuNzI2NTYyIDguOTY0ODQ0LTM3Ljc3MzQzNyAyMy42MjEwOTQtNDkuNjAxNTYyem0wIDAiIGZpbGw9IiM4NzgxOTAiIGRhdGEtb3JpZ2luYWw9IiMwMDAwMDAiIHN0eWxlPSIiIGNsYXNzPSIiPjwvcGF0aD48L2c+PC9zdmc+" />
-                                <span style="font-weight:normal; line-height: 20px;">This feature is under
-                                        development.<br> Feedback is welcome!</span>
-                        </h3>
-                        <hr>
-                        <div class="HistoryFlex">
-                                <div class="historyDataCircle" id="PomoToday" data-text="POMODOROS TODAY">0</div>
-                                <div class="historyDataCircle" id="HoursToday" data-text="HOURS TODAY">0</div>
-                        </div>
-                        <div class="HistoryFlex">
-                                <div class="historyDataCircle" id="PomoTotal" data-text="POMODOROS TOTAL">0</div>
-                                <div class="historyDataCircle" id="HoursTotal" data-text="HOURS TOTAL">0</div>
-                                <div class="historyDataCircle" id="PomoAvg" data-text="POMODORO DAILY Avg">0</div>
-                                <div class="historyDataCircle" id="HoursAvg" data-text="HOURS DAILY Avg">0</div>
-                        </div>
-                        <hr>
-                        <div class="HistoryFlex">
-                                <button class="settingButton" id="HistoryChartShowPomodoros">Pomodoros</button>
-                                <button class="settingButton" id="HistoryChartShowHours">Hours</button>
-                        </div>
-                        <hr>
-                        <div class="canvasChar">
-                                <canvas id="HistoryChart" width="400" height="300"></canvas>
-                        </div>
-                        <div class="HistoryFlex">
-                                <button class="settingButton" id="HistoryCharPrev">&#x27F5;</button>
-                                <div class="settingButton" id="HistoryChartTotal"></div>
-                                <a href="FullHistory.html" target="_blank" class="settingButton"><span
-                                                class="fullScreen_Icon small_icon"></span></a>
-                                <button class="settingButton" id="HistoryChartNext">&#x27F6;</button>
-                        </div>
-                        <hr>
-                        <span class="setting-note backupDataWarning"><span style="font-size: 19px;">&#9888;</span>
-                                Uninstalling the extension
-                                will result in loss of history data! Please back up your data.</span>
-                        <div class="HistoryFlex">
-                                <a class="settingButton" id="DownloadHistogram">&#x21e9; Download History</a>
-                        </div>
-                        <div class="HistoryFlex">
-                                <input class="settingButton" type="file" id="selectHistogramFile" value="Import" />
-                                <button class="settingButton" id="ImportHistogram">&#8683; Import</button>
-                        </div>
-                        <div class="HistoryFlex">
-                                <button class="settingButton" id="ClearHistogram"><span
-                                                class="trash_icon small_icon"></span> Clear History</button>
-                        </div>
-                </div>
-                <!-- Feedback -->
-                <div id="Feedback" class="menu-container" style="display: none;">
+                        <a id="BlockLink"><span class="block_Icon small_icon"></span>Block Site!</a>
                         <br>
-                        <a href="https://chrome.google.com/webstore/detail/habitica-pomodoro-sitekee/iaanigfbldakklgdfcnbjonbehpbpecl"
-                                target="_blank" id="rateAndReviewLink" class="links""><span class=" rate_icon small_icon"></span>Rate &
-                                Review</a>
-                        <br><br>
-                        <span class="links bug_icon small_icon"> </span>
-                        <a href="https://github.com/ofekmiz/Habitica-Pomodoro-SiteKeeper/issues" target="_blank"
-                                class="links" style="margin-left:30px">Report a bug / Suggest a feature</a>
-                        <br><span class="links" style="margin-left:30px;line-height: 25px;"> or contact me at <a
-                                        href="mailto:ofex.create@gmail.com">ofex.create@gmail.com</a></span>
-                        <br><br>
-                        <span class="help_icon small_icon"></span>&nbsp;
-                        <a href="https://habitica.fandom.com/wiki/Habitica_Pomodoro_SiteKeeper" target="_blank"
-                                class="links">Wiki Page</a> - What's new? Info & Credits
-                        <br><br>
-                        <span class="help_icon small_icon"></span>&nbsp;
-                        <a href="https://habitica.fandom.com/wiki/Pomodoro" target="_blank" class="links">What is
-                                Pomodoro</a>?
-                        <br><br>
-
+                        <!-- Blocked Sites -->
+                        <table id="SiteTable"></table>
+                        <br><br><br>
                 </div>
-
-                <!-- Donate -->
-                <div id="Donate" class="menu-container" style="display: none;">
-                        <br>
-                        <div>If you like this extension and want to support,<br>you can
-                                buy me a coffee &#9749; or pizza &#127829;</div>
-                        <br>
-                        <div>Thank you &#10084;</div>
-
-                        <a style="display: block;margin: auto;margin-top: 12px;width: 150px;"
-                                href='https://ko-fi.com/T6T12QP01' target='_blank'><img height='36'
-                                        style='border:0px;height:36px;' src='https://cdn.ko-fi.com/cdn/kofi3.png?v=2'
-                                        border='0' alt='Buy Me a Coffee at ko-fi.com' /></a>
-                        <!-- <a class="donate_button"
-                                href="https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=JWLY9LF58U52Y&source=url"
-                                target="_blank" class="links"">Support &#9749;</a>
-                        <span class=" powered_by_paypal">Powered by <img
-                                        src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAxcHgiIGhlaWdodD0iMzIiIHZpZXdCb3g9IjAgMCAxMDEgMzIiIHByZXNlcnZlQXNwZWN0UmF0aW89InhNaW5ZTWluIG1lZXQiIHhtbG5zPSJodHRwOiYjeDJGOyYjeDJGO3d3dy53My5vcmcmI3gyRjsyMDAwJiN4MkY7c3ZnIj48cGF0aCBmaWxsPSIjMDAzMDg3IiBkPSJNIDEyLjIzNyAyLjggTCA0LjQzNyAyLjggQyAzLjkzNyAyLjggMy40MzcgMy4yIDMuMzM3IDMuNyBMIDAuMjM3IDIzLjcgQyAwLjEzNyAyNC4xIDAuNDM3IDI0LjQgMC44MzcgMjQuNCBMIDQuNTM3IDI0LjQgQyA1LjAzNyAyNC40IDUuNTM3IDI0IDUuNjM3IDIzLjUgTCA2LjQzNyAxOC4xIEMgNi41MzcgMTcuNiA2LjkzNyAxNy4yIDcuNTM3IDE3LjIgTCAxMC4wMzcgMTcuMiBDIDE1LjEzNyAxNy4yIDE4LjEzNyAxNC43IDE4LjkzNyA5LjggQyAxOS4yMzcgNy43IDE4LjkzNyA2IDE3LjkzNyA0LjggQyAxNi44MzcgMy41IDE0LjgzNyAyLjggMTIuMjM3IDIuOCBaIE0gMTMuMTM3IDEwLjEgQyAxMi43MzcgMTIuOSAxMC41MzcgMTIuOSA4LjUzNyAxMi45IEwgNy4zMzcgMTIuOSBMIDguMTM3IDcuNyBDIDguMTM3IDcuNCA4LjQzNyA3LjIgOC43MzcgNy4yIEwgOS4yMzcgNy4yIEMgMTAuNjM3IDcuMiAxMS45MzcgNy4yIDEyLjYzNyA4IEMgMTMuMTM3IDguNCAxMy4zMzcgOS4xIDEzLjEzNyAxMC4xIFoiPjwvcGF0aD48cGF0aCBmaWxsPSIjMDAzMDg3IiBkPSJNIDM1LjQzNyAxMCBMIDMxLjczNyAxMCBDIDMxLjQzNyAxMCAzMS4xMzcgMTAuMiAzMS4xMzcgMTAuNSBMIDMwLjkzNyAxMS41IEwgMzAuNjM3IDExLjEgQyAyOS44MzcgOS45IDI4LjAzNyA5LjUgMjYuMjM3IDkuNSBDIDIyLjEzNyA5LjUgMTguNjM3IDEyLjYgMTcuOTM3IDE3IEMgMTcuNTM3IDE5LjIgMTguMDM3IDIxLjMgMTkuMzM3IDIyLjcgQyAyMC40MzcgMjQgMjIuMTM3IDI0LjYgMjQuMDM3IDI0LjYgQyAyNy4zMzcgMjQuNiAyOS4yMzcgMjIuNSAyOS4yMzcgMjIuNSBMIDI5LjAzNyAyMy41IEMgMjguOTM3IDIzLjkgMjkuMjM3IDI0LjMgMjkuNjM3IDI0LjMgTCAzMy4wMzcgMjQuMyBDIDMzLjUzNyAyNC4zIDM0LjAzNyAyMy45IDM0LjEzNyAyMy40IEwgMzYuMTM3IDEwLjYgQyAzNi4yMzcgMTAuNCAzNS44MzcgMTAgMzUuNDM3IDEwIFogTSAzMC4zMzcgMTcuMiBDIDI5LjkzNyAxOS4zIDI4LjMzNyAyMC44IDI2LjEzNyAyMC44IEMgMjUuMDM3IDIwLjggMjQuMjM3IDIwLjUgMjMuNjM3IDE5LjggQyAyMy4wMzcgMTkuMSAyMi44MzcgMTguMiAyMy4wMzcgMTcuMiBDIDIzLjMzNyAxNS4xIDI1LjEzNyAxMy42IDI3LjIzNyAxMy42IEMgMjguMzM3IDEzLjYgMjkuMTM3IDE0IDI5LjczNyAxNC42IEMgMzAuMjM3IDE1LjMgMzAuNDM3IDE2LjIgMzAuMzM3IDE3LjIgWiI+PC9wYXRoPjxwYXRoIGZpbGw9IiMwMDMwODciIGQ9Ik0gNTUuMzM3IDEwIEwgNTEuNjM3IDEwIEMgNTEuMjM3IDEwIDUwLjkzNyAxMC4yIDUwLjczNyAxMC41IEwgNDUuNTM3IDE4LjEgTCA0My4zMzcgMTAuOCBDIDQzLjIzNyAxMC4zIDQyLjczNyAxMCA0Mi4zMzcgMTAgTCAzOC42MzcgMTAgQyAzOC4yMzcgMTAgMzcuODM3IDEwLjQgMzguMDM3IDEwLjkgTCA0Mi4xMzcgMjMgTCAzOC4yMzcgMjguNCBDIDM3LjkzNyAyOC44IDM4LjIzNyAyOS40IDM4LjczNyAyOS40IEwgNDIuNDM3IDI5LjQgQyA0Mi44MzcgMjkuNCA0My4xMzcgMjkuMiA0My4zMzcgMjguOSBMIDU1LjgzNyAxMC45IEMgNTYuMTM3IDEwLjYgNTUuODM3IDEwIDU1LjMzNyAxMCBaIj48L3BhdGg+PHBhdGggZmlsbD0iIzAwOWNkZSIgZD0iTSA2Ny43MzcgMi44IEwgNTkuOTM3IDIuOCBDIDU5LjQzNyAyLjggNTguOTM3IDMuMiA1OC44MzcgMy43IEwgNTUuNzM3IDIzLjYgQyA1NS42MzcgMjQgNTUuOTM3IDI0LjMgNTYuMzM3IDI0LjMgTCA2MC4zMzcgMjQuMyBDIDYwLjczNyAyNC4zIDYxLjAzNyAyNCA2MS4wMzcgMjMuNyBMIDYxLjkzNyAxOCBDIDYyLjAzNyAxNy41IDYyLjQzNyAxNy4xIDYzLjAzNyAxNy4xIEwgNjUuNTM3IDE3LjEgQyA3MC42MzcgMTcuMSA3My42MzcgMTQuNiA3NC40MzcgOS43IEMgNzQuNzM3IDcuNiA3NC40MzcgNS45IDczLjQzNyA0LjcgQyA3Mi4yMzcgMy41IDcwLjMzNyAyLjggNjcuNzM3IDIuOCBaIE0gNjguNjM3IDEwLjEgQyA2OC4yMzcgMTIuOSA2Ni4wMzcgMTIuOSA2NC4wMzcgMTIuOSBMIDYyLjgzNyAxMi45IEwgNjMuNjM3IDcuNyBDIDYzLjYzNyA3LjQgNjMuOTM3IDcuMiA2NC4yMzcgNy4yIEwgNjQuNzM3IDcuMiBDIDY2LjEzNyA3LjIgNjcuNDM3IDcuMiA2OC4xMzcgOCBDIDY4LjYzNyA4LjQgNjguNzM3IDkuMSA2OC42MzcgMTAuMSBaIj48L3BhdGg+PHBhdGggZmlsbD0iIzAwOWNkZSIgZD0iTSA5MC45MzcgMTAgTCA4Ny4yMzcgMTAgQyA4Ni45MzcgMTAgODYuNjM3IDEwLjIgODYuNjM3IDEwLjUgTCA4Ni40MzcgMTEuNSBMIDg2LjEzNyAxMS4xIEMgODUuMzM3IDkuOSA4My41MzcgOS41IDgxLjczNyA5LjUgQyA3Ny42MzcgOS41IDc0LjEzNyAxMi42IDczLjQzNyAxNyBDIDczLjAzNyAxOS4yIDczLjUzNyAyMS4zIDc0LjgzNyAyMi43IEMgNzUuOTM3IDI0IDc3LjYzNyAyNC42IDc5LjUzNyAyNC42IEMgODIuODM3IDI0LjYgODQuNzM3IDIyLjUgODQuNzM3IDIyLjUgTCA4NC41MzcgMjMuNSBDIDg0LjQzNyAyMy45IDg0LjczNyAyNC4zIDg1LjEzNyAyNC4zIEwgODguNTM3IDI0LjMgQyA4OS4wMzcgMjQuMyA4OS41MzcgMjMuOSA4OS42MzcgMjMuNCBMIDkxLjYzNyAxMC42IEMgOTEuNjM3IDEwLjQgOTEuMzM3IDEwIDkwLjkzNyAxMCBaIE0gODUuNzM3IDE3LjIgQyA4NS4zMzcgMTkuMyA4My43MzcgMjAuOCA4MS41MzcgMjAuOCBDIDgwLjQzNyAyMC44IDc5LjYzNyAyMC41IDc5LjAzNyAxOS44IEMgNzguNDM3IDE5LjEgNzguMjM3IDE4LjIgNzguNDM3IDE3LjIgQyA3OC43MzcgMTUuMSA4MC41MzcgMTMuNiA4Mi42MzcgMTMuNiBDIDgzLjczNyAxMy42IDg0LjUzNyAxNCA4NS4xMzcgMTQuNiBDIDg1LjczNyAxNS4zIDg1LjkzNyAxNi4yIDg1LjczNyAxNy4yIFoiPjwvcGF0aD48cGF0aCBmaWxsPSIjMDA5Y2RlIiBkPSJNIDk1LjMzNyAzLjMgTCA5Mi4xMzcgMjMuNiBDIDkyLjAzNyAyNCA5Mi4zMzcgMjQuMyA5Mi43MzcgMjQuMyBMIDk1LjkzNyAyNC4zIEMgOTYuNDM3IDI0LjMgOTYuOTM3IDIzLjkgOTcuMDM3IDIzLjQgTCAxMDAuMjM3IDMuNSBDIDEwMC4zMzcgMy4xIDEwMC4wMzcgMi44IDk5LjYzNyAyLjggTCA5Ni4wMzcgMi44IEMgOTUuNjM3IDIuOCA5NS40MzcgMyA5NS4zMzcgMy4zIFoiPjwvcGF0aD48L3N2Zz4="
-                                        alt="" aria-label="PayPal"></span> -->
-                        <br>
-
-                </div>
-
-                <!-- Alerts -->
-                <div id="Alerts">
-                        <p id="CredError">
-                                <span style="font-size: 19px;">&#9888;</span></span> Credential Error!<br> The extension
-                                is currently not updating Habitica!<br><a class="credErrorTip">Fix Login or Disable
-                                        Here</a>
-                        </p>
-                        <p id="VersionUpdate">
-                                <span style="font-size: 19px;">&#10024;</span>New Update! <span class="version"></span>
-                                <br>Read the release notes on the <a
-                                        href="https://habitica.fandom.com/wiki/Habitica_Pomodoro_SiteKeeper#Version_Update_Log"
-                                        target="_blank">Wiki Page </a>
-                                <span class="closeAlert">X</span>
-                        </p>
-                </div>
-
-                <!-- Pomodoro Timer -->
-                <div id="pomodoro">
-                        <div id="QuickSettings"></div>
-                        <div id="PomoStop">X</div>
-                        <div id="SkipToBreak">&#9658;&#9658;</div>
-                        <span id="PomoButton" data-pomodoros="0" class="tomato"></span><span id="Time"
-                                data-pomodoros-set="0/4">00:00</span>
-                </div>
-
-                <!-- Quick Settings -->
-                <div id="pomodoroSettings">
-                        <label for="quickSet-PomoDuration"><input id="quickSet-PomoDuration" class="lightTextInput"
-                                        type="text"></label>
-                        <label for="quickSet-BreakDuration"><input id="quickSet-BreakDuration" class="lightTextInput"
-                                        type="text"></label>
-                        <label for="quickSet-LongBreakDuration"><input id="quickSet-LongBreakDuration"
-                                        class="lightTextInput" type="text"></label>
-                        <br>
-                        <label class="longBreakQuickSet"><b>Long Break After </b><input id="quickSet-PomoSetNum"
-                                        class="lightTextInput" type="text"><b> Pomodoros</b></label>
-                        <br>
-                        <label class="takeBreakText">Take <input id="quickSet-takeBreakDuration" class="lightTextInput"
-                                        type="text" value="0"> Minutes Break <span id="quickSet-takeBreak">
-                                        &#9658;</span></label><br>
-                        <button id="quickSave" type="submit">Ok</button>
-                </div>
-
-                <!-- Vacation mode -->
-                <div class="vacationBanner">Free Pass enabled!<br> All WebSites are free</div>
-
-                <!-- Block Site -->
-                <br>
-                <a id="BlockLink"><span class="block_Icon small_icon"></span>Block Site!</a>
-                <br>
-                <!-- Blocked Sites -->
-                <table id="SiteTable"></table>
-                <br><br><br>
-        </div>
-        <!-- Footer -->
-        <div id="Footer">
-                <a href="https://habitica.com" target="_blank">
-                        <div class="footer_icons habitica-setting"><span class="habitica_icon"></span></div>
-                </a>
-                <div class="footer_icons habitica-setting" style="color: goldenrod;" id="Dosh"><span
-                                class="gold_icon"></span></div>
-                <div class="footer_icons habitica-setting" style="color: red;" id="MyHp"><span class="hp_icon"></span>
-                </div>
-                <div class="footer_icons habitica-setting" id="RefreshStats"><span class="refresh_icon"></span>
+                <!-- Footer -->
+                <div id="Footer">
+                        <a href="https://habitica.com" target="_blank">
+                                <div class="footer_icons habitica-setting"><span class="habitica_icon"></span>
+                                </div>
+                        </a>
+                        <div class="footer_icons habitica-setting" style="color: goldenrod;" id="Dosh"><span
+                                        class="gold_icon"></span></div>
+                        <div class="footer_icons habitica-setting" style="color: red;" id="MyHp"><span
+                                        class="hp_icon"></span>
+                        </div>
+                        <div class="footer_icons habitica-setting" id="RefreshStats"><span class="refresh_icon"></span>
+                        </div>
                 </div>
         </div>
 </body>

@@ -1,5 +1,3 @@
-"use strict";
-
 //========== Time Functions =============
 
 //returns the current date, "yyyy-mm-dd" format
@@ -62,7 +60,7 @@ function secondsToTimeString(seconds) {
 }
 
 //Convert time string to short time string, for example: "01:05" -> "1m" , "00:35" -> "35"
-function shortTimeString(timeString){
+function shortTimeString(timeString) {
     var time = timeString.split(":");
     var minutes = parseInt(time[0]);
     var seconds = parseInt(time[1]);
@@ -114,4 +112,26 @@ function getBrowser() {
 
     console.log(sBrowser);
     return sBrowser;
+}
+
+function downloadObjectAsJson(JSONData) {
+    var tempLink = document.createElement('a');
+    tempLink.setAttribute("href", dataStr);
+    tempLink.setAttribute("download", "Histogram.json");
+    var dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(JSONData));
+    tempLink.click();
+    tempLink.remove();
+}
+
+function readJsonFileAsync(file) {
+    return new Promise((resolve, reject) => {
+        let reader = new FileReader();
+
+        reader.onload = () => {
+            resolve(JSON.parse(reader.result));
+        };
+
+        reader.onerror = reject;
+        reader.readAsText(file.item(0));
+    })
 }

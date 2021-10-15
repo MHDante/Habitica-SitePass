@@ -314,7 +314,9 @@ function onPopupPageLoad() {
 function AddSiteToTable(site, fadein) {
     var table = $("#SiteTable");
     var cost = site.cost;
+    var duration = site.passDuration;
     if (cost % 1 != 0) cost = cost.toFixed(2);
+    if(!duration) duration = 30;
 
     var passExpiryElement = "";
     if (site.passExpiry) {
@@ -334,33 +336,37 @@ function AddSiteToTable(site, fadein) {
         '<tr class="reward-item">' +
         '<td class="gp">' +
         '<a class="buy" href="#">' +
-        '<span class="gold_icon"></span><br>' + cost +
+        '<div class="siteCost"><span class="gold_icon"></span>' + cost + '</div>' +
+        '<div class="siteDuration"><span class="hourglass_icon"></span>' + duration + '</div>' +
         '</a></td>' +
         '<td><div class="hostname">' + site.hostname + passExpiryElement + '</div></td>' +
         '<td><a class="edit"><img src="img/pencil.png"></a></td>' +
         '<td><a class="delete"><img src="img/trash.png"></a></td>' +
         '</tr>' +
-        '<tr class="cost-input" style="display:none;">' +
+        '<tr class="cost-duration-input" style="display:none;">' +
         '<td style="white-space:nowrap;text-align:center;" colspan="4">' +
-        '<label>Cost ' +
-        '<input class="cost" type="text"maxlength="8" size="8" value="' + site.cost + '">' +
-        '</label></td></tr>' +
+        '<label>Cost <input class="cost" type="text"maxlength="8" size="8" value="' + cost + '"></label>' +
+        '<label>Pass duration (minutes) <input class="time" type="text"maxlength="8" size="8" value="' + duration + '"></label>' +
+        '</td></tr>' +
         '<tr><td></td><tr>';
 
     tbody.html(html);
 
 
     tbody.data("site", site);
-    var costRow = tbody.find('.cost-input');
-    var input = costRow.find('.cost');
-    input.on("keyup", CreateDelegate(updateSiteCost, { site: site, cost: input }));
-    input.on("keypress", CostSubmit(costRow));
+    var inputRow = tbody.find('.cost-duration-input');
+    var inputCost = inputRow.find('.cost');
+    var inputDuration = inputRow.find('.time');
+    inputCost.on("keyup", CreateDelegate(updateSiteCostDuration, { site: site, cost: inputCost, passDuration: inputDuration }));
+    inputDuration.on("keyup", CreateDelegate(updateSiteCostDuration, { site: site, cost: inputCost, passDuration: inputDuration }));
+    inputCost.on("keypress", CostDurationSubmit(inputRow));
+    inputDuration.on("keypress", CostDurationSubmit(inputRow));
     tbody.find('.buy').click(CreateDelegate(chrome.tabs.create, { url: "http://" + site.hostname }));
-    tbody.find('.edit').click(CreateDelegate(Toggle, costRow));
+    tbody.find('.edit').click(CreateDelegate(Toggle, inputRow));
     tbody.find('.delete').click(CreateDelegate(removeSite, site));
     table.append(tbody);
     if (fadein) {
-        Toggle(costRow);
+        Toggle(inputRow);
         tbody.hide();
         tbody.fadeIn();
     }
@@ -376,19 +382,26 @@ function Toggle(obj) {
         obj.fadeOut({
             complete: function () {
                 $("tbody").each(function () {
+                    var cost = $(this).data("site").cost;
+                    var passDuration = $(this).data("site").passDuration;
+                    if (!passDuration) passDuration = 30;  
                     $(this).find(".buy")
-                        .html('<span class="gold_icon"></span><br>' + $(this).data("site").cost);
+                        .html(
+                            '<div class="siteCost"><span class="gold_icon"></span>' + cost + '</div>' +
+                            '<div class="siteDuration"><span class="hourglass_icon"></span>' + passDuration + '</div>'
+                        );
                 });
             }
         });
     } else {
         obj.fadeIn();
-        obj.find("input").select();
+        obj.find("input").first().select();
     }
 }
-function CostSubmit(r) {
+
+function CostDurationSubmit(r) {
     return function (e) {
-        if (e.which == 13) {
+        if (e.which == 13) { //press enter
             SaveUserSettings();
             Toggle(r);
             return false;
@@ -408,7 +421,7 @@ function CredentialFields() {
     //Set Options according to UserData in background.js
     $("#UID").val(Vars.UserData.Credentials.uid);
     $("#APIToken").val(Vars.UserData.Credentials.apiToken);
-    $("#Duration").val(Vars.UserData.PassDurationMins);
+    // $("#Duration").val(Vars.UserData.PassDurationMins);
     $("#PomoDuration").val(Vars.UserData.PomoDurationMins);
     $("#BreakDuration").val(Vars.UserData.BreakDuration);
     $("#BreakExtention").val(Vars.UserData.BreakExtention);
@@ -440,7 +453,9 @@ function CredentialFields() {
     $("#pomodoroEndSoundVolume").val(Vars.UserData.pomodoroEndSoundVolume);
     $("#breakEndSoundVolume").val(Vars.UserData.breakEndSoundVolume);
     $("#ambientSoundVolume").val(Vars.UserData.ambientSoundVolume);
-    $("#ManualNextPomodoro").prop('checked', Vars.UserData.ManualNextPomodoro);
+    $("#ResetPomoAfterBreak").prop('checked', Vars.UserData.ResetPomoAfterBreak);
+    $("#quickSet-takeBreakDuration").val(Vars.UserData.QuickBreak);
+    $("#developerServerUrl").val(Vars.UserData.developerServerUrl);
 
     createFreePassTimeBlocks(Vars.UserData.FreePassTimes);
 
@@ -466,6 +481,7 @@ function CredentialFields() {
     $("#BreakExtention").on("keyup", function () { updateCredentials(); });
     $("#LongBreakDuration").on("keyup", function () { updateCredentials(); });
     $("#Whitelist").on("keyup", function () { updateCredentials(); });
+    $("#developerServerUrl").on("keyup", function () { updateCredentials(); });
     $("#PomoHabitPlus").click(function () { updateCredentials(); });
     $("#PomoHabitMinus").click(function () { updateCredentials(); });
     $("#ManualBreak").click(function () { updateCredentials(); });
@@ -494,7 +510,8 @@ function CredentialFields() {
     $("#pomodoroEndSoundVolume").mouseup(function () { updateCredentials(); });
     $("#breakEndSoundVolume").mouseup(function () { updateCredentials(); });
     $("#ambientSoundVolume").mouseup(function () { updateCredentials(); });
-    $("#ManualNextPomodoro").click(function () { updateCredentials(); });
+    $("#ResetPomoAfterBreak").click(function () { updateCredentials(); });
+    $("quickSet-takeBreak").click(function () { updateCredentials(); });
     //ugh.
     updateBackgroundData();
 }
@@ -527,12 +544,18 @@ function SaveUserSettings() {
     updateBackgroundData();
 }
 
-function updateSiteCost(siteAndCost) {
-    var hostname = siteAndCost.site.hostname;
-    var selection = parseFloat(siteAndCost.cost.val());
-    if (!isNaN(selection) && selection >= 0 && Vars.UserData.BlockedSites[hostname]) {
-        Vars.UserData.BlockedSites[hostname].cost = selection;
-        siteAndCost.site.cost = selection;
+//{site:site , cost:inputObj, Duration:inputObj}
+function updateSiteCostDuration(siteCostDuration) {
+    var hostname = siteCostDuration.site.hostname;
+    var costSelection = parseFloat(siteCostDuration.cost.val());
+    var durationSelection = parseFloat(siteCostDuration.passDuration.val());
+    if (!isNaN(costSelection) && costSelection >= 0 && Vars.UserData.BlockedSites[hostname]) {
+        Vars.UserData.BlockedSites[hostname].cost = costSelection;
+        siteCostDuration.site.cost = costSelection;
+    }
+    if (!isNaN(durationSelection) && durationSelection >= 0 && Vars.UserData.BlockedSites[hostname]) {
+        Vars.UserData.BlockedSites[hostname].passDuration = durationSelection;
+        siteCostDuration.site.passDuration = durationSelection;
     }
     updateBackgroundData();
 }
@@ -563,8 +586,8 @@ function updateCredentials() {
     Vars.UserData.Credentials.apiToken = $("#APIToken").val();
 
     //TODO better code...
-    var flDuration = parseFloat($("#Duration").val());
-    if (!isNaN(flDuration)) Vars.UserData.PassDurationMins = flDuration;
+    // var flDuration = parseFloat($("#Duration").val());
+    // if (!isNaN(flDuration)) Vars.UserData.PassDurationMins = flDuration;
     var pmDuration = parseFloat($("#PomoDuration").val());
     if (!isNaN(pmDuration)) Vars.UserData.PomoDurationMins = pmDuration;
     var brDuration = parseFloat($("#BreakDuration").val());
@@ -601,9 +624,11 @@ function updateCredentials() {
     Vars.UserData.pomodoroEndSoundVolume = $("#pomodoroEndSoundVolume").val();
     Vars.UserData.breakEndSoundVolume = $("#breakEndSoundVolume").val();
     Vars.UserData.ambientSoundVolume = $("#ambientSoundVolume").val();
-    Vars.UserData.ManualNextPomodoro = $("#ManualNextPomodoro").prop('checked');
+    Vars.UserData.ResetPomoAfterBreak = $("#ResetPomoAfterBreak").prop('checked');
     Vars.UserData.Whitelist = $("#Whitelist").val();
     Vars.UserData.FreePassTimes = getFreePassTimes();
+    Vars.UserData.QuickBreak = $("#quickSet-takeBreakDuration").val();
+    Vars.UserData.developerServerUrl = $("#developerServerUrl").val();
 
     updateBackgroundData();
 }

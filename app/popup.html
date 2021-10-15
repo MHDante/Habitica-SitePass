@@ -84,10 +84,10 @@
                                         <span class="small_icon help_icon tooltip"
                                                 data-tip="If enabled, breaks will start by clicking on the tomato after a pomodoro. If disabled breaks will start automatically after Pomodoro."></span>
                                         <br>
-                                        <label><input type="checkbox" id="ManualNextPomodoro">Start pomodoros
-                                                manually</label>
+                                        <label><input type="checkbox" id="ResetPomoAfterBreak">Reset timer after break
+                                                extension</label>
                                         <span class="small_icon help_icon tooltip"
-                                                data-tip="If enabled, the next pomodoro will start by clicking on the tomato after break (without breaking the steak)."></span>
+                                                data-tip="If enabled,coming back from break after break extension ended will reset the timer (break the streak)."></span>
                                         <br>
                                         <hr>
                                         <label><b>Long Break after </b><input id="PomoSetNum" type="number"
@@ -178,16 +178,22 @@
                                                 Mobile Notification - Long break is over</label>
                                         <span class="small_icon help_icon tooltip"
                                                 data-tip='Notification is sent as a private message to yourself in the Habitica mobile app. Make sure private messaging is enabled.'></span>
+                                        <hr>
+                                        <label class="habitica-setting">Developer's Habitica Server Url
+                                                <span class="small_icon help_icon tooltip"
+                                                        data-tip='For developers that use local adress for habitica server, leave empty to use default Habitica.com server'></span><br>
+                                                <input id="developerServerUrl" type="text"></label><br>
                                         <br>
                                 </div>
                                 <!-- Site Blocker settings -->
                                 <div id="BlockerSettingsContainer">
-                                        <br>
+                                        <!-- <br>
                                         <label class="habitica-setting"><b>Pay to Pass Duration </b><input id="Duration"
                                                         type="text"> Minutes</label>
                                         <span class=" habitica_small_icon small_icon tooltip"></span>
                                         <span class="small_icon help_icon tooltip"
-                                                data-tip="All sites are blocked during pomodoro. Sites with cost 0 are blocked only during pomodoro."></span>
+                                                data-tip="All sites are blocked during pomodoro. Sites with cost 0 are blocked only during pomodoro.">
+                                        </span> -->
                                         <br><label class="habitica-setting"><input type="checkbox"
                                                         id="BreakFreePass">During
                                                 break

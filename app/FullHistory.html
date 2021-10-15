@@ -10,6 +10,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Orbitron&family=Oxanium:wght@200;300&display=swap"
         rel="stylesheet">
     <!-- SCRIPTS -->
+    <script src="https://apis.google.com/js/platform.js" async defer></script>
     <script src="jquery-2.1.3.min.js"></script>
     <script src="Chart.bundle.min.js"></script>
     <script src="calendar_yearview_blocks.js"></script>
@@ -49,13 +50,13 @@
         <div id="calendarView"></div>
     </div>
     <hr>
-    <h1>All Time Pomodoro History</h1>
+    <h1>Pomodoro History</h1>
     <div>
         <canvas id="Chart1" height="60"></canvas>
     </div>
     <progress id="animationProgress" max="1" value="0"></progress>
     <hr>
-    <h1 id="WeekdayChartTitle">All Time <label>Pomodoros</label> by Week Day</h1>
+    <h1 id="WeekdayChartTitle"><label>Pomodoros</label> by Week Day</h1>
     <h3>This chart can help you discover your most productive day</h3>
     <canvas id="WeekdayChart" height="60"></canvas>
 </body>

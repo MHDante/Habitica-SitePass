@@ -151,11 +151,16 @@ body {
     margin-left: -3px;
 }
 
-.cost-input {
+.cost-duration-input {
     background-color: #e19525;
     color: white;
     font-family: 'Orbitron', sans-serif;
     font-family: 'Oxanium', cursive;
+}
+
+.cost-duration-input td label {
+    margin-left: 10px;
+    margin-right: 10px;
 }
 
 input.cost {
@@ -193,6 +198,47 @@ a {
     vertical-align: top;
     display: inline-block;
     background-position: 0;
+}
+
+.buy .gold_icon {
+    background-image: url(img/coin.png);
+    background-repeat: no-repeat;
+    width: 16px;
+    height: 16px;
+    background-size: 16px;
+    margin-right: 4px;
+    margin-left: 2px;
+    vertical-align: top;
+    display: inline-block;
+    background-position: center;
+}
+
+.buy .siteCost, .buy .siteDuration {
+    margin: 5px 5px 0px 0px;
+}
+
+.buy .siteDuration {
+    color: whitesmoke;
+}
+
+.hourglass_icon {
+    width: 16px;
+    height: 16px;
+    vertical-align: top;
+    display: inline-block;
+    margin-right: 4px;
+    margin-left: 2px;
+}
+
+.hourglass_icon:before {
+    content: "\231B";
+    width: 16px;
+    height: 16px;
+    display: flex;
+    justify-content: center;
+    position: absolute;
+    vertical-align: top;
+    align-items: center;
 }
 
 .hp_icon {
@@ -345,6 +391,10 @@ a.delete {
     background-color: var(--secondery-color);
     display: inline-block;
     border: none;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-right: 5px;
 }
 
 .gp a {
@@ -812,9 +862,7 @@ input#quickSet-takeBreakDuration, #quickSet-PomoSetNum {
 
 #quickSet-takeBreak:hover {
     cursor: pointer;
-    zoom: 125%;
-    margin-top: -2px;
-    margin-left: 1px;
+    opacity: 0.75;
 }
 
 .menu-item label input {
@@ -886,6 +934,7 @@ input#quickSet-takeBreakDuration, #quickSet-PomoSetNum {
 }
 
 #Footer {
+    z-index: 9999;
     display: inline-block;
     width: 100%;
     position: fixed;
@@ -929,8 +978,8 @@ span.passExp:before {
     width: 128px;
 }
 
-input#UID, #APIToken {
-    width: 358px;
+input#UID, #APIToken, #developerServerUrl {
+    width: 350px;
 }
 
 /* scroll bar */
@@ -1131,11 +1180,6 @@ input.switch:checked:after {
     margin-top: 10px;
 }
 
-.buy .gold_icon {
-    margin-bottom: 3px;
-    margin-top: 3px;
-}
-
 a.donate_button {
     color: #12306F;
     background-color: gold;
@@ -1318,13 +1362,11 @@ div.historyDataCircle:after {
 }
 
 .edit:hover {
-    zoom: 120%;
-    margin-left: -40px;
+    opacity: 0.75;
 }
 
 .delete:hover {
-    zoom: 120%;
-    margin-left: -23px;
+    opacity: 0.75;
 }
 
 .freePassBlock input, .freePassBlock select {

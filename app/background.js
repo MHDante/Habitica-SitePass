@@ -42,7 +42,7 @@ var Consts = {
     POMODORO_DONE_TEXT: "GOOD!"
 };
 
-var Vars = { 
+var Vars = {
     RewardTask: Consts.RewardTemplate,
     PomodoroTaskId: null,
     PomodoroSetTaskId: null,
@@ -75,7 +75,7 @@ function UserSettings(copyFrom) {
         uid: "",
         apiToken: ""
     };
-    this.PassDurationMins = copyFrom ? copyFrom.PassDurationMins : 30;
+    // this.PassDurationMins = copyFrom ? copyFrom.PassDurationMins : 30;
     this.PomoDurationMins = copyFrom ? copyFrom.PomoDurationMins : 25;
     this.PomoHabitPlus = copyFrom ? copyFrom.PomoHabitPlus : false; //Hit + on habit when pomodoro done
     this.PomoHabitMinus = copyFrom ? copyFrom.PomoHabitMinus : false; //Hit - on habit when pomodoro is interupted
@@ -107,22 +107,30 @@ function UserSettings(copyFrom) {
     this.pomodoroEndSoundVolume = copyFrom ? copyFrom.pomodoroEndSoundVolume : 0.5;
     this.breakEndSoundVolume = copyFrom ? copyFrom.breakEndSoundVolume : 0.5;
     this.ambientSoundVolume = copyFrom ? copyFrom.ambientSoundVolume : 0.5;
-    this.ManualNextPomodoro = copyFrom ? copyFrom.ManualNextPomodoro : false;
+    this.ResetPomoAfterBreak = copyFrom ? copyFrom.ResetPomoAfterBreak : false;
+    this.QuickBreak = copyFrom ? copyFrom.QuickBreak : 0;
+    this.developerServerUrl = copyFrom ? copyFrom.developerServerUrl : "";
 }
 
-function BlockedSite(hostname, cost, passExpiry) {
+var BlockedSite = function (hostname, cost, passDuration, passExpiry) {
     this.hostname = hostname;
     this.cost = cost;
     this.passExpiry = passExpiry;
+    this.passDuration = passDuration;
 }
 
 //returns BlockedSite object or fals if hostname is not in block list
-this.GetBlockedSite = function (hostname) {
+function GetBlockedSite(hostname) {
     return Vars.UserData.BlockedSites[hostname];
 }
 
 function GetSiteCost(site) {
-    return site.cost;
+    var cost = site.cost ? site.cost : 0;
+    return cost;
+}
+function GetSitePassDuration(site) {
+    var duration = site.passDuration ? site.passDuration : 30;
+    return duration;
 }
 
 function GetSiteHostName(site) {
@@ -140,13 +148,13 @@ function isSitePassExpired(site) {
 function RemoveBlockedSite(site) {
     if (site.hostname) {
         delete Vars.UserData.BlockedSites[site.hostname];
-        console.log ("BG", Vars.UserData.BlockedSites);
+        console.log("BG", Vars.UserData.BlockedSites);
     } else
         delete Vars.UserData.BlockedSites[site];
 };
 
-function AddBlockedSite(hostname, cost, passExpiry) {
-    Vars.UserData.BlockedSites[hostname] = new BlockedSite(hostname, cost, passExpiry);
+function AddBlockedSite(hostname, cost, passDuration, passExpiry) {
+    Vars.UserData.BlockedSites[hostname] = new BlockedSite(hostname, cost, passDuration, passExpiry);
     return Vars.UserData.BlockedSites[hostname];
 }
 
@@ -200,7 +208,7 @@ function checkBlockedUrl(siteUrl) {
         payToPass: true,
         cost: site.cost.toFixed(2),
         hostname: hostname,
-        passTime: Vars.UserData.PassDurationMins
+        passTime: GetSitePassDuration(site).toFixed(2)
     } //block website - pay to pass
 }
 
@@ -276,7 +284,7 @@ function mainSiteBlockFunction(tab) {
         }
 
         //Check if the user is not on the same site for longer than passDuration
-        var passDurationMiliSec = Vars.UserData.PassDurationMins * 60 * 1000
+        var passDurationMiliSec = GetSitePassDuration(GetBlockedSite(siteUrl)) * 60 * 1000
         setTimeout(function (arg) {
             mainSiteBlockFunction(arg);
         }, passDurationMiliSec, tab);
@@ -440,14 +448,16 @@ function callAPI(method, route, postData) {
     if (!Vars.UserData.ConnectHabitica) {
         return null;
     }
-    return callHabiticaAPI(Consts.serverUrl + route, Consts.xClientHeader, Vars.UserData.Credentials, method, postData);
+    var serverUrl = Vars.UserData.developerServerUrl && Vars.UserData.developerServerUrl !== "" ? Vars.UserData.developerServerUrl : Consts.serverUrl;
+    return callHabiticaAPI(serverUrl + route, Consts.xClientHeader, Vars.UserData.Credentials, method, postData);
 }
 
 function getData(silent, credentials, serverPath) {
     if (!Vars.UserData.ConnectHabitica) {
         return null;
     }
-    var xhr = getHabiticaData(Consts.serverUrl + serverPath, Consts.xClientHeader, credentials);
+    var serverUrl = Vars.UserData.developerServerUrl && Vars.UserData.developerServerUrl !== "" ? Vars.UserData.developerServerUrl : Consts.serverUrl;
+    var xhr = getHabiticaData(serverUrl + serverPath, Consts.xClientHeader, credentials);
     Vars.ServerResponse = xhr.status;
     if (xhr.status == 401) {
         console.log("Habitica Credentials Error 404");
@@ -547,10 +557,11 @@ function FetchHabiticaData(skipTasks) {
 function UpdateRewardTask(cost, create) {
     Vars.RewardTask.value = cost;
     var xhr = new XMLHttpRequest();
+    var serverUrl = Vars.UserData.developerServerUrl && Vars.UserData.developerServerUrl !== "" ? Vars.UserData.developerServerUrl : Consts.serverUrl;
     if (create) {
-        xhr.open("POST", Consts.serverUrl + Consts.serverPathUserTasks, false);
+        xhr.open("POST", serverUrl + Consts.serverPathUserTasks, false);
     } else {
-        xhr.open("PUT", Consts.serverUrl + Consts.serverPathTask, false);
+        xhr.open("PUT", serverUrl + Consts.serverPathTask, false);
     }
     xhr.setRequestHeader('x-client', Consts.xClientHeader);
     xhr.setRequestHeader("Content-Type", "application/json");
@@ -658,7 +669,7 @@ function ConfirmPurchase(site) {
         notify("ERROR", 'Failed to pay ' + site.cost + 'coins for ' + site.hostname + ' in Habitica');
     } else {
         Vars.Monies -= site.cost;
-        var passDurationMiliSec = Vars.UserData.PassDurationMins * 60 * 1000;
+        var passDurationMiliSec = GetSitePassDuration(site) * 60 * 1000;
         site.passExpiry = Date.now() + passDurationMiliSec;
     }
 }
@@ -810,7 +821,8 @@ function pomodoroEnds() {
         if (!result.error) {
             var deltaGold = (result.gp - Vars.Monies).toFixed(2);
             var deltaExp = (result.exp - Vars.Exp).toFixed(2);
-            msg = "You Earned Gold: +" + deltaGold + "\n" + "You Earned Exp: +" + deltaExp;
+            var expText = deltaExp < 0 ? "You leveled up!" : "You Earned Exp: +" + deltaExp;
+            msg = "You Earned Gold: +" + deltaGold + "\n" + expText;
             FetchHabiticaData(true);
         } else {
             msg = "ERROR: " + result.error;
@@ -921,7 +933,7 @@ function startBreakExtension(duration) {
     Vars.TimerRunnig = true;
     Vars.onBreakExtension = true;
     Vars.onBreak = true;
-    var endFunc = Vars.UserData.ManualNextPomodoro ? pomodoroInterupted : (() => { pomodoroInterupted(true) });
+    var endFunc = Vars.UserData.ResetPomoAfterBreak ? (() => { pomodoroInterupted(true) }) : pomodoroInterupted;
     startTimer(duration, duringBreakExtension, endFunc);
     if (Vars.UserData.BreakExtentionNotify) {
         notifyHabitica("Back to work! " + secondsToTimeString(Vars.UserData.BreakExtention * 60) + " minutes left for Break Extension.");

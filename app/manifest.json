@@ -2,7 +2,7 @@
     "manifest_version": 2,
     "name": "Habitica Pomodoro SiteKeeper",
     "description": "Pomodoro Timer and Site Blocker that Plugs into Habitica and turns your time-wasting navigation tendencies into rewards.",
-    "version": "6.0.3",
+    "version": "6.0.4",
     "permissions": [
         "storage",
         "unlimitedStorage",
